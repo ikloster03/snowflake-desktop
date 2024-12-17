@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "snowflake",
+        "title": "Snowflake",
         "width": 800,
         "height": 600
       }
@@ -25,11 +25,9 @@
     "active": true,
     "targets": "all",
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/snowflake.png",
+      "icons/snowflake.svg",
+      "icons/snowflake.ico"
     ]
   }
 }
