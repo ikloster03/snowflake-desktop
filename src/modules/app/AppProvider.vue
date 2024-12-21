@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   NDialogProvider,
+  NLayout,
   NLoadingBarProvider,
   NMessageProvider,
   NNotificationProvider,
@@ -12,7 +13,9 @@ import {
     <NDialogProvider>
       <NNotificationProvider>
         <NMessageProvider>
-          <slot></slot>
+          <NLayout has-sider>
+            <slot></slot>
+          </NLayout>
         </NMessageProvider>
       </NNotificationProvider>
     </NDialogProvider>
