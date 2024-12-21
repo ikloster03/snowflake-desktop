@@ -2,6 +2,8 @@
 import { NConfigProvider } from 'naive-ui';
 import { useAppStore } from './app.store';
 import AppProvider from './AppProvider.vue';
+import { HOME_PAGE } from '@/modules/home';
+import { ABOUT_PAGE } from '@/modules/about';
 
 const appStore = useAppStore();
 </script>
@@ -15,8 +17,8 @@ const appStore = useAppStore();
   >
     <AppProvider>
       <nav>
-        <RouterLink to="/">Go to Home</RouterLink>
-        <RouterLink to="/about">Go to About</RouterLink>
+        <RouterLink :to="{ name: HOME_PAGE.NAME }">Go to Home</RouterLink>
+        <RouterLink :to="{ name: ABOUT_PAGE.NAME }">Go to About</RouterLink>
         <a href="#" @click.prevent="appStore.toggleTheme"
           >Change theme {{ appStore.theme.name }}</a
         >

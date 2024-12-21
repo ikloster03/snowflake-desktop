@@ -1,6 +1,6 @@
 import { createMemoryHistory, createRouter, RouteRecordRaw } from 'vue-router';
-import { aboutRoutes } from './modules/about';
-import { homeRoutes } from './modules/home';
+import { aboutRoutes } from '@/modules/about';
+import { homeRoutes } from '@/modules/home';
 
 const routes: RouteRecordRaw[] = [...homeRoutes, ...aboutRoutes];
 
