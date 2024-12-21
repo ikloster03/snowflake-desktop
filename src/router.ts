@@ -1,12 +1,8 @@
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createMemoryHistory, createRouter, RouteRecordRaw } from 'vue-router';
+import { aboutRoutes } from './modules/about';
+import { homeRoutes } from './modules/home';
 
-import HomePage from './modules/home/HomePage.vue';
-import AboutPage from './modules/about/AboutPage.vue';
-
-const routes = [
-  { path: '/', component: HomePage },
-  { path: '/about', component: AboutPage },
-];
+const routes: RouteRecordRaw[] = [...homeRoutes, ...aboutRoutes];
 
 const router = createRouter({
   history: createMemoryHistory(),

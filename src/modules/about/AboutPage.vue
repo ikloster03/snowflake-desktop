@@ -1,7 +1,9 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { NCard } from 'naive-ui';
+</script>
 
 <template>
-  <div>About</div>
+  <NCard>About</NCard>
 </template>
 
 <style scoped></style>
