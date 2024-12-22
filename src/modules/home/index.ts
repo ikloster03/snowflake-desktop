@@ -1,4 +1,5 @@
+import { HOME_PAGE } from './home.const';
+import { routes } from './home.routes';
 import HomePage from './HomePage.vue';
-import { HOME_PAGE, routes } from './home.routes';
 
-export { HomePage, HOME_PAGE, routes as homeRoutes };
+export { HOME_PAGE, HomePage, routes as homeRoutes };

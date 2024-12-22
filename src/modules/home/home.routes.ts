@@ -1,12 +1,6 @@
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from './HomePage.vue';
-import { Page } from '@/router.type';
-
-export const HOME_PAGE: Page = {
-  path: '/',
-  name: 'home-page',
-  title: 'Home',
-} as const;
+import { HOME_PAGE } from './home.const';
 
 export const routes: RouteRecordRaw[] = [
   {
