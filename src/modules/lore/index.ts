@@ -1,4 +1,5 @@
+import { LORE_PAGE } from './lore.const';
+import { routes } from './lore.routes';
 import LorePage from './LorePage.vue';
-import { LORE_PAGE, routes } from './lore.routes';
 
-export { LorePage, LORE_PAGE, routes as loreRoutes };
+export { LORE_PAGE, LorePage, routes as loreRoutes };
