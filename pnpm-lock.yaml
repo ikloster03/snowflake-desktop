@@ -47,7 +47,7 @@ importers:
         version: 0.1.4(vue@3.5.13(typescript@5.6.3))
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1))(vue@3.5.13(typescript@5.6.3))
+        version: 5.2.1(vite@6.0.5(@types/node@22.10.2)(jiti@2.4.1))(vue@3.5.13(typescript@5.6.3))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -64,8 +64,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       vite:
-        specifier: ^6.0.3
-        version: 6.0.3(@types/node@22.10.2)(jiti@2.4.1)
+        specifier: ^6.0.5
+        version: 6.0.5(@types/node@22.10.2)(jiti@2.4.1)
       vue-tsc:
         specifier: ^2.1.10
         version: 2.1.10(typescript@5.6.3)
@@ -1007,8 +1007,8 @@ packages:
   vfonts@0.0.3:
     resolution: {integrity: sha512-nguyw8L6Un8eelg1vQ31vIU2ESxqid7EYmy8V+MDeMaHBqaRSkg3dTBToC1PR00D89UzS/SLkfYPnx0Wf23IQQ==}
 
-  vite@6.0.3:
-    resolution: {integrity: sha512-Cmuo5P0ENTN6HxLSo6IHsjCLn/81Vgrp81oaiFFMRa8gGDj5xEjIcEpf2ZymZtZR8oU0P2JX5WuUp/rlXcHkAw==}
+  vite@6.0.5:
+    resolution: {integrity: sha512-akD5IAH/ID5imgue2DYhzsEwCi0/4VKY31uhMLEYJwPP4TiUp8pL5PIK+Wo7H8qT8JY9i+pVfPydcFPYD1EL7g==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -1462,9 +1462,9 @@ snapshots:
       '@xicons/utils': 0.1.4
       vue: 3.5.13(typescript@5.6.3)
 
-  '@vitejs/plugin-vue@5.2.1(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1))(vue@3.5.13(typescript@5.6.3))':
+  '@vitejs/plugin-vue@5.2.1(vite@6.0.5(@types/node@22.10.2)(jiti@2.4.1))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
-      vite: 6.0.3(@types/node@22.10.2)(jiti@2.4.1)
+      vite: 6.0.5(@types/node@22.10.2)(jiti@2.4.1)
       vue: 3.5.13(typescript@5.6.3)
 
   '@volar/language-core@2.4.11':
@@ -1959,7 +1959,7 @@ snapshots:
 
   vfonts@0.0.3: {}
 
-  vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1):
+  vite@6.0.5(@types/node@22.10.2)(jiti@2.4.1):
     dependencies:
       esbuild: 0.24.0
       postcss: 8.4.49
