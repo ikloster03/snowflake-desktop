@@ -1,4 +1,5 @@
+import { BOOK_PAGE } from './book.const';
+import { routes } from './book.routes';
 import BookPage from './BookPage.vue';
-import { BOOK_PAGE, routes } from './book.routes';
 
-export { BookPage, BOOK_PAGE, routes as bookRoutes };
+export { BOOK_PAGE, BookPage, routes as bookRoutes };
