@@ -1,12 +1,6 @@
 import { RouteRecordRaw } from 'vue-router';
-import { Page } from '@/router.type';
 import SettingsPage from './SettingsPage.vue';
-
-export const SETTINGS_PAGE: Page = {
-  path: '/settings',
-  name: 'settings-page',
-  title: 'Settings',
-} as const;
+import { SETTINGS_PAGE } from './settings.const';
 
 export const routes: RouteRecordRaw[] = [
   {
