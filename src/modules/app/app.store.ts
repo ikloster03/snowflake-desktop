@@ -1,13 +1,11 @@
 import {
   darkTheme,
-  dateRuRU,
+  dateEnUS,
+  enUS,
   GlobalTheme,
   lightTheme,
   NDateLocale,
   NLocale,
-  ruRU,
-  enUS,
-  dateEnUS,
 } from 'naive-ui';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
