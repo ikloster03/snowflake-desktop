@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NCard, NSelect } from 'naive-ui';
+import { enUS, NCard, NSelect, ruRU } from 'naive-ui';
 import { useAppStore } from '@/modules/app';
 import { computed, ref } from 'vue';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
@@ -34,6 +34,41 @@ const handleUpdateTheme = (value: string) => {
     appStore.toggleTheme();
   }
 };
+
+const langOptions = ref<SelectBaseOption[]>([
+  {
+    label: 'English',
+    value: 'en-US',
+  },
+  {
+    label: 'Russian',
+    value: 'ru-RU',
+  },
+]);
+
+const defaultLangOption = computed(() => {
+  const option: string | number | undefined = langOptions.value.find(
+    (o) => o.value === appStore.locale.name
+  )?.value;
+
+  if (option === undefined) {
+    throw new Error('Невозможное состояние');
+  }
+
+  return option;
+});
+
+const dictLang = {
+  'en-US': enUS,
+  'ru-RU': ruRU,
+};
+
+const handleUpdateLang = (value: string) => {
+  console.log(value, dictLang[value]);
+
+  appStore.changeLocale(dictLang[value]);
+  appStore.changeDateLocale(dictLang[value]);
+};
 </script>
 
 <template>
@@ -43,6 +78,11 @@ const handleUpdateTheme = (value: string) => {
       :defaultValue="defaultThemeOption"
       :options="themeOptions"
       @update:value="handleUpdateTheme"
+    />
+    <NSelect
+      :defaultValue="defaultLangOption"
+      :options="langOptions"
+      @update:value="handleUpdateLang"
     />
   </NCard>
 </template>
