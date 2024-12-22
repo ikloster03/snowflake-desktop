@@ -15,7 +15,7 @@ import { computed, ref } from 'vue';
 export const APP_STORE = 'app';
 
 const useAppPrivateStore = defineStore(`PRIVATE_${APP_STORE}`, () => {
-  const theme = ref<GlobalTheme>(lightTheme);
+  const theme = ref<GlobalTheme>(darkTheme);
   const locale = ref<NLocale>(enUS);
   const dateLocale = ref<NDateLocale>(dateEnUS);
 
