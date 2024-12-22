@@ -1,24 +1,27 @@
 <script lang="ts" setup>
-import { enUS, NCard, NSelect, ruRU } from 'naive-ui';
+import i18n from '@/i18n';
 import { useAppStore } from '@/modules/app';
-import { computed, ref } from 'vue';
+import { dateEnUS, dateRuRU, enUS, NCard, NSelect, ruRU } from 'naive-ui';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const appStore = useAppStore();
 
-const themeOptions = ref<SelectBaseOption[]>([
+const themeOptions = computed<SelectBaseOption<string, string>[]>(() => [
   {
-    label: 'Dark',
+    label: `${t('dark')}`,
     value: 'dark',
   },
   {
-    label: 'Light',
+    label: `${t('light')}`,
     value: 'light',
   },
 ]);
 
 const defaultThemeOption = computed(() => {
-  const option: string | number | undefined = themeOptions.value.find(
+  const option: string | undefined = themeOptions.value.find(
     (o) => o.value === appStore.theme.name
   )?.value;
 
@@ -35,19 +38,19 @@ const handleUpdateTheme = (value: string) => {
   }
 };
 
-const langOptions = ref<SelectBaseOption[]>([
+const langOptions = computed<SelectBaseOption<string, string>[]>(() => [
   {
-    label: 'English',
+    label: `${t('english')}`,
     value: 'en-US',
   },
   {
-    label: 'Russian',
+    label: `${t('russian')}`,
     value: 'ru-RU',
   },
 ]);
 
 const defaultLangOption = computed(() => {
-  const option: string | number | undefined = langOptions.value.find(
+  const option: string | undefined = langOptions.value.find(
     (o) => o.value === appStore.locale.name
   )?.value;
 
@@ -59,15 +62,17 @@ const defaultLangOption = computed(() => {
 });
 
 const dictLang = {
-  'en-US': enUS,
-  'ru-RU': ruRU,
-};
+  'en-US': [enUS, dateEnUS],
+  'ru-RU': [ruRU, dateRuRU],
+} as const;
 
-const handleUpdateLang = (value: string) => {
-  console.log(value, dictLang[value]);
+const handleUpdateLang = (value: 'en-US' | 'ru-RU') => {
+  const [locale, dateLocale] = dictLang[value];
 
-  appStore.changeLocale(dictLang[value]);
-  appStore.changeDateLocale(dictLang[value]);
+  i18n.global.locale.value = value.split('-')[0] as 'en' | 'ru';
+
+  appStore.changeLocale(locale);
+  appStore.changeDateLocale(dateLocale);
 };
 </script>
 
@@ -86,5 +91,22 @@ const handleUpdateLang = (value: string) => {
     />
   </NCard>
 </template>
+
+<i18n>
+  {
+    "en": {
+      "dark": "Dark",
+      "light": "Light",
+      "english": "English",
+      "russian": "Russian",
+    },
+    "ru": {
+      "dark": "Темная тема",
+      "light": "Светлая тема",
+      "english": "Английский язык",
+      "russian": "Русский язык",
+    }
+  }
+</i18n>
 
 <style scoped></style>
