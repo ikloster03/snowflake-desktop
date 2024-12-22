@@ -1,12 +1,12 @@
-import { BOOK_PAGE } from '@/modules/book';
-import { HOME_PAGE } from '@/modules/home';
-import { LORE_PAGE } from '@/modules/lore';
+import { BOOK_PAGE } from '@/modules/book/book.const';
+import { HOME_PAGE } from '@/modules/home/home.const';
+import { LORE_PAGE } from '@/modules/lore/lore.const';
 import {
   CHARACTER_MAP_PAGE,
   PLAN_PAGE,
   TIMELINE_PAGE,
-} from '@/modules/projection/projection.routes';
-import { SETTINGS_PAGE } from '@/modules/settings';
+} from '@/modules/projection/projection.const';
+import { SETTINGS_PAGE } from '@/modules/settings/settings.const';
 import {
   Book20Filled as BookIcon,
   PeopleCommunity20Filled as CharactersIcon,
