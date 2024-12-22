@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NConfigProvider } from 'naive-ui';
+import SidebarMenu from '@/modules/layouts/sidebar-menu/SidebarMenu.vue';
+import { NConfigProvider, NLayoutContent } from 'naive-ui';
 import { useAppStore } from './app.store';
 import AppProvider from './AppProvider.vue';
-import SidebarMenu from '@/modules/layouts/sidebar-menu/SidebarMenu.vue';
 
 const appStore = useAppStore();
 </script>
@@ -16,9 +16,9 @@ const appStore = useAppStore();
   >
     <AppProvider>
       <SidebarMenu />
-      <n-layout-content content-style="padding: 24px;">
+      <NLayoutContent content-style="padding: 24px;">
         <RouterView class="bg-layout" />
-      </n-layout-content>
+      </NLayoutContent>
     </AppProvider>
   </NConfigProvider>
 </template>
