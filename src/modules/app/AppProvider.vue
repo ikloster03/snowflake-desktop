@@ -13,7 +13,7 @@ import {
     <NDialogProvider>
       <NNotificationProvider>
         <NMessageProvider>
-          <NLayout has-sider>
+          <NLayout has-sider position="absolute">
             <slot></slot>
           </NLayout>
         </NMessageProvider>
