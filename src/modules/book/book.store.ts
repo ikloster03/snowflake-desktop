@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { IAuthor } from './book.types';
+import { PRIVATE_STORE_PREFIX } from '@/store.const';
 
 export const BOOK_STORE = 'book';
 
-const useBookPrivateStore = defineStore(`PRIVATE_${BOOK_STORE}`, () => {
+const useBookPrivateStore = defineStore(`${PRIVATE_STORE_PREFIX}_${BOOK_STORE}`, () => {
   const firstName = ref<string>('');
   const middleName = ref<string | null>(null);
   const lastName = ref<string>('');

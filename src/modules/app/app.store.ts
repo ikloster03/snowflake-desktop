@@ -1,3 +1,4 @@
+import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import {
   darkTheme,
   dateEnUS,
@@ -12,7 +13,7 @@ import { computed, ref } from 'vue';
 
 export const APP_STORE = 'app';
 
-const useAppPrivateStore = defineStore(`PRIVATE_${APP_STORE}`, () => {
+const useAppPrivateStore = defineStore(`${PRIVATE_STORE_PREFIX}_${APP_STORE}`, () => {
   const theme = ref<GlobalTheme>(darkTheme);
   const locale = ref<NLocale>(enUS);
   const dateLocale = ref<NDateLocale>(dateEnUS);
