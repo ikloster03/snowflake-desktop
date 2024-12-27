@@ -1,16 +1,19 @@
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 import { usePrivateCharacterStore } from './character/character.store';
+import { usePrivateLocationStore } from './location/location.store';
 
 export const LORE_STORE = 'lore';
 
 export const useLoreStore = defineStore(LORE_STORE, () => {
-  const state = usePrivateCharacterStore();
+  const characterState = usePrivateCharacterStore();
+  const locationState = usePrivateLocationStore();
 
-  const character = computed(() => state.character);
-
+  const character = computed(() => characterState.character);
+  const location = computed(() => locationState.location);
 
   return {
-    character
+    character,
+    location,
   };
 });
