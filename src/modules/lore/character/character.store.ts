@@ -8,10 +8,10 @@ export const CHARACTER_STORE = 'character';
 export const usePrivateCharacterStore = defineStore(
   `${PRIVATE_STORE_PREFIX}_${CHARACTER_STORE}`,
   () => {
-    const character = ref<Character>();
+    const characters = ref<Character[]>();
 
     return {
-      character,
+      characters,
     };
   }
 );

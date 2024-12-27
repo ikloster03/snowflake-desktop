@@ -9,11 +9,11 @@ export const useLoreStore = defineStore(LORE_STORE, () => {
   const characterState = usePrivateCharacterStore();
   const locationState = usePrivateLocationStore();
 
-  const character = computed(() => characterState.character);
-  const location = computed(() => locationState.location);
+  const characterList = computed(() => characterState.characters);
+  const locationList = computed(() => locationState.locations);
 
   return {
-    character,
-    location,
+    characterList,
+    locationList,
   };
 });

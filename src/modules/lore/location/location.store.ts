@@ -8,10 +8,10 @@ export const LOCATION_STORE = 'location';
 export const usePrivateLocationStore = defineStore(
   `${PRIVATE_STORE_PREFIX}_${LOCATION_STORE}`,
   () => {
-    const location = ref<ILocation>();
+    const locations = ref<ILocation[]>([]);
 
     return {
-      location,
+      locations,
     };
   }
 );
