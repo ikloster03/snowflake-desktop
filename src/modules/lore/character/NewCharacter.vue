@@ -3,7 +3,7 @@ import { NCard } from 'naive-ui';
 </script>
 
 <template>
-  <NCard>New character</NCard>
+  <NCard>New Character</NCard>
 </template>
 
 <style scoped></style>
