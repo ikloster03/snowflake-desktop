@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import i18n from '@/i18n';
-import { useAppStore } from '@/modules/app';
 import { dateEnUS, dateRuRU, enUS, NCard, NSelect, ruRU } from 'naive-ui';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useSettingsStore } from './settings.store';
 
 const { t } = useI18n();
-const appStore = useAppStore();
+const appStore = useSettingsStore();
 
 const themeOptions = computed<SelectBaseOption<string, string>[]>(() => [
   {

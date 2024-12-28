@@ -13,7 +13,7 @@ import { computed, ref } from 'vue';
 
 export const APP_STORE = 'app';
 
-const useAppPrivateStore = defineStore(`${PRIVATE_STORE_PREFIX}_${APP_STORE}`, () => {
+const usePrivateSettingsStore = defineStore(`${PRIVATE_STORE_PREFIX}_${APP_STORE}`, () => {
   const theme = ref<GlobalTheme>(darkTheme);
   const locale = ref<NLocale>(enUS);
   const dateLocale = ref<NDateLocale>(dateEnUS);
@@ -21,8 +21,8 @@ const useAppPrivateStore = defineStore(`${PRIVATE_STORE_PREFIX}_${APP_STORE}`, (
   return { theme, locale, dateLocale };
 });
 
-export const useAppStore = defineStore(APP_STORE, () => {
-  const state = useAppPrivateStore();
+export const useSettingsStore = defineStore(APP_STORE, () => {
+  const state = usePrivateSettingsStore();
 
   const theme = computed(() => state.theme);
   const locale = computed(() => state.locale);

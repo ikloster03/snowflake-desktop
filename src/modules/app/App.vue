@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import SidebarMenu from '@/modules/layouts/sidebar-menu/SidebarMenu.vue';
 import { NConfigProvider, NLayoutContent } from 'naive-ui';
-import { useAppStore } from './app.store';
+import { useSettingsStore } from '@/modules/settings/settings.store';
 import AppProvider from './AppProvider.vue';
 
-const appStore = useAppStore();
+const settingsStore = useSettingsStore();
 </script>
 
 <template>
   <NConfigProvider
-    :theme="appStore.theme"
-    :locale="appStore.locale"
-    :date-locale="appStore.dateLocale"
+    :theme="settingsStore.theme"
+    :locale="settingsStore.locale"
+    :date-locale="settingsStore.dateLocale"
     class="h-full"
   >
     <AppProvider>
