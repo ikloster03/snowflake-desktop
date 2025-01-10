@@ -45,6 +45,9 @@ importers:
       '@vicons/fluent':
         specifier: ^0.12.0
         version: 0.12.0
+      '@vicons/material':
+        specifier: ^0.13.0
+        version: 0.13.0
       '@vicons/tabler':
         specifier: ^0.13.0
         version: 0.13.0
@@ -411,6 +414,10 @@ packages:
     resolution: {integrity: sha512-8tR1xe7ZEbkabTuE/tNhzpolygUn9OaYp9yuYAF4MgDNZg06C3Qny80bes2/e9/Wm3aVkPUlCw6WgU7mQd0yEg==}
     engines: {node: '>= 16'}
 
+  '@intlify/shared@11.0.1':
+    resolution: {integrity: sha512-lH164+aDDptHZ3dBDbIhRa1dOPQUp+83iugpc+1upTOWCnwyC1PVis6rSWNMMJ8VQxvtHQB9JMib48K55y0PvQ==}
+    engines: {node: '>= 16'}
+
   '@intlify/unplugin-vue-i18n@6.0.2':
     resolution: {integrity: sha512-5AuwBfdFtA4OSh31tfGpjhvmh7BVCzClHCgFlVdNM3ojyai3UZY4ViYh35TlE1xeWFyduOtUsG12r70xy24nzg==}
     engines: {node: '>= 18'}
@@ -679,6 +686,9 @@ packages:
 
   '@vicons/fluent@0.12.0':
     resolution: {integrity: sha512-ATCiqPuiJ6RI5GBlD3BIpZ9Xw4MsCA4RpI5oR6MCti4quS4mX1Gp6N74FCzw7lgOj+80rV4HMKhZTVInwimpVQ==}
+
+  '@vicons/material@0.13.0':
+    resolution: {integrity: sha512-lKVxFNprM+CaBkUH3gt6VjIeiMsKQl2zARQMwTCZruQl2vRHzyeZiKeCflWS99CEfv2JzX/6y697smxlzyxcVw==}
 
   '@vicons/tabler@0.13.0':
     resolution: {integrity: sha512-AykuhiqjszkIoAL/7knIFm6RDOBS1ZmQdJfQ+RNLEah0fVsxykUFCfMBSNZh8lOzC85EtdD1k5g/sv5GYk0Ohg==}
@@ -1928,12 +1938,14 @@ snapshots:
 
   '@intlify/shared@11.0.0-rc.1': {}
 
+  '@intlify/shared@11.0.1': {}
+
   '@intlify/unplugin-vue-i18n@6.0.2(@vue/compiler-dom@3.5.13)(eslint@9.17.0(jiti@2.4.1))(rollup@4.28.1)(typescript@5.6.3)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.17.0(jiti@2.4.1))
       '@intlify/bundle-utils': 10.0.0(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))
-      '@intlify/shared': 10.0.5
-      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@10.0.5)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
+      '@intlify/shared': 11.0.1
+      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@11.0.1)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
       '@rollup/pluginutils': 5.1.4(rollup@4.28.1)
       '@typescript-eslint/scope-manager': 8.18.1
       '@typescript-eslint/typescript-estree': 8.18.1(typescript@5.6.3)
@@ -1955,11 +1967,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@10.0.5)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
+  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@11.0.1)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
       '@babel/parser': 7.26.3
     optionalDependencies:
-      '@intlify/shared': 10.0.5
+      '@intlify/shared': 11.0.1
       '@vue/compiler-dom': 3.5.13
       vue: 3.5.13(typescript@5.6.3)
       vue-i18n: 10.0.5(vue@3.5.13(typescript@5.6.3))
@@ -2143,6 +2155,8 @@ snapshots:
       eslint-visitor-keys: 4.2.0
 
   '@vicons/fluent@0.12.0': {}
+
+  '@vicons/material@0.13.0': {}
 
   '@vicons/tabler@0.13.0': {}
 
