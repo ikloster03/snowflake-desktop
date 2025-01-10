@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { Person32Filled as Person } from '@vicons/fluent';
 import { Menu2 as MenuIcon } from '@vicons/tabler';
-import {
-  NAvatar,
-  NButton,
-  NDrawer,
-  NDrawerContent,
-  NIcon,
-  NLayoutSider,
-  NMenu,
-  NSpace,
-} from 'naive-ui';
+import { NButton, NDrawer, NIcon, NLayoutSider, NMenu } from 'naive-ui';
 import { ref } from 'vue';
+import DrawerLeftMenu from './DrawerLeftMenu.vue';
 import menuOptions from './menu';
 
 const firstKeyMenu = menuOptions.at(0)?.key;
@@ -49,16 +40,7 @@ if (firstKeyMenu === undefined) {
     />
   </NLayoutSider>
   <NDrawer v-model:show="showSettings" :width="240" placement="left">
-    <NDrawerContent>
-      <NSpace align="center" justify="space-between">
-        <NAvatar round size="large">
-          <NIcon>
-            <Person />
-          </NIcon>
-        </NAvatar>
-      </NSpace>
-      <div>User's name</div>
-    </NDrawerContent>
+    <DrawerLeftMenu />
   </NDrawer>
 </template>
 
