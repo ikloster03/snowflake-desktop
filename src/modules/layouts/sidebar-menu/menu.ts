@@ -17,11 +17,11 @@ import { MenuMixedOption } from 'naive-ui/es/menu/src/interface';
 import { renderIcon, renderLink } from './menu.tools';
 
 const menuOptions: MenuMixedOption[] = [
-  {
-    label: renderLink(HOME_PAGE),
-    key: HOME_PAGE.name,
-    icon: renderIcon(HomeIcon),
-  },
+  // {
+  //   label: renderLink(HOME_PAGE),
+  //   key: HOME_PAGE.name,
+  //   icon: renderIcon(HomeIcon),
+  // },
   {
     label: renderLink(BOOK_PAGE),
     key: BOOK_PAGE.name,
