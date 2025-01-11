@@ -6,12 +6,10 @@ import {
   PLAN_PAGE,
   TIMELINE_PAGE,
 } from '@/modules/projection/projection.const';
-import { SETTINGS_PAGE } from '@/modules/settings/settings.const';
 import {
   Book20Filled as BookIcon,
   PeopleCommunity20Filled as CharactersIcon,
   Home20Filled as HomeIcon,
-  Settings20Filled as SettingsIcon,
   Timeline20Filled as TimelineIcon,
 } from '@vicons/fluent';
 import { Notes as NotesIcon, World as WorldIcon } from '@vicons/tabler';
@@ -48,11 +46,6 @@ const menuOptions: MenuMixedOption[] = [
     label: renderLink(CHARACTER_MAP_PAGE),
     key: CHARACTER_MAP_PAGE.name,
     icon: renderIcon(CharactersIcon),
-  },
-  {
-    label: renderLink(SETTINGS_PAGE),
-    key: SETTINGS_PAGE.name,
-    icon: renderIcon(SettingsIcon),
   },
 ];
 

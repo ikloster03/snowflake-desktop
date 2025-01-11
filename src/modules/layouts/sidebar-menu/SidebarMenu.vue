@@ -4,13 +4,15 @@ import { NButton, NDrawer, NIcon, NLayoutSider, NMenu } from 'naive-ui';
 import { ref } from 'vue';
 import DrawerLeftMenu from './DrawerLeftMenu.vue';
 import menuOptions from './menu';
+import { Key } from 'naive-ui/es/cascader/src/interface';
 
-const firstKeyMenu = menuOptions.at(0)?.key;
 const showSettings = ref(false);
+const menuValue = ref<Key | null>(menuOptions.at(0)?.key ?? null);
 
-if (firstKeyMenu === undefined) {
-  throw new Error('Невозможное состояние');
-}
+const close = () => {
+  showSettings.value = false;
+  menuValue.value = null;
+};
 </script>
 
 <template>
@@ -33,14 +35,14 @@ if (firstKeyMenu === undefined) {
       </template>
     </NButton>
     <NMenu
-      :default-value="firstKeyMenu"
+      v-model:value="menuValue"
       :collapsed-width="64"
       :collapsed-icon-size="22"
       :options="menuOptions"
     />
   </NLayoutSider>
   <NDrawer v-model:show="showSettings" :width="240" placement="left">
-    <DrawerLeftMenu />
+    <DrawerLeftMenu @close="close" />
   </NDrawer>
 </template>
 
