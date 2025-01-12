@@ -5,17 +5,20 @@ import { PRIVATE_STORE_PREFIX } from '@/store.const';
 
 export const BOOK_STORE = 'book';
 
-const useBookPrivateStore = defineStore(`${PRIVATE_STORE_PREFIX}_${BOOK_STORE}`, () => {
-  const firstName = ref<string>('');
-  const middleName = ref<string | null>(null);
-  const lastName = ref<string>('');
-  const titleName = ref<string>('');
+const useBookPrivateStore = defineStore(
+  `${PRIVATE_STORE_PREFIX}_${BOOK_STORE}`,
+  () => {
+    const firstName = ref<string>('');
+    const middleName = ref<string | null>(null);
+    const lastName = ref<string>('');
+    const titleName = ref<string>('');
 
-  const annotation = ref<string>('');
-  const synopsis = ref<string>('');
+    const annotation = ref<string>('');
+    const synopsis = ref<string>('');
 
-  return { firstName, middleName, lastName, titleName, annotation, synopsis };
-});
+    return { firstName, middleName, lastName, titleName, annotation, synopsis };
+  }
+);
 
 export const useBookStore = defineStore(BOOK_STORE, () => {
   const state = useBookPrivateStore();
@@ -27,6 +30,13 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
 
   const annotation = computed(() => state.annotation);
   const synopsis = computed(() => state.synopsis);
+
+  const updateAuthor = (author: IAuthor) => {
+    state.firstName = author.firstName;
+    state.middleName = author.middleName;
+    state.lastName = author.lastName;
+    state.titleName = author.titleName;
+  };
 
   const patchUpdateAuthor = (author: Partial<IAuthor>) => {
     if (author.firstName !== undefined) {
@@ -64,6 +74,7 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     titleName,
     annotation,
     synopsis,
+    updateAuthor,
     patchUpdateAuthor,
     updateAnnotation,
     updateSynopsis,
