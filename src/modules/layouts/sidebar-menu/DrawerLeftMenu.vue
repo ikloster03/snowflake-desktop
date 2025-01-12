@@ -9,7 +9,7 @@ import {
   DarkModeOutlined as Dark,
   LightModeOutlined as Light,
 } from '@vicons/material';
-import { NAvatar, NButton, NDrawerContent, NIcon, NSpace } from 'naive-ui';
+import { NAvatar, NButton, NDrawerContent, NIcon, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
@@ -25,9 +25,9 @@ const settingsStore = useSettingsStore();
 
 <template>
   <NDrawerContent>
-    <NSpace vertical justify="space-between" style="height: 100%">
-      <NSpace vertical>
-        <NSpace align="center" justify="space-between">
+    <NFlex vertical justify="space-between" style="height: 100%">
+      <NFlex vertical>
+        <NFlex align="center" justify="space-between">
           <NAvatar round size="large">
             <NIcon>
               <Person />
@@ -41,7 +41,7 @@ const settingsStore = useSettingsStore();
               </NIcon>
             </template>
           </NButton>
-        </NSpace>
+        </NFlex>
         <div>Иван Иванов</div>
         <RouterLink
           v-slot="{ navigate }"
@@ -57,12 +57,12 @@ const settingsStore = useSettingsStore();
             {{ t('settings') }}
           </NButton>
         </RouterLink>
-      </NSpace>
+      </NFlex>
       <div>
         <div>Snowflake desktop</div>
         <div>Version 0.1</div>
       </div>
-    </NSpace>
+    </NFlex>
   </NDrawerContent>
 </template>
 
