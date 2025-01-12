@@ -1,27 +1,45 @@
 <script lang="ts" setup>
-import { NCard, NSpace } from 'naive-ui';
+import { NCard, NIcon, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
+import { PlusFilled as Plus } from '@vicons/material';
+import { RouterLink } from 'vue-router';
+import { AUTHOR_NEW_PAGE } from './author/author.const';
 
 const { t } = useI18n();
 </script>
 
 <template>
-  <NSpace vertical>
+  <NFlex vertical>
     <h1>{{ t('book-editor') }}</h1>
     <div>
       <h2>{{ t('authors') }}</h2>
-      <NSpace>
-        <NCard> + {{ t('add-new-author') }}</NCard>
-      </NSpace>
+      <NFlex>
+        <RouterLink
+          v-slot="{ navigate }"
+          :to="{ name: AUTHOR_NEW_PAGE.name }"
+          style="text-decoration: none"
+        >
+          <NCard @click="navigate">
+            <NIcon><Plus /></NIcon>
+            {{ t('add-new-author') }}
+          </NCard>
+        </RouterLink>
+      </NFlex>
     </div>
     <div>
       <h2>{{ t('books-series') }}</h2>
-      <NSpace>
-        <NCard> + {{ t('add-new-book') }}</NCard>
-        <NCard> + {{ t('add-new-series') }}</NCard>
-      </NSpace>
+      <NFlex>
+        <NCard>
+          <NIcon><Plus /></NIcon>
+          {{ t('add-new-book') }}
+        </NCard>
+        <NCard>
+          <NIcon><Plus /></NIcon>
+          {{ t('add-new-series') }}
+        </NCard>
+      </NFlex>
     </div>
-  </NSpace>
+  </NFlex>
 </template>
 
 <i18n>
