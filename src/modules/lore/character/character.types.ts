@@ -9,18 +9,18 @@ export type CharacterLevel = ValueOf<typeof CHARACTER_LEVEL>;
 export type MainCharacterType = ValueOf<typeof MAIN_CHARACTER_TYPE>;
 export type SecondaryCharacterType = ValueOf<typeof SECONDARY_CHARACTER_TYPE>;
 
-export interface ICharacter {
+interface IBaseCharacter {
+  id: string;
   name: string;
-  level: CharacterLevel;
 }
 
-export interface IMainCharacter extends ICharacter {
-  level: 'primary';
+interface IMainCharacter extends IBaseCharacter {
+  level: "primary";
   type: MainCharacterType;
 }
 
-export interface ISecondaryCharacter extends ICharacter {
-  level: 'secondary';
+interface ISecondaryCharacter extends IBaseCharacter {
+  level: "secondary";
   type: SecondaryCharacterType;
 }
 
