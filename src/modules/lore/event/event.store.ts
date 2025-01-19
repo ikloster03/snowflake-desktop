@@ -10,8 +10,18 @@ export const usePrivateEventStore = defineStore(
   () => {
     const events = ref<IEvent[]>([]);
 
+    const addEvent = (event: IEvent) => {
+      events.value.push(event);
+    };
+
+    const updateEvent = (index: number, event: IEvent) => {
+      events.value[index] = event;
+    };
+
     return {
       events,
+      addEvent,
+      updateEvent
     };
   }
 );
