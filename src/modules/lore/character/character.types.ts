@@ -24,4 +24,14 @@ interface ISecondaryCharacter extends IBaseCharacter {
   type: SecondaryCharacterType;
 }
 
-export type Character = IMainCharacter | ISecondaryCharacter;
+interface ITertiaryCharacter extends IBaseCharacter {
+  level: "tertiary";
+  type: SecondaryCharacterType;
+}
+
+export type Character = IMainCharacter | ISecondaryCharacter | ITertiaryCharacter;
+
+export interface CharacterTypeOption {
+  label: string;
+  value: Character['type'];
+}

@@ -3,26 +3,26 @@ import { NCard, NInput, NSelect, NSpace, NButton } from 'naive-ui';
 import { ref } from 'vue';
 import { usePrivateCharacterStore } from './character.store';
 import { CHARACTER_LEVEL, MAIN_CHARACTER_TYPE, SECONDARY_CHARACTER_TYPE } from './character.const';
-import type { Character } from './character.types';
+import type { Character, CharacterLevel, CharacterTypeOption } from './character.types';
 
 const store = usePrivateCharacterStore();
 const showForm = ref(false);
 
-const character = ref<Partial<Character>>({
+const character = ref<Character>({
   id: crypto.randomUUID(),
   name: '',
   level: CHARACTER_LEVEL.PRIMARY,
   type: MAIN_CHARACTER_TYPE.PROTAGONIST,
 });
 
-const typeOptions = ref(
+const typeOptions = ref<CharacterTypeOption[]>(
   Object.entries(MAIN_CHARACTER_TYPE).map(([key, value]) => ({
     label: key,
     value: value,
   }))
 );
 
-const handleLevelChange = (value: string) => {
+const handleLevelChange = (value: CharacterLevel) => {
   character.value.level = value;
   if (value === CHARACTER_LEVEL.PRIMARY) {
     typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(([key, value]) => ({
@@ -41,7 +41,7 @@ const handleLevelChange = (value: string) => {
 
 const handleQuickCreate = () => {
   if (character.value.name) {
-    store.addCharacter(character.value as Character);
+    store.addCharacter(character.value);
     character.value = {
       id: crypto.randomUUID(),
       name: '',

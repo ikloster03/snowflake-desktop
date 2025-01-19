@@ -3,11 +3,11 @@ import { NCard, NForm, NFormItem, NInput, NSelect, NButton } from 'naive-ui';
 import { ref } from 'vue';
 import { usePrivateCharacterStore } from './character.store';
 import { CHARACTER_LEVEL, MAIN_CHARACTER_TYPE, SECONDARY_CHARACTER_TYPE } from './character.const';
-import type { Character } from './character.types';
+import type { Character, CharacterLevel, CharacterTypeOption } from './character.types';
 
 const store = usePrivateCharacterStore();
 
-const character = ref<Partial<Character>>({
+const character = ref<Character>({
   id: crypto.randomUUID(),
   name: '',
   level: CHARACTER_LEVEL.PRIMARY,
@@ -19,10 +19,10 @@ const characterLevelOptions = Object.entries(CHARACTER_LEVEL).map(([key, value])
   value: value,
 }));
 
-const typeOptions = ref([]);
+const typeOptions = ref<CharacterTypeOption[]>([]);
 
 // Обновляем опции типа персонажа при изменении уровня
-const updateTypeOptions = (level: string) => {
+const updateTypeOptions = (level: CharacterLevel) => {
   if (level === CHARACTER_LEVEL.PRIMARY) {
     typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(([key, value]) => ({
       label: key,
@@ -39,16 +39,16 @@ const updateTypeOptions = (level: string) => {
 };
 
 // Инициализация начальных опций
-updateTypeOptions(character.value.level as string);
+updateTypeOptions(character.value.level);
 
-const handleLevelChange = (value: string) => {
+const handleLevelChange = (value: CharacterLevel) => {
   character.value.level = value;
   updateTypeOptions(value);
 };
 
 const handleSubmit = () => {
   if (character.value.name && character.value.level && character.value.type) {
-    store.addCharacter(character.value as Character);
+    store.addCharacter(character.value);
     // Сброс формы
     character.value = {
       id: crypto.randomUUID(),
