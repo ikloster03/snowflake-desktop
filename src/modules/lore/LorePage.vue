@@ -2,6 +2,7 @@
 import { NCard, NTabs, NTabPane, NSpace, NH1 } from 'naive-ui';
 import CharacterList from './character/CharacterList.vue';
 import EventList from './event/EventList.vue';
+import LocationList from './location/LocationList.vue';
 </script>
 
 <template>
@@ -24,7 +25,9 @@ import EventList from './event/EventList.vue';
       </NTabPane>
 
       <NTabPane name="locations" tab="Локации">
-        <div>Раздел локаций (в разработке)</div>
+        <NSpace vertical>
+          <LocationList />
+        </NSpace>
       </NTabPane>
 
       <NTabPane name="items" tab="Предметы">
