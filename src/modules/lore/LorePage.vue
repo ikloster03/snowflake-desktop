@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { NCard, NTabs, NTabPane, NSpace, NH1 } from 'naive-ui';
 import CharacterList from './character/CharacterList.vue';
+import EventList from './event/EventList.vue';
 </script>
 
 <template>
@@ -13,6 +14,12 @@ import CharacterList from './character/CharacterList.vue';
       <NTabPane name="characters" tab="Персонажи">
         <NSpace vertical>
           <CharacterList />
+        </NSpace>
+      </NTabPane>
+
+      <NTabPane name="events" tab="События">
+        <NSpace vertical>
+          <EventList />
         </NSpace>
       </NTabPane>
 
