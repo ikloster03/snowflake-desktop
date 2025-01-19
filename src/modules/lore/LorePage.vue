@@ -1,9 +1,38 @@
 <script lang="ts" setup>
-import { NCard } from 'naive-ui';
+import { NCard, NTabs, NTabPane, NSpace, NH1 } from 'naive-ui';
+import CharacterList from './character/CharacterList.vue';
 </script>
 
 <template>
-  <NCard>Lore</NCard>
+  <NSpace vertical size="large">
+    <NH1 prefix="bar">
+      Мир произведения
+    </NH1>
+
+    <NTabs type="segment" animated>
+      <NTabPane name="characters" tab="Персонажи">
+        <NSpace vertical>
+          <CharacterList />
+        </NSpace>
+      </NTabPane>
+
+      <NTabPane name="locations" tab="Локации">
+        <div>Раздел локаций (в разработке)</div>
+      </NTabPane>
+
+      <NTabPane name="items" tab="Предметы">
+        <div>Раздел предметов (в разработке)</div>
+      </NTabPane>
+    </NTabs>
+  </NSpace>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.n-h1) {
+  margin: 0;
+}
+
+:deep(.n-tabs-nav) {
+  margin-bottom: 24px;
+}
+</style>
