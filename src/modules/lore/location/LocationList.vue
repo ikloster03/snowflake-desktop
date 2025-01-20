@@ -17,14 +17,29 @@ const handleLocationCreate = (newLocation: ILocation) => {
   locationStore.addLocation(newLocation);
   showNewLocationForm.value = false;
 };
+
+const handleDelete = (locationId: string) => {
+  locationStore.removeLocation(locationId);
+};
 </script>
 
 <template>
-  <NGrid :cols="3" :x-gap="16" :y-gap="16">
-    <NGridItem v-for="(location, index) in locationStore.locations" :key="index">
+  <NGrid
+    cols="1 s:2 m:3 l:4 xl:5 2xl:6"
+    responsive="screen"
+    :x-gap="12"
+    :y-gap="12"
+  >
+    <NGridItem
+      v-for="(location, index) in locationStore.locations"
+      :key="location.id"
+    >
       <Location
         :location="location"
-        @update="(updatedLocation) => handleLocationUpdate(updatedLocation, index)"
+        @update="
+          (updatedLocation) => handleLocationUpdate(updatedLocation, index)
+        "
+        @delete="handleDelete"
       />
     </NGridItem>
 

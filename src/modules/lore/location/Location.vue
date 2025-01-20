@@ -1,5 +1,14 @@
 <script lang="ts" setup>
-import { NCard, NForm, NFormItem, NInput, NSelect, NInputNumber } from 'naive-ui';
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NInputNumber,
+  NSpace,
+  NButton,
+} from 'naive-ui';
 import { ref } from 'vue';
 import type { ILocation } from './location.types';
 
@@ -8,7 +17,7 @@ const props = defineProps<{
 }>();
 
 const locationData = ref<ILocation>({
-  ...props.location
+  ...props.location,
 });
 
 const locationTypes = [
@@ -16,15 +25,20 @@ const locationTypes = [
   { label: 'Деревня', value: 'village' },
   { label: 'Подземелье', value: 'dungeon' },
   { label: 'Дикая местность', value: 'wilderness' },
-  { label: 'Другое', value: 'other' }
+  { label: 'Другое', value: 'other' },
 ];
 
 const emit = defineEmits<{
   (e: 'update', location: ILocation): void;
+  (e: 'delete', locationId: string): void;
 }>();
 
 const handleChange = () => {
   emit('update', locationData.value);
+};
+
+const handleDelete = () => {
+  emit('delete', locationData.value.id);
 };
 </script>
 
@@ -32,7 +46,10 @@ const handleChange = () => {
   <NCard>
     <NForm>
       <NFormItem label="Название">
-        <NInput v-model:value="locationData.name" @update:value="handleChange" />
+        <NInput
+          v-model:value="locationData.name"
+          @update:value="handleChange"
+        />
       </NFormItem>
 
       <NFormItem label="Описание">
@@ -63,6 +80,12 @@ const handleChange = () => {
             placeholder="Y"
             @update:value="handleChange"
           />
+        </NSpace>
+      </NFormItem>
+
+      <NFormItem>
+        <NSpace justify="end">
+          <NButton type="error" @click="handleDelete"> Удалить </NButton>
         </NSpace>
       </NFormItem>
     </NForm>

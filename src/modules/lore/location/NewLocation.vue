@@ -1,16 +1,26 @@
 <script lang="ts" setup>
-import { NCard, NForm, NFormItem, NInput, NSelect, NInputNumber, NButton, NSpace } from 'naive-ui';
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NInputNumber,
+  NButton,
+  NSpace,
+} from 'naive-ui';
 import { ref } from 'vue';
 import type { ILocation } from './location.types';
 
 const locationData = ref<ILocation>({
+  id: crypto.randomUUID(),
   name: '',
   description: '',
   type: 'other',
   coordinates: {
     x: 0,
-    y: 0
-  }
+    y: 0,
+  },
 });
 
 const locationTypes = [
@@ -18,7 +28,7 @@ const locationTypes = [
   { label: 'Деревня', value: 'village' },
   { label: 'Подземелье', value: 'dungeon' },
   { label: 'Дикая местность', value: 'wilderness' },
-  { label: 'Другое', value: 'other' }
+  { label: 'Другое', value: 'other' },
 ];
 
 const emit = defineEmits<{
@@ -27,15 +37,15 @@ const emit = defineEmits<{
 
 const handleSubmit = () => {
   emit('create', locationData.value);
-  // Сброс формы после создания
   locationData.value = {
+    id: crypto.randomUUID(),
     name: '',
     description: '',
     type: 'other',
     coordinates: {
       x: 0,
-      y: 0
-    }
+      y: 0,
+    },
   };
 };
 </script>
@@ -52,10 +62,7 @@ const handleSubmit = () => {
       </NFormItem>
 
       <NFormItem label="Тип локации">
-        <NSelect
-          v-model:value="locationData.type"
-          :options="locationTypes"
-        />
+        <NSelect v-model:value="locationData.type" :options="locationTypes" />
       </NFormItem>
 
       <NFormItem label="Координаты">

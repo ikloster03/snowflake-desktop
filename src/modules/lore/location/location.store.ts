@@ -18,10 +18,18 @@ export const usePrivateLocationStore = defineStore(
       locations.value[index] = location;
     };
 
+    const removeLocation = (locationId: string) => {
+      const index = locations.value.findIndex((loc) => loc.id === locationId);
+      if (index !== -1) {
+        locations.value.splice(index, 1);
+      }
+    };
+
     return {
       locations,
       addLocation,
-      updateLocation
+      updateLocation,
+      removeLocation,
     };
   }
 );
