@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { NCard, NForm, NFormItem, NInput, NDatePicker, NSelect } from 'naive-ui';
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NDatePicker,
+  NSelect,
+} from 'naive-ui';
 import { ref } from 'vue';
 import type { Value } from 'naive-ui/es/date-picker/src/interface';
 import type { IEvent } from './event.types';
@@ -14,14 +21,14 @@ const props = defineProps<{
 
 const eventData = ref<EventForm>({
   ...props.event,
-  time: new Date(eventData.value.time).getTime(),
+  time: new Date(props.event.time).getTime(),
 });
 
 const eventTypes = [
   { label: 'Битва', value: 'battle' },
   { label: 'Встреча', value: 'meeting' },
   { label: 'Путешествие', value: 'journey' },
-  { label: 'Другое', value: 'other' }
+  { label: 'Другое', value: 'other' },
 ];
 
 const emit = defineEmits<{
@@ -31,7 +38,9 @@ const emit = defineEmits<{
 const handleChange = () => {
   emit('update', {
     ...eventData.value,
-    time: new Date(eventData.value.time).toString(),
+    time: Array.isArray(eventData.value.time)
+      ? new Date(eventData.value.time[0]).toString()
+      : new Date(eventData.value.time).toString(),
   });
 };
 </script>
