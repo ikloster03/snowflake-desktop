@@ -3,13 +3,12 @@ import { NCard, NTabs, NTabPane, NSpace, NH1 } from 'naive-ui';
 import CharacterList from './character/CharacterList.vue';
 import EventList from './event/EventList.vue';
 import LocationList from './location/LocationList.vue';
+import ItemList from './item/ItemList.vue';
 </script>
 
 <template>
   <NSpace vertical size="large">
-    <NH1 prefix="bar">
-      Мир произведения
-    </NH1>
+    <NH1 prefix="bar"> Мир произведения </NH1>
 
     <NTabs type="segment" animated>
       <NTabPane name="characters" tab="Персонажи">
@@ -31,7 +30,9 @@ import LocationList from './location/LocationList.vue';
       </NTabPane>
 
       <NTabPane name="items" tab="Предметы">
-        <div>Раздел предметов (в разработке)</div>
+        <NSpace vertical>
+          <ItemList />
+        </NSpace>
       </NTabPane>
     </NTabs>
   </NSpace>
