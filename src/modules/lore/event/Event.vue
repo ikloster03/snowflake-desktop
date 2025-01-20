@@ -6,6 +6,7 @@ import {
   NInput,
   NDatePicker,
   NSelect,
+  NButton,
 } from 'naive-ui';
 import { ref } from 'vue';
 import type { Value } from 'naive-ui/es/date-picker/src/interface';
@@ -33,6 +34,7 @@ const eventTypes = [
 
 const emit = defineEmits<{
   (e: 'update', event: IEvent): void;
+  (e: 'delete', id: string): void;
 }>();
 
 const handleChange = () => {
@@ -42,6 +44,10 @@ const handleChange = () => {
       ? new Date(eventData.value.time[0]).toString()
       : new Date(eventData.value.time).toString(),
   });
+};
+
+const handleDelete = () => {
+  emit('delete', props.event.id);
 };
 </script>
 
@@ -74,6 +80,10 @@ const handleChange = () => {
           :options="eventTypes"
           @update:value="handleChange"
         />
+      </NFormItem>
+
+      <NFormItem>
+        <NButton type="error" @click="handleDelete"> Удалить событие </NButton>
       </NFormItem>
     </NForm>
   </NCard>

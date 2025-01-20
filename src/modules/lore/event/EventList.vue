@@ -9,20 +9,28 @@ import type { IEvent } from './event.types';
 const eventStore = usePrivateEventStore();
 const showNewEventForm = ref(false);
 
-const handleEventUpdate = (updatedEvent: IEvent, index: number) => {
-  eventStore.events[index] = updatedEvent;
+const handleEventUpdate = (updatedEvent: IEvent) => {
+  eventStore.updateEvent(updatedEvent);
 };
 
 const handleEventCreate = (newEvent: IEvent) => {
-  eventStore.events.push(newEvent);
+  eventStore.addEvent(newEvent);
   showNewEventForm.value = false;
+};
+
+const handleEventDelete = (id: string) => {
+  eventStore.removeEvent(id);
 };
 </script>
 
 <template>
   <NGrid :cols="3" :x-gap="16" :y-gap="16">
-    <NGridItem v-for="(event, index) in eventStore.events" :key="index">
-      <Event :event="event" @update="(updatedEvent) => handleEventUpdate(updatedEvent, index)" />
+    <NGridItem v-for="event in eventStore.events" :key="event.id">
+      <Event
+        :event="event"
+        @update="handleEventUpdate"
+        @delete="() => handleEventDelete(event.id)"
+      />
     </NGridItem>
 
     <NGridItem>

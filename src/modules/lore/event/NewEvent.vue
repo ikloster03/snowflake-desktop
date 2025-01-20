@@ -1,20 +1,28 @@
 <script lang="ts" setup>
-import { NCard, NForm, NFormItem, NInput, NDatePicker, NSelect, NButton } from 'naive-ui';
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NDatePicker,
+  NSelect,
+  NButton,
+} from 'naive-ui';
 import { ref } from 'vue';
 import type { IEvent } from './event.types';
 
-const eventData = ref<IEvent>({
+const eventData = ref<Omit<IEvent, 'id' | 'time'> & { time: number }>({
   title: '',
   description: '',
-  time: new Date().toString(),
-  type: 'other'
+  time: Date.now(),
+  type: 'other',
 });
 
 const eventTypes = [
   { label: 'Битва', value: 'battle' },
   { label: 'Встреча', value: 'meeting' },
   { label: 'Путешествие', value: 'journey' },
-  { label: 'Другое', value: 'other' }
+  { label: 'Другое', value: 'other' },
 ];
 
 const emit = defineEmits<{
@@ -22,13 +30,17 @@ const emit = defineEmits<{
 }>();
 
 const handleSubmit = () => {
-  emit('create', eventData.value);
+  emit('create', {
+    ...eventData.value,
+    id: crypto.randomUUID(),
+    time: new Date(eventData.value.time).toString(),
+  });
   // Сброс формы после создания
   eventData.value = {
     title: '',
     description: '',
-    time: new Date().toString(),
-    type: 'other'
+    time: Date.now(),
+    type: 'other',
   };
 };
 </script>
@@ -48,7 +60,7 @@ const handleSubmit = () => {
         <NDatePicker
           v-model:value="eventData.time"
           type="datetime"
-          :default-value="new Date()"
+          :default-value="new Date(eventData.time).getTime()"
         />
       </NFormItem>
 

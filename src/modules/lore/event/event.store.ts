@@ -11,17 +11,31 @@ export const usePrivateEventStore = defineStore(
     const events = ref<IEvent[]>([]);
 
     const addEvent = (event: IEvent) => {
-      events.value.push(event);
+      events.value.push({
+        ...event,
+        id: crypto.randomUUID()
+      });
     };
 
-    const updateEvent = (index: number, event: IEvent) => {
-      events.value[index] = event;
+    const updateEvent = (event: IEvent) => {
+      const index = events.value.findIndex((e) => e.id === event.id);
+      if (index !== -1) {
+        events.value[index] = event;
+      }
+    };
+
+    const removeEvent = (id: string) => {
+      const index = events.value.findIndex((e) => e.id === id);
+      if (index !== -1) {
+        events.value.splice(index, 1);
+      }
     };
 
     return {
       events,
       addEvent,
-      updateEvent
+      updateEvent,
+      removeEvent
     };
   }
 );
