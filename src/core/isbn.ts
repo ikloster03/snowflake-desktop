@@ -67,7 +67,3 @@ function isValidISBN13(isbn: string): boolean {
 export function isISBN(value: unknown): value is ISBN {
     return typeof value === 'string' && validateISBN(value);
 }
-
-// Экспортируем функцию валидации для использования в других модулях
-export { validateISBN };
-
