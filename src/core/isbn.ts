@@ -5,7 +5,7 @@ declare const ISBNBrand: unique symbol;
 export type ISBN = string & { readonly [ISBNBrand]: 'ISBN' };
 
 // Функция для безопасного создания ISBN
-export function createISBN(isbn: string): ISBN | null {
+export function createISBN(isbn: string): ISBN {
     // Проверяем, является ли переданная строка валидным ISBN
     if (validateISBN(isbn)) {
         // Если валидно, возвращаем как тип ISBN
