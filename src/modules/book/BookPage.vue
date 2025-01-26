@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { PlusFilled as Plus } from '@vicons/material';
 import { RouterLink } from 'vue-router';
 import { AUTHOR_NEW_PAGE } from './author/author.const';
+import { BOOK_NEW_PAGE } from './book.const';
 
 const { t } = useI18n();
 </script>
@@ -29,10 +30,16 @@ const { t } = useI18n();
     <div>
       <h2>{{ t('books-series') }}</h2>
       <NFlex>
-        <NCard>
-          <NIcon><Plus /></NIcon>
-          {{ t('add-new-book') }}
-        </NCard>
+        <RouterLink
+          v-slot="{ navigate }"
+          :to="{ name: BOOK_NEW_PAGE.name }"
+          style="text-decoration: none"
+        >
+          <NCard @click="navigate">
+            <NIcon><Plus /></NIcon>
+            {{ t('add-new-book') }}
+          </NCard>
+        </RouterLink>
         <NCard>
           <NIcon><Plus /></NIcon>
           {{ t('add-new-series') }}
