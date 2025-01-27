@@ -11,3 +11,8 @@ export const BOOK_NEW_PAGE: Page = {
   name: 'new-book-page',
   title: 'New Book',
 } as const;
+
+export const SERIES_NEW_PAGE = {
+  path: '/book/series/new',
+  name: 'series-new',
+} as const;
