@@ -60,6 +60,25 @@ export const SERIES_TYPES = {
 
 export type SeriesType = ValueOf<typeof SERIES_TYPES>;
 
+export const BOOK_RELATION_TYPES = {
+  SEQUEL: 'sequel', // Продолжение
+  PREQUEL: 'prequel', // Предыстория
+  SPIN_OFF: 'spin-off', // Ответвление
+  SIDE_STORY: 'side-story', // Побочная история
+  ADAPTATION: 'adaptation', // Адаптация
+  REMAKE: 'remake', // Переработка
+  ALTERNATIVE: 'alternative', // Альтернативная версия
+  OTHER: 'other', // Другое
+} as const;
+
+export type BookRelationType = ValueOf<typeof BOOK_RELATION_TYPES>;
+
+export interface IBookRelation {
+  sourceBookId: string; // ID исходной книги
+  targetBookId: string; // ID связанной книги
+  type: BookRelationType; // Тип связи
+}
+
 export interface ISingleBook {
   id: string;
   title: string;
@@ -67,9 +86,10 @@ export interface ISingleBook {
   authors: IAuthor[];
   publicationDate: string;
   pages: number;
-  isbn?: ISBN; // Изменено на тип ISBN
+  isbn?: ISBN;
   genres: BookGenre[];
   status: BookStatus;
+  relations?: IBookRelation[]; // Добавляем связи с другими книгами
 }
 
 export interface IBookInSeries extends ISingleBook {
