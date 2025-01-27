@@ -13,7 +13,17 @@ export const seriesI18n = {
     messages: {
       'series-saved': 'Series saved successfully',
       'validation-error': 'Please check the form for errors'
-    }
+    },
+    'series-type': 'Series type',
+    seriesTypes: {
+      DILOGY: 'Dilogy (2 books)',
+      TRILOGY: 'Trilogy (3 books)',
+      TETRALOGY: 'Tetralogy (4 books)',
+      PENTALOGY: 'Pentalogy (5 books)',
+      HEXALOGY: 'Hexalogy (6 books)',
+      HEPTALOGY: 'Heptalogy (7 books)',
+      SERIES: 'Series (more than 7 books)',
+    },
   },
   ru: {
     'new-series': 'Новая серия книг',
@@ -29,6 +39,16 @@ export const seriesI18n = {
     messages: {
       'series-saved': 'Серия успешно сохранена',
       'validation-error': 'Пожалуйста, проверьте форму на ошибки'
-    }
+    },
+    'series-type': 'Тип серии',
+    seriesTypes: {
+      DILOGY: 'Дилогия (2 книги)',
+      TRILOGY: 'Трилогия (3 книги)',
+      TETRALOGY: 'Тетралогия (4 книги)',
+      PENTALOGY: 'Пенталогия (5 книг)',
+      HEXALOGY: 'Гексалогия (6 книг)',
+      HEPTALOGY: 'Гепталогия (7 книг)',
+      SERIES: 'Серия (более 7 книг)',
+    },
   }
 };

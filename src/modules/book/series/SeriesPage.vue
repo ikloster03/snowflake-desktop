@@ -16,7 +16,13 @@ import { RouterLink } from 'vue-router';
 import { BOOK_PAGE } from '../book.const';
 import { ref } from 'vue';
 import type { FormInst } from 'naive-ui';
-import type { IBookSeries, IAuthor } from '../book.types';
+import {
+  IBookSeries,
+  IAuthor,
+  SERIES_TYPES,
+  SeriesType,
+  Book,
+} from '../book.types';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -24,8 +30,10 @@ const bookStore = useBookStore();
 const formRef = ref<FormInst | null>(null);
 const message = useMessage();
 
-interface SeriesForm extends Omit<IBookSeries, 'id' | 'books'> {
+interface SeriesForm extends Omit<IBookSeries, 'id' | 'books' | 'authors'> {
   books: string[]; // ID книг в серии
+  authors: string[]; // ID авторов
+  type: SeriesType;
 }
 
 const series = ref<SeriesForm>({
@@ -33,7 +41,13 @@ const series = ref<SeriesForm>({
   description: '',
   authors: [],
   books: [],
+  type: SERIES_TYPES.SERIES, // значение по умолчанию
 });
+
+const seriesTypeOptions = Object.entries(SERIES_TYPES).map(([key, value]) => ({
+  label: t(`seriesTypes.${key}`),
+  value,
+}));
 
 const rules = {
   title: {
@@ -101,8 +115,12 @@ const handleSubmit = (e: MouseEvent) => {
             v-model:value="series.books"
             multiple
             :options="bookStore.books"
-            :render-label="(book) => book.title"
+            :render-label="(book: Book) => book.title"
           />
+        </NFormItem>
+
+        <NFormItem :label="t('series-type')" path="type">
+          <NSelect v-model:value="series.type" :options="seriesTypeOptions" />
         </NFormItem>
 
         <NFormItem>

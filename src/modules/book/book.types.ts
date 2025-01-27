@@ -48,6 +48,18 @@ export const BOOK_GENRES = {
 
 export type BookGenre = ValueOf<typeof BOOK_GENRES>;
 
+export const SERIES_TYPES = {
+  DILOGY: 'dilogy', // 2 книги
+  TRILOGY: 'trilogy', // 3 книги
+  TETRALOGY: 'tetralogy', // 4 книги
+  PENTALOGY: 'pentalogy', // 5 книг
+  HEXALOGY: 'hexalogy', // 6 книг
+  HEPTALOGY: 'heptalogy', // 7 книг
+  SERIES: 'series', // более 7 книг
+} as const;
+
+export type SeriesType = ValueOf<typeof SERIES_TYPES>;
+
 export interface ISingleBook {
   id: string;
   title: string;
@@ -71,6 +83,7 @@ export interface IBookSeries {
   description: string;
   authors: IAuthor[];
   books: IBookInSeries[];
+  type: SeriesType; // добавляем тип серии
 }
 
 export type Book = ISingleBook | IBookInSeries;

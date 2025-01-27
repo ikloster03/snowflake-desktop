@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { IAuthor } from './book.types';
+import { IAuthor, Book } from './book.types';
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 
 export const BOOK_STORE = 'book';
@@ -30,6 +30,9 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
 
   const annotation = computed(() => state.annotation);
   const synopsis = computed(() => state.synopsis);
+
+  const authors = ref<IAuthor[]>([]);
+  const books = ref<Book[]>([]);
 
   const updateAuthor = (author: IAuthor) => {
     state.firstName = author.firstName;
@@ -74,6 +77,8 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     titleName,
     annotation,
     synopsis,
+    authors,
+    books,
     updateAuthor,
     patchUpdateAuthor,
     updateAnnotation,
