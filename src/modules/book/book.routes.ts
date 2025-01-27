@@ -1,6 +1,6 @@
 import { RouteRecordRaw } from 'vue-router';
 import BookPage from './BookPage.vue';
-import NewBookPage from './NewBookPage.vue';
+import NewBookPage from './book/NewBookPage.vue';
 import { BOOK_PAGE, BOOK_NEW_PAGE } from './book.const';
 import { routes as authorRoutes } from './author/author.routes';
 
