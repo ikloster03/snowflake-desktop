@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { NCard, NTimeline, NTimelineItem, NButton } from 'naive-ui';
+import { NCard, NTimeline, NTimelineItem, NButton, NIcon, NModal, NForm, NFormItem, NInput, NDatePicker, NSelect } from 'naive-ui';
 import type { IEvent } from '@/modules/lore/event/event.types';
 import { ref } from 'vue';
+import { Add12Regular as Add } from '@vicons/fluent';
+import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
 
 const EVENT_TYPE_MAP = {
   battle: 'warning',
@@ -10,7 +12,7 @@ const EVENT_TYPE_MAP = {
   other: 'default',
 } as const;
 
-const events: IEvent[] = [
+const events = ref<IEvent[]>([
   {
     id: 'event1',
     title: 'Событие 1',
@@ -32,16 +34,46 @@ const events: IEvent[] = [
     time: '2024-03-22 09:45',
     type: 'journey',
   },
+]);
+
+const showModal = ref(false);
+
+const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
+  id: '',
+  title: '',
+  description: '',
+  time: null,
+  type: 'other'
+});
+
+const typeOptions = [
+  { label: 'Битва', value: 'battle' },
+  { label: 'Встреча', value: 'meeting' },
+  { label: 'Путешествие', value: 'journey' },
+  { label: 'Другое', value: 'other' }
 ];
 
-// Функция для добавления нового события
-const newEvent = ref<IEvent | null>(null);
-
 const handleAddEvent = () => {
-  if (newEvent.value) {
-    events.push({ ...newEvent.value, id: crypto.randomUUID() });
-    newEvent.value = null; // Сбросить новое событие после добавления
-  }
+  if (!newEvent.value.time) return;
+
+  events.value.push({
+    ...newEvent.value,
+    id: crypto.randomUUID(),
+    time: new Date(newEvent.value.time as number).toISOString()
+  });
+
+  showModal.value = false;
+  newEvent.value = {
+    id: '',
+    title: '',
+    description: '',
+    time: null,
+    type: 'other'
+  };
+};
+
+const openModal = () => {
+  showModal.value = true;
 };
 </script>
 
@@ -57,9 +89,49 @@ const handleAddEvent = () => {
         :type="EVENT_TYPE_MAP[event.type]"
       />
     </NTimeline>
-    <NButton type="primary" class="float-button" @click="handleAddEvent">
-      Добавить событие
+
+    <NButton circle type="primary" class="float-button" @click="openModal">
+      <NIcon>
+        <Add />
+      </NIcon>
     </NButton>
+
+    <NModal v-model:show="showModal" preset="card" title="Создать событие">
+      <NForm>
+        <NFormItem label="Название">
+          <NInput v-model:value="newEvent.title" placeholder="Введите название события" />
+        </NFormItem>
+
+        <NFormItem label="Описание">
+          <NInput
+            v-model:value="newEvent.description"
+            type="textarea"
+            placeholder="Введите описание события"
+          />
+        </NFormItem>
+
+        <NFormItem label="Время">
+          <NDatePicker
+            v-model:value="newEvent.time"
+            type="datetime"
+            placeholder="Выберите дату и время"
+          />
+        </NFormItem>
+
+        <NFormItem label="Тип">
+          <NSelect
+            v-model:value="newEvent.type"
+            :options="typeOptions"
+            placeholder="Выберите тип события"
+          />
+        </NFormItem>
+
+        <div class="modal-footer">
+          <NButton type="primary" @click="handleAddEvent">Создать</NButton>
+          <NButton @click="showModal = false">Отмена</NButton>
+        </div>
+      </NForm>
+    </NModal>
   </NCard>
 </template>
 
@@ -68,6 +140,19 @@ const handleAddEvent = () => {
   position: fixed;
   right: 32px;
   bottom: 32px;
-  z-index: 1000; /* Убедитесь, что кнопка поверх других элементов */
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
 </style>
