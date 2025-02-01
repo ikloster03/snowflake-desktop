@@ -75,18 +75,42 @@ const handleAddEvent = () => {
 const openModal = () => {
   showModal.value = true;
 };
+
+const handleDragStart = (event: DragEvent, index: number) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('text/plain', index.toString());
+  }
+};
+
+const handleDrop = (event: DragEvent, targetIndex: number) => {
+  event.preventDefault();
+  const sourceIndex = Number(event.dataTransfer?.getData('text/plain'));
+  if (!isNaN(sourceIndex)) {
+    const [movedEvent] = events.value.splice(sourceIndex, 1);
+    events.value.splice(targetIndex, 0, movedEvent);
+  }
+};
+
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault();
+};
 </script>
 
 <template>
   <NCard>
     <NTimeline>
       <NTimelineItem
-        v-for="event in events"
-        :key="event.title"
+        v-for="(event, index) in events"
+        :key="event.id"
         :title="event.title"
         :content="event.description"
         :time="event.time"
         :type="EVENT_TYPE_MAP[event.type]"
+        draggable="true"
+        class="timeline-item"
+        @dragstart="handleDragStart($event, index)"
+        @drop="handleDrop($event, index)"
+        @dragover="handleDragOver"
       />
     </NTimeline>
 
@@ -154,5 +178,14 @@ const openModal = () => {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 24px;
+}
+
+.timeline-item {
+  cursor: move;
+  transition: background-color 0.2s;
+}
+
+.timeline-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 </style>
