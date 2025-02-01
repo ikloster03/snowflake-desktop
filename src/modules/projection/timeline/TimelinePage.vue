@@ -94,6 +94,32 @@ const handleDrop = (event: DragEvent, targetIndex: number) => {
 const handleDragOver = (event: DragEvent) => {
   event.preventDefault();
 };
+
+const editingEvent = ref<(Omit<IEvent, 'time'> & { time: DatePickerValue | null }) | null>(null);
+const showEditModal = ref(false);
+
+const handleEditClick = (event: IEvent) => {
+  editingEvent.value = {
+    ...event,
+    time: new Date(event.time).getTime()
+  };
+  showEditModal.value = true;
+};
+
+const handleEditSave = () => {
+  if (!editingEvent.value?.time) return;
+
+  const index = events.value.findIndex(e => e.id === editingEvent.value?.id);
+  if (index !== -1) {
+    events.value[index] = {
+      ...editingEvent.value,
+      time: new Date(editingEvent.value.time as number).toISOString()
+    };
+  }
+
+  showEditModal.value = false;
+  editingEvent.value = null;
+};
 </script>
 
 <template>
@@ -108,6 +134,7 @@ const handleDragOver = (event: DragEvent) => {
         :type="EVENT_TYPE_MAP[event.type]"
         draggable="true"
         class="timeline-item"
+        @click="handleEditClick(event)"
         @dragstart="handleDragStart($event, index)"
         @drop="handleDrop($event, index)"
         @dragover="handleDragOver"
@@ -156,6 +183,43 @@ const handleDragOver = (event: DragEvent) => {
         </div>
       </NForm>
     </NModal>
+
+    <NModal v-model:show="showEditModal" preset="card" title="Редактировать событие">
+      <NForm v-if="editingEvent">
+        <NFormItem label="Название">
+          <NInput v-model:value="editingEvent.title" placeholder="Введите название события" />
+        </NFormItem>
+
+        <NFormItem label="Описание">
+          <NInput
+            v-model:value="editingEvent.description"
+            type="textarea"
+            placeholder="Введите описание события"
+          />
+        </NFormItem>
+
+        <NFormItem label="Время">
+          <NDatePicker
+            v-model:value="editingEvent.time"
+            type="datetime"
+            placeholder="Выберите дату и время"
+          />
+        </NFormItem>
+
+        <NFormItem label="Тип">
+          <NSelect
+            v-model:value="editingEvent.type"
+            :options="typeOptions"
+            placeholder="Выберите тип события"
+          />
+        </NFormItem>
+
+        <div class="modal-footer">
+          <NButton type="primary" @click="handleEditSave">Сохранить</NButton>
+          <NButton @click="showEditModal = false">Отмена</NButton>
+        </div>
+      </NForm>
+    </NModal>
   </NCard>
 </template>
 
@@ -181,7 +245,7 @@ const handleDragOver = (event: DragEvent) => {
 }
 
 .timeline-item {
-  cursor: move;
+  cursor: pointer;
   transition: background-color 0.2s;
 }
 
