@@ -6,4 +6,6 @@ export interface IEvent {
   description: string;
   time: string;
   type: EventType;
+  chapterId?: string;
+  stageId?: string;
 }
