@@ -14,6 +14,9 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.2.2
+      konva:
+        specifier: ^9.3.18
+        version: 9.3.18
       pinia:
         specifier: ^2.3.0
         version: 2.3.0(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
@@ -26,6 +29,9 @@ importers:
       vue-i18n:
         specifier: ^10.0.5
         version: 10.0.5(vue@3.5.13(typescript@5.6.3))
+      vue-konva:
+        specifier: ^3.2.0
+        version: 3.2.0(konva@9.3.18)(vue@3.5.13(typescript@5.6.3))
       vue-router:
         specifier: ^4.5.0
         version: 4.5.0(vue@3.5.13(typescript@5.6.3))
@@ -426,8 +432,8 @@ packages:
     resolution: {integrity: sha512-8tR1xe7ZEbkabTuE/tNhzpolygUn9OaYp9yuYAF4MgDNZg06C3Qny80bes2/e9/Wm3aVkPUlCw6WgU7mQd0yEg==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@11.0.1':
-    resolution: {integrity: sha512-lH164+aDDptHZ3dBDbIhRa1dOPQUp+83iugpc+1upTOWCnwyC1PVis6rSWNMMJ8VQxvtHQB9JMib48K55y0PvQ==}
+  '@intlify/shared@11.1.0':
+    resolution: {integrity: sha512-DvpNSxiMrFqYMaGSRDDnQgO/L0MqNH4KWw9CUx8LRHHIdWp08En9DpmSRNpauUOxKpHAhyJJxx92BHZk9J84EQ==}
     engines: {node: '>= 16'}
 
   '@intlify/unplugin-vue-i18n@6.0.2':
@@ -1262,6 +1268,9 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
+  konva@9.3.18:
+    resolution: {integrity: sha512-ad5h0Y9phUrinBrKXyIISbURRHQO7Rx5cz7mAEEfdVCs45gDqRD8Y0I0nJRk8S6iqEbiRE87CEZu5GVSnU8oow==}
+
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -1729,6 +1738,13 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
+  vue-konva@3.2.0:
+    resolution: {integrity: sha512-n1KcOJDvTsgBRy/9HNAEm+5mNgvIxatImIjeuietH5Qt3yHbIK8mp1sP6TQL+a3Pne45UiMO9W+Gwrq1cjptkw==}
+    engines: {node: '>= 4.0.0', npm: '>= 3.0.0'}
+    peerDependencies:
+      konva: '>7'
+      vue: ^3
+
   vue-router@4.5.0:
     resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==}
     peerDependencies:
@@ -2105,14 +2121,14 @@ snapshots:
 
   '@intlify/shared@11.0.0-rc.1': {}
 
-  '@intlify/shared@11.0.1': {}
+  '@intlify/shared@11.1.0': {}
 
   '@intlify/unplugin-vue-i18n@6.0.2(@vue/compiler-dom@3.5.13)(eslint@9.17.0(jiti@2.4.1))(rollup@4.28.1)(typescript@5.6.3)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.17.0(jiti@2.4.1))
       '@intlify/bundle-utils': 10.0.0(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))
-      '@intlify/shared': 11.0.1
-      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@11.0.1)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
+      '@intlify/shared': 11.1.0
+      '@intlify/vue-i18n-extensions': 7.0.0(@intlify/shared@11.1.0)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
       '@rollup/pluginutils': 5.1.4(rollup@4.28.1)
       '@typescript-eslint/scope-manager': 8.18.1
       '@typescript-eslint/typescript-estree': 8.18.1(typescript@5.6.3)
@@ -2134,11 +2150,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@11.0.1)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
+  '@intlify/vue-i18n-extensions@7.0.0(@intlify/shared@11.1.0)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
       '@babel/parser': 7.26.3
     optionalDependencies:
-      '@intlify/shared': 11.0.1
+      '@intlify/shared': 11.1.0
       '@vue/compiler-dom': 3.5.13
       vue: 3.5.13(typescript@5.6.3)
       vue-i18n: 10.0.5(vue@3.5.13(typescript@5.6.3))
@@ -2921,6 +2937,8 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
+  konva@9.3.18: {}
+
   levn@0.4.1:
     dependencies:
       prelude-ls: 1.2.1
@@ -3340,6 +3358,11 @@ snapshots:
       '@intlify/core-base': 10.0.5
       '@intlify/shared': 10.0.5
       '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.6.3)
+
+  vue-konva@3.2.0(konva@9.3.18)(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      konva: 9.3.18
       vue: 3.5.13(typescript@5.6.3)
 
   vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)):
