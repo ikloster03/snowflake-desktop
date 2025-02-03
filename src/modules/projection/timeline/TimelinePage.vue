@@ -1,5 +1,17 @@
 <script lang="ts" setup>
-import { NCard, NTimeline, NTimelineItem, NButton, NIcon, NModal, NForm, NFormItem, NInput, NDatePicker, NSelect } from 'naive-ui';
+import {
+  NCard,
+  NTimeline,
+  NTimelineItem,
+  NButton,
+  NIcon,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NDatePicker,
+  NSelect,
+} from 'naive-ui';
 import type { IEvent } from '@/modules/lore/event/event.types';
 import { ref, computed } from 'vue';
 import { Add12Regular as Add } from '@vicons/fluent';
@@ -20,30 +32,30 @@ const chapters = [
   {
     id: '2',
     title: 'Глава 2: Путешествие',
-  }
+  },
 ];
 
 const stages = [
   {
     id: '1-1',
     title: 'Этап 1: Пробуждение героя',
-    chapterId: '1'
+    chapterId: '1',
   },
   {
     id: '1-2',
     title: 'Этап 2: Встреча с наставником',
-    chapterId: '1'
+    chapterId: '1',
   },
   {
     id: '2-1',
     title: 'Этап 1: В дороге',
-    chapterId: '2'
+    chapterId: '2',
   },
   {
     id: '2-2',
     title: 'Этап 2: Первое испытание',
-    chapterId: '2'
-  }
+    chapterId: '2',
+  },
 ];
 
 const events = ref<IEvent[]>([
@@ -79,29 +91,29 @@ const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
   time: null,
   type: 'other',
   chapterId: undefined,
-  stageId: undefined
+  stageId: undefined,
 });
 
 const typeOptions = [
   { label: 'Битва', value: 'battle' },
   { label: 'Встреча', value: 'meeting' },
   { label: 'Путешествие', value: 'journey' },
-  { label: 'Другое', value: 'other' }
+  { label: 'Другое', value: 'other' },
 ];
 
-const chapterOptions = chapters.map(chapter => ({
+const chapterOptions = chapters.map((chapter) => ({
   label: chapter.title,
-  value: chapter.id
+  value: chapter.id,
 }));
 
-const stageOptions = stages.map(stage => ({
+const stageOptions = stages.map((stage) => ({
   label: stage.title,
   value: stage.id,
-  chapterId: stage.chapterId
+  chapterId: stage.chapterId,
 }));
 
 const handleStageSelect = (stageId: string) => {
-  const selectedStage = stages.find(stage => stage.id === stageId);
+  const selectedStage = stages.find((stage) => stage.id === stageId);
   if (selectedStage) {
     newEvent.value.stageId = stageId;
     newEvent.value.chapterId = selectedStage.chapterId;
@@ -114,7 +126,7 @@ const handleAddEvent = () => {
   events.value.push({
     ...newEvent.value,
     id: crypto.randomUUID(),
-    time: new Date(newEvent.value.time as number).toISOString()
+    time: new Date(newEvent.value.time as number).toISOString(),
   });
 
   showModal.value = false;
@@ -125,7 +137,7 @@ const handleAddEvent = () => {
     time: null,
     type: 'other',
     chapterId: undefined,
-    stageId: undefined
+    stageId: undefined,
   };
 };
 
@@ -152,13 +164,15 @@ const handleDragOver = (event: DragEvent) => {
   event.preventDefault();
 };
 
-const editingEvent = ref<(Omit<IEvent, 'time'> & { time: DatePickerValue | null }) | null>(null);
+const editingEvent = ref<
+  (Omit<IEvent, 'time'> & { time: DatePickerValue | null }) | null
+>(null);
 const showEditModal = ref(false);
 
 const handleEditClick = (event: IEvent) => {
   editingEvent.value = {
     ...event,
-    time: new Date(event.time).getTime()
+    time: new Date(event.time).getTime(),
   };
   showEditModal.value = true;
 };
@@ -166,11 +180,11 @@ const handleEditClick = (event: IEvent) => {
 const handleEditSave = () => {
   if (!editingEvent.value?.time) return;
 
-  const index = events.value.findIndex(e => e.id === editingEvent.value?.id);
+  const index = events.value.findIndex((e) => e.id === editingEvent.value?.id);
   if (index !== -1) {
     events.value[index] = {
       ...editingEvent.value,
-      time: new Date(editingEvent.value.time as number).toISOString()
+      time: new Date(editingEvent.value.time as number).toISOString(),
     };
   }
 
@@ -181,7 +195,7 @@ const handleEditSave = () => {
 const handleEditStageSelect = (stageId: string) => {
   if (!editingEvent.value) return;
 
-  const selectedStage = stages.find(stage => stage.id === stageId);
+  const selectedStage = stages.find((stage) => stage.id === stageId);
   if (selectedStage) {
     editingEvent.value.stageId = stageId;
     editingEvent.value.chapterId = selectedStage.chapterId;
@@ -196,11 +210,9 @@ const handleEditStageSelect = (stageId: string) => {
         v-for="(event, index) in events"
         :key="event.id"
         :title="event.title"
-        :content="
-          `${event.description}
-          ${event.stageId ? '\n\nЭтап: ' + stages.find(s => s.id === event.stageId)?.title : ''}
-          ${event.chapterId ? '\nГлава: ' + chapters.find(c => c.id === event.chapterId)?.title : ''}`
-        "
+        :content="`${event.description}
+          ${event.stageId ? '\n\nЭтап: ' + stages.find((s) => s.id === event.stageId)?.title : ''}
+          ${event.chapterId ? '\nГлава: ' + chapters.find((c) => c.id === event.chapterId)?.title : ''}`"
         :time="event.time"
         :type="EVENT_TYPE_MAP[event.type]"
         draggable="true"
@@ -221,7 +233,10 @@ const handleEditStageSelect = (stageId: string) => {
     <NModal v-model:show="showModal" preset="card" title="Создать событие">
       <NForm>
         <NFormItem label="Название">
-          <NInput v-model:value="newEvent.title" placeholder="Введите название события" />
+          <NInput
+            v-model:value="newEvent.title"
+            placeholder="Введите название события"
+          />
         </NFormItem>
 
         <NFormItem label="Описание">
@@ -259,7 +274,7 @@ const handleEditStageSelect = (stageId: string) => {
 
         <NFormItem label="Глава" v-if="newEvent.chapterId">
           <NInput
-            :value="chapters.find(c => c.id === newEvent.chapterId)?.title"
+            :value="chapters.find((c) => c.id === newEvent.chapterId)?.title"
             readonly
             disabled
           />
@@ -272,10 +287,17 @@ const handleEditStageSelect = (stageId: string) => {
       </NForm>
     </NModal>
 
-    <NModal v-model:show="showEditModal" preset="card" title="Редактировать событие">
+    <NModal
+      v-model:show="showEditModal"
+      preset="card"
+      title="Редактировать событие"
+    >
       <NForm v-if="editingEvent">
         <NFormItem label="Название">
-          <NInput v-model:value="editingEvent.title" placeholder="Введите название события" />
+          <NInput
+            v-model:value="editingEvent.title"
+            placeholder="Введите название события"
+          />
         </NFormItem>
 
         <NFormItem label="Описание">
@@ -313,7 +335,9 @@ const handleEditStageSelect = (stageId: string) => {
 
         <NFormItem label="Глава" v-if="editingEvent.chapterId">
           <NInput
-            :value="chapters.find(c => c.id === editingEvent.chapterId)?.title"
+            :value="
+              chapters.find((c) => c.id === editingEvent?.chapterId)?.title
+            "
             readonly
             disabled
           />
