@@ -445,14 +445,29 @@ const handleEditStageSelect = (stageId: string) => {
 
 .timeline-item {
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 4px 0;
 }
 
 .timeline-item:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
 }
 
 .timeline-item :deep(.n-timeline-item-content) {
   white-space: pre-line;
+}
+
+/* Добавляем стили для темной темы */
+:deep(.n-timeline-item-content) {
+  transition: background-color 0.2s ease;
+}
+
+:global(.dark-theme) .timeline-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 </style>
