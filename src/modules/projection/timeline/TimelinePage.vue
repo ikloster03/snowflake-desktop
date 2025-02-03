@@ -17,6 +17,7 @@ import { ref, computed } from 'vue';
 import { Add12Regular as Add } from '@vicons/fluent';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
 import type { Character } from '@/modules/lore/character/character.types';
+import { useStageStore } from '../stage/stage.store';
 
 const EVENT_TYPE_MAP = {
   battle: 'warning',
@@ -36,39 +37,15 @@ const chapters = [
   },
 ];
 
-interface Stage {
-  id: string;
-  title: string;
-  chapterId: string;
-  characterIds: string[];
-}
+const stageStore = useStageStore();
 
-const stages: Stage[] = [
-  {
-    id: '1-1',
-    title: 'Этап 1: Пробуждение героя',
-    chapterId: '1',
-    characterIds: ['char1'],
-  },
-  {
-    id: '1-2',
-    title: 'Этап 2: Встреча с наставником',
-    chapterId: '1',
-    characterIds: ['char1', 'char2'],
-  },
-  {
-    id: '2-1',
-    title: 'Этап 1: В дороге',
-    chapterId: '2',
-    characterIds: ['char1'],
-  },
-  {
-    id: '2-2',
-    title: 'Этап 2: Первое испытание',
-    chapterId: '2',
-    characterIds: ['char1', 'char2'],
-  },
-];
+const stageOptions = computed(() =>
+  stageStore.stages.map((stage) => ({
+    label: stage.title,
+    value: stage.id,
+    chapterId: stage.chapterId,
+  }))
+);
 
 const events = ref<IEvent[]>([
   {
@@ -141,14 +118,8 @@ const chapterOptions = chapters.map((chapter) => ({
   value: chapter.id,
 }));
 
-const stageOptions = stages.map((stage) => ({
-  label: stage.title,
-  value: stage.id,
-  chapterId: stage.chapterId,
-}));
-
 const handleStageSelect = (stageId: string) => {
-  const selectedStage = stages.find((stage) => stage.id === stageId);
+  const selectedStage = stageStore.getStageById(stageId);
   if (selectedStage) {
     newEvent.value.stageId = stageId;
     newEvent.value.chapterId = selectedStage.chapterId;
@@ -232,7 +203,7 @@ const handleEditSave = () => {
 const handleEditStageSelect = (stageId: string) => {
   if (!editingEvent.value) return;
 
-  const selectedStage = stages.find((stage) => stage.id === stageId);
+  const selectedStage = stageStore.getStageById(stageId);
   if (selectedStage) {
     editingEvent.value.stageId = stageId;
     editingEvent.value.chapterId = selectedStage.chapterId;
@@ -249,7 +220,7 @@ const handleEditStageSelect = (stageId: string) => {
         :key="event.id"
         :title="event.title"
         :content="`${event.description}
-          ${event.stageId ? '\n\nЭтап: ' + stages.find((s) => s.id === event.stageId)?.title : ''}
+          ${event.stageId ? '\n\nЭтап: ' + stageStore.getStageById(event.stageId)?.title : ''}
           ${event.chapterId ? '\nГлава: ' + chapters.find((c) => c.id === event.chapterId)?.title : ''}
           ${
             event.characterIds?.length
