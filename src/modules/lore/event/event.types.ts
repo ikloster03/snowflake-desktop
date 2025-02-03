@@ -1,4 +1,4 @@
-export type EventType = 'battle' | 'meeting' | 'journey' | 'other';
+import type { EventType } from './event.const';
 
 export interface IEvent {
   id: string;

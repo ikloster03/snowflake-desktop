@@ -18,13 +18,7 @@ import { Add12Regular as Add } from '@vicons/fluent';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
 import type { Character } from '@/modules/lore/character/character.types';
 import { useStageStore } from '../stage/stage.store';
-
-const EVENT_TYPE_MAP = {
-  battle: 'warning',
-  meeting: 'info',
-  journey: 'success',
-  other: 'default',
-} as const;
+import { EVENT_TYPE_MAP } from '@/modules/lore/event/event.const';
 
 const chapters = [
   {
