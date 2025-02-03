@@ -16,6 +16,7 @@ import type { IEvent } from '@/modules/lore/event/event.types';
 import { ref, computed } from 'vue';
 import { Add12Regular as Add } from '@vicons/fluent';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
+import type { Character } from '@/modules/lore/character/character.types';
 
 const EVENT_TYPE_MAP = {
   battle: 'warning',
@@ -35,26 +36,37 @@ const chapters = [
   },
 ];
 
-const stages = [
+interface Stage {
+  id: string;
+  title: string;
+  chapterId: string;
+  characterIds: string[];
+}
+
+const stages: Stage[] = [
   {
     id: '1-1',
     title: 'Этап 1: Пробуждение героя',
     chapterId: '1',
+    characterIds: ['char1'],
   },
   {
     id: '1-2',
     title: 'Этап 2: Встреча с наставником',
     chapterId: '1',
+    characterIds: ['char1', 'char2'],
   },
   {
     id: '2-1',
     title: 'Этап 1: В дороге',
     chapterId: '2',
+    characterIds: ['char1'],
   },
   {
     id: '2-2',
     title: 'Этап 2: Первое испытание',
     chapterId: '2',
+    characterIds: ['char1', 'char2'],
   },
 ];
 
@@ -84,6 +96,28 @@ const events = ref<IEvent[]>([
 
 const showModal = ref(false);
 
+const characters: Character[] = [
+  {
+    id: 'char1',
+    name: 'Анна Каренина',
+    description: 'Главная героиня',
+    level: 'primary',
+    type: 'protagonist',
+  },
+  {
+    id: 'char2',
+    name: 'Алексей Вронский',
+    description: 'Возлюбленный Анны',
+    level: 'secondary',
+    type: 'love interest',
+  },
+];
+
+const characterOptions = characters.map((char) => ({
+  label: char.name,
+  value: char.id,
+}));
+
 const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
   id: '',
   title: '',
@@ -92,6 +126,7 @@ const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
   type: 'other',
   chapterId: undefined,
   stageId: undefined,
+  characterIds: [],
 });
 
 const typeOptions = [
@@ -117,6 +152,7 @@ const handleStageSelect = (stageId: string) => {
   if (selectedStage) {
     newEvent.value.stageId = stageId;
     newEvent.value.chapterId = selectedStage.chapterId;
+    newEvent.value.characterIds = selectedStage.characterIds;
   }
 };
 
@@ -138,6 +174,7 @@ const handleAddEvent = () => {
     type: 'other',
     chapterId: undefined,
     stageId: undefined,
+    characterIds: [],
   };
 };
 
@@ -199,6 +236,7 @@ const handleEditStageSelect = (stageId: string) => {
   if (selectedStage) {
     editingEvent.value.stageId = stageId;
     editingEvent.value.chapterId = selectedStage.chapterId;
+    editingEvent.value.characterIds = selectedStage.characterIds;
   }
 };
 </script>
@@ -212,7 +250,15 @@ const handleEditStageSelect = (stageId: string) => {
         :title="event.title"
         :content="`${event.description}
           ${event.stageId ? '\n\nЭтап: ' + stages.find((s) => s.id === event.stageId)?.title : ''}
-          ${event.chapterId ? '\nГлава: ' + chapters.find((c) => c.id === event.chapterId)?.title : ''}`"
+          ${event.chapterId ? '\nГлава: ' + chapters.find((c) => c.id === event.chapterId)?.title : ''}
+          ${
+            event.characterIds?.length
+              ? '\nПерсонажи: ' +
+                event.characterIds
+                  .map((id) => characters.find((c) => c.id === id)?.name)
+                  .join(', ')
+              : ''
+          }`"
         :time="event.time"
         :type="EVENT_TYPE_MAP[event.type]"
         draggable="true"
@@ -267,7 +313,7 @@ const handleEditStageSelect = (stageId: string) => {
           <NSelect
             v-model:value="newEvent.stageId"
             :options="stageOptions"
-            placeholder="Выберите этап"
+            placeholder="Выберите сцену"
             @update:value="handleStageSelect"
           />
         </NFormItem>
@@ -275,6 +321,18 @@ const handleEditStageSelect = (stageId: string) => {
         <NFormItem label="Глава" v-if="newEvent.chapterId">
           <NInput
             :value="chapters.find((c) => c.id === newEvent.chapterId)?.title"
+            readonly
+            disabled
+          />
+        </NFormItem>
+
+        <NFormItem label="Персонажи" v-if="newEvent.characterIds?.length">
+          <NInput
+            :value="
+              newEvent.characterIds
+                .map((id) => characters.find((c) => c.id === id)?.name)
+                .join(', ')
+            "
             readonly
             disabled
           />
@@ -337,6 +395,18 @@ const handleEditStageSelect = (stageId: string) => {
           <NInput
             :value="
               chapters.find((c) => c.id === editingEvent?.chapterId)?.title
+            "
+            readonly
+            disabled
+          />
+        </NFormItem>
+
+        <NFormItem label="Персонажи" v-if="editingEvent?.characterIds?.length">
+          <NInput
+            :value="
+              editingEvent.characterIds
+                .map((id) => characters.find((c) => c.id === id)?.name)
+                .join(', ')
             "
             readonly
             disabled

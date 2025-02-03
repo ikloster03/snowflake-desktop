@@ -8,4 +8,5 @@ export interface IEvent {
   type: EventType;
   chapterId?: string;
   stageId?: string;
+  characterIds?: string[];
 }
