@@ -13,16 +13,10 @@ import {
 import { useBookStore } from '../book.store';
 import { ArrowBackFilled as ArrowBack } from '@vicons/material';
 import { RouterLink } from 'vue-router';
-import { BOOK_PAGE } from '../book.const';
+import { BOOK_PAGE, SERIES_TYPES } from '../book.const';
 import { ref } from 'vue';
 import type { FormInst } from 'naive-ui';
-import {
-  IBookSeries,
-  IAuthor,
-  SERIES_TYPES,
-  SeriesType,
-  Book,
-} from '../book.types';
+import { IBookSeries, IAuthor, SeriesType, Book } from '../book.types';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

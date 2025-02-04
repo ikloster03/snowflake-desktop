@@ -15,10 +15,10 @@ import {
 import { useBookStore } from '../book.store';
 import { ArrowBackFilled as ArrowBack } from '@vicons/material';
 import { RouterLink } from 'vue-router';
-import { BOOK_PAGE } from '../book.const';
+import { BOOK_GENRES, BOOK_PAGE, BOOK_STATUS } from '../book.const';
 import { ref } from 'vue';
 import type { FormInst } from 'naive-ui';
-import { BOOK_GENRES, BOOK_STATUS, type ISingleBook } from '../book.types';
+import { ISingleBook } from '../book.types';
 import { useI18n } from 'vue-i18n';
 import Annotation from '../annotation/Annotation.vue';
 import Synopsis from '../synopsis/Synopsis.vue';
