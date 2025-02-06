@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { SETTINGS_PAGE } from '@/modules/settings';
+import { PROFILE_PAGE } from '@/modules/profile/profile.const';
 import { useSettingsStore } from '@/modules/settings/settings.store';
 import {
   Person32Filled as Person,
@@ -45,6 +46,20 @@ const settingsStore = useSettingsStore();
         <div>Иван Иванов</div>
         <RouterLink
           v-slot="{ navigate }"
+          :to="{ name: PROFILE_PAGE.name }"
+          @click="emit('close')"
+        >
+          <NButton text @click="navigate">
+            <template #icon>
+              <NIcon>
+                <Person />
+              </NIcon>
+            </template>
+            {{ t('profile') }}
+          </NButton>
+        </RouterLink>
+        <RouterLink
+          v-slot="{ navigate }"
           :to="{ name: SETTINGS_PAGE.name }"
           @click="emit('close')"
         >
@@ -70,9 +85,11 @@ const settingsStore = useSettingsStore();
   {
     "en": {
       "settings": "Settings",
+      "profile": "My Profile"
     },
     "ru": {
       "settings": "Настройки",
+      "profile": "Мой профиль"
     }
   }
 </i18n>
