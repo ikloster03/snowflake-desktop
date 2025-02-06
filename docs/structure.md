@@ -7,20 +7,30 @@
 ```mermaid
 graph TD
     A[Book Editor] --> B[Modules]
+
     B --> C[Book Module]
     B --> D[Projection Module]
+    B --> E[Lore Module]
 
     C --> C1[Author Management]
     C --> C2[Book Management]
     C --> C3[Series Management]
-    C --> C4[Synopsis]
+    C --> C4[Annotation]
+    C --> C5[Synopsis]
 
     D --> D1[Plan]
-    D --> D2[Character Map]
+    D --> D2[Timeline]
+    D --> D3[Character Map]
+    D --> D4[Stage Management]
+
+    E --> E1[Character]
+    E --> E2[Event]
+    E --> E3[Location]
+    E --> E4[Item]
+    E --> E5[World Map]
 
     C2 --> C2_1[Single Book]
     C2 --> C2_2[Book in Series]
-
     C3 --> C3_1[Dilogy]
     C3 --> C3_2[Trilogy]
     C3 --> C3_3[Other Series Types]
@@ -44,36 +54,56 @@ graph LR
 ```mermaid
 classDiagram
     class Book {
-        +string id
-        +string title
-        +string description
-        +Author[] authors
-        +string publicationDate
-        +number pages
-        +ISBN isbn
-        +BookGenre[] genres
-        +BookStatus status
-        +BookRelation[] relations
+      +string id
+      +string title
+      +string description
+      +Author[] authors
+      +string publicationDate
+      +number pages
+      +ISBN isbn
+      +BookGenre[] genres
+      +BookStatus status
+      +BookRelation[] relations
+      +string annotation
+      +string synopsis
     }
-
     class Author {
-        +string id
-        +string firstName
-        +string middleName
-        +string lastName
-        +string titleName
+      +string id
+      +string firstName
+      +string middleName
+      +string lastName
+      +string titleName
     }
-
     class BookSeries {
-        +string id
-        +string title
-        +string description
-        +Author[] authors
-        +BookInSeries[] books
-        +SeriesType type
+      +string id
+      +string title
+      +string description
+      +Author[] authors
+      +BookInSeries[] books
+      +SeriesType type
     }
-
+    class Stage {
+      +string id
+      +string title
+      +string description
+      +string chapterId
+      +string[] characterIds
+      +StageStatus status
+      +number order
+    }
+    class Event {
+      +string id
+      +string title
+      +string description
+      +string time
+      +EventType type
+      +string chapterId
+      +string stageId
+      +string[] characterIds
+    }
     Book --> Author
     BookSeries --> Author
     BookSeries --> Book
+    Stage --> Book
+    Event --> Stage
 ```
