@@ -13,3 +13,23 @@
   --vp-c-brand-dark: #535bf2;
   --vp-c-brand-darker: #454ce1;
 }
+
+/* Стили для диаграмм mermaid */
+.mermaid {
+  background-color: var(--vp-c-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Стили для графиков */
+.graph {
+  width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}
+
+/* Темная тема для диаграмм */
+.dark .mermaid {
+  filter: invert(90%) hue-rotate(180deg);
+}
