@@ -2,8 +2,7 @@
 import { NCard, NButton, NFlex, NAlert } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
-import { RouterLink } from 'vue-router';
-import { PROJECT_NEW_PAGE, PROJECT_OPEN_PAGE } from './project.const';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();
@@ -13,6 +12,23 @@ const handleCloseProject = async () => {
     await projectStore.closeProject();
   } catch (error) {
     console.error('Failed to close project:', error);
+  }
+};
+
+const handleOpenProject = async () => {
+  try {
+    const selected = await open({
+      directory: true,
+      multiple: false,
+      title: t('select-project-directory'),
+      defaultPath: await projectStore.getDefaultProjectPath(),
+    });
+
+    if (selected) {
+      await projectStore.openProject(selected as string);
+    }
+  } catch (error) {
+    console.error('Failed to open project:', error);
   }
 };
 </script>
@@ -36,12 +52,9 @@ const handleCloseProject = async () => {
 
     <!-- Показываем кнопки создания/открытия, только если нет открытого проекта -->
     <NFlex v-else :x-gap="12">
-      <RouterLink :to="{ name: PROJECT_NEW_PAGE.name }">
-        <NButton>{{ t('create-project') }}</NButton>
-      </RouterLink>
-      <RouterLink :to="{ name: PROJECT_OPEN_PAGE.name }">
-        <NButton>{{ t('open-project') }}</NButton>
-      </RouterLink>
+      <NButton @click="handleOpenProject">
+        {{ t('open-project') }}
+      </NButton>
     </NFlex>
 
     <!-- Показываем недавние проекты, только если нет открытого проекта -->

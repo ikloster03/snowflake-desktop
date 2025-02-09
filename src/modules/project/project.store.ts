@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { IProject, IProjectMeta } from './project.types';
+import { IProject } from './project.types';
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
-import { invoke } from '@tauri-apps/api/core';
+// import { invoke } from '@tauri-apps/api/core';
+import { homeDir } from '@tauri-apps/api/path';
+import { createID } from '@/core/id';
 
 export const PROJECT_STORE = 'project';
 
@@ -10,9 +12,10 @@ const useProjectPrivateStore = defineStore(
   `${PRIVATE_STORE_PREFIX}_${PROJECT_STORE}`,
   () => {
     const currentProject = ref<IProject | null>(null);
-    const recentProjects = ref<IProjectMeta[]>([]);
+    const recentProjects = ref<IProject[]>([]);
+    const defaultProjectPath = ref<string>('');
 
-    return { currentProject, recentProjects };
+    return { currentProject, recentProjects, defaultProjectPath };
   }
 );
 
@@ -21,9 +24,15 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
 
   const currentProject = computed(() => state.currentProject);
   const recentProjects = computed(() => state.recentProjects);
-
-  // Добавим геттер для проверки открытого проекта
   const hasOpenProject = computed(() => state.currentProject !== null);
+
+  const getDefaultProjectPath = async () => {
+    if (!state.defaultProjectPath) {
+      // Получаем домашнюю директорию пользователя
+      state.defaultProjectPath = await homeDir();
+    }
+    return state.defaultProjectPath;
+  };
 
   const createProject = async (project: Omit<IProject, 'id' | 'created' | 'updated'>) => {
     // TODO: Реализовать создание проекта через Tauri API
@@ -43,21 +52,25 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
   // Функция открытия с проверкой
   const openProject = async (path: string) => {
     try {
-      // Проверяем, есть ли открытый проект
       if (hasOpenProject.value) {
         throw new Error('Another project is already open. Please close it first.');
       }
 
-      const project = await invoke<IProject>('open_project', { path });
+      // Сохраняем путь как defaultPath для следующего открытия
+      state.defaultProjectPath = path;
+
+      // const project = await invoke<IProject>('open_project', { path });
+      const project = {
+        id: createID<'Project'>(),
+        name: path.split('/').pop() ?? 'Test Project', // получить имя проекта из пути
+        description: '',
+        path: path,
+        created: new Date(),
+        updated: new Date(),
+      };
       state.currentProject = project;
-      addToRecent({
-        id: project.id,
-        name: project.name,
-        description: project.description,
-        path: project.path,
-        created: project.created,
-        updated: project.updated,
-      });
+      addToRecent(project);
+
       return project;
     } catch (error) {
       console.error('Failed to open project:', error);
@@ -65,8 +78,15 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     }
   };
 
-  const addToRecent = (project: IProjectMeta) => {
-    state.recentProjects = [project, ...state.recentProjects.slice(0, 9)];
+  const addToRecent = (project: IProject) => {
+    // проверить, есть ли проект в recentProjects по пути
+    const index = state.recentProjects.findIndex((p) => p.path === project.path);
+
+    if (index === -1) {
+      state.recentProjects.unshift(project); // вставляем в начало
+    } else {
+      state.recentProjects[index] = project; // обновляем проект в recentProjects
+    }
   };
 
   return {
@@ -77,5 +97,6 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     openProject,
     closeProject,
     addToRecent,
+    getDefaultProjectPath,
   };
 });

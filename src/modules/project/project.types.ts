@@ -1,22 +1,10 @@
-import { IAuthor, Book, IBookSeries } from '../book/book.types';
+import { ProjectID } from "@/core/id";
 
 export interface IProject {
-  id: string;
+  id: ProjectID;
   name: string;
   description: string;
   path: string; // путь к папке проекта
-  created: string;
-  updated: string;
-  authors: IAuthor[];
-  books: Book[];
-  series: IBookSeries[];
-}
-
-export interface IProjectMeta {
-  id: string;
-  name: string;
-  description: string;
-  path: string;
-  created: string;
-  updated: string;
+  created: Date;
+  updated: Date;
 }
