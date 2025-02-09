@@ -5,6 +5,7 @@ import { useSettingsStore } from '@/modules/settings/settings.store';
 import {
   Person32Filled as Person,
   Settings20Filled as SettingsIcon,
+  Folder20Filled as Folder,
 } from '@vicons/fluent';
 import {
   DarkModeOutlined as Dark,
@@ -13,6 +14,7 @@ import {
 import { NAvatar, NButton, NDrawerContent, NIcon, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
+import { PROJECT_PAGE } from '@/modules/project/project.const';
 
 type DrawerLeftMenuEmits = {
   (e: 'close'): void;
@@ -51,11 +53,23 @@ const settingsStore = useSettingsStore();
         >
           <NButton text @click="navigate">
             <template #icon>
-              <NIcon>
-                <Person />
-              </NIcon>
+              <NIcon> <Person /> </NIcon>
             </template>
             {{ t('profile') }}
+          </NButton>
+        </RouterLink>
+        <RouterLink
+          v-slot="{ navigate }"
+          :to="{ name: PROJECT_PAGE.name }"
+          @click="emit('close')"
+        >
+          <NButton text @click="navigate">
+            <template #icon>
+              <NIcon>
+                <Folder />
+              </NIcon>
+            </template>
+            {{ t('project') }}
           </NButton>
         </RouterLink>
         <RouterLink
@@ -85,11 +99,13 @@ const settingsStore = useSettingsStore();
   {
     "en": {
       "settings": "Settings",
-      "profile": "My Profile"
+      "profile": "My Profile",
+      "project": "Project"
     },
     "ru": {
       "settings": "Настройки",
-      "profile": "Мой профиль"
+      "profile": "Мой профиль",
+      "project": "Проект"
     }
   }
 </i18n>
