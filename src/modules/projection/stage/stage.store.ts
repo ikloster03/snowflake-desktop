@@ -87,7 +87,7 @@ export const useStageStore = defineStore('stage', () => {
     }
   };
 
-  const reorderStages = (chapterId: string, newOrder: string[]) => {
+  const reorderStages = (newOrder: string[]) => {
     newOrder.forEach((stageId, index) => {
       const stage = stages.value.find(s => s.id === stageId);
       if (stage) {
