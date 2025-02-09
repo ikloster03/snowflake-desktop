@@ -1,25 +1,31 @@
 <script lang="ts" setup>
-import { NCard, NButton, NIcon, NPopover, NSelect, NSpace } from 'naive-ui';
-import { VNetworkGraph, VEdgeLabel } from 'v-network-graph';
-import * as vNG from 'v-network-graph';
-import type {
-  EventHandlers,
-  NodeEvent,
-  EdgeEvent,
-  Layouts,
-  Node as VNetworkNode,
-  Edge as VNetworkEdge,
-} from 'v-network-graph';
-import { Add12Regular as Add, Edit24Regular as Edit } from '@vicons/fluent';
-import { ref, computed, reactive } from 'vue';
-import Legend from './Legend.vue';
-import 'v-network-graph/lib/style.css';
 import {
   Character,
   Edge,
   RELATION_TYPES,
 } from '@/modules/lore/character/character.types';
-import { useThemeVars } from 'naive-ui';
+import { Add12Regular as Add } from '@vicons/fluent';
+import {
+  NButton,
+  NCard,
+  NIcon,
+  NPopover,
+  NSelect,
+  NSpace,
+  useThemeVars,
+} from 'naive-ui';
+import type {
+  EdgeEvent,
+  EventHandlers,
+  NodeEvent,
+  Edge as VNetworkEdge,
+  Node as VNetworkNode,
+} from 'v-network-graph';
+import * as vNG from 'v-network-graph';
+import { VEdgeLabel, VNetworkGraph } from 'v-network-graph';
+import 'v-network-graph/lib/style.css';
+import { computed, reactive, ref } from 'vue';
+import Legend from './Legend.vue';
 
 // Константы
 const INITIAL_CHARACTERS: Character[] = [
@@ -102,7 +108,7 @@ const nodes = INITIAL_CHARACTERS.reduce(
   (acc, char) => {
     acc[char.id] = {
       name: char.name,
-      description: char.description,
+      description: char.description ?? '',
     };
     return acc;
   },
@@ -144,30 +150,30 @@ const isDarkTheme = computed(() =>
 );
 
 // Функция для определения кривизны ребра в зависимости от существующих рёбер
-const getEdgeCurvature = (edge: Edge) => {
-  // Проверяем, есть ли встречное ребро
-  const reverseEdge = Object.values(edges.value).find(
-    (e) => e.source === edge.target && e.target === edge.source
-  );
+// const getEdgeCurvature = (edge: Edge) => {
+//   // Проверяем, есть ли встречное ребро
+//   const reverseEdge = Object.values(edges.value).find(
+//     (e) => e.source === edge.target && e.target === edge.source
+//   );
 
-  // Проверяем, есть ли параллельные рёбра
-  const parallelEdges = Object.values(edges.value).filter(
-    (e) =>
-      (e.source === edge.source && e.target === edge.target) ||
-      (e.source === edge.target && e.target === edge.source)
-  );
+//   // Проверяем, есть ли параллельные рёбра
+//   const parallelEdges = Object.values(edges.value).filter(
+//     (e) =>
+//       (e.source === edge.source && e.target === edge.target) ||
+//       (e.source === edge.target && e.target === edge.source)
+//   );
 
-  if (reverseEdge) {
-    // Если есть встречное ребро, изгибаем в противоположные стороны
-    return edge.source < edge.target ? 0.2 : -0.2;
-  } else if (parallelEdges.length > 1) {
-    // Если есть параллельные рёбра, распределяем их по разным кривым
-    const index = parallelEdges.findIndex((e) => e.id === edge.id);
-    return -0.2 + index * 0.2;
-  }
+//   if (reverseEdge) {
+//     // Если есть встречное ребро, изгибаем в противоположные стороны
+//     return edge.source < edge.target ? 0.2 : -0.2;
+//   } else if (parallelEdges.length > 1) {
+//     // Если есть параллельные рёбра, распределяем их по разным кривым
+//     const index = parallelEdges.findIndex((e) => e.id === edge.id);
+//     return -0.2 + index * 0.2;
+//   }
 
-  return 0; // Прямая линия для одиночных рёбер
-};
+//   return 0; // Прямая линия для одиночных рёбер
+// };
 
 // Функция для создания начальных позиций узлов
 const calculateInitialPositions = () => {
@@ -271,7 +277,7 @@ const configs = reactive(
 );
 
 const relationTypeOptions = Object.entries(RELATION_TYPES).map(
-  ([key, value]) => ({
+  ([_key, value]) => ({
     label: value,
     value: value,
   })
