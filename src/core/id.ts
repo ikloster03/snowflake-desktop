@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 // Брендированный тип для ID
 export type ID<Brand extends string> = string & { readonly __brand: Brand };
 
@@ -8,14 +10,16 @@ export type SeriesID = ID<'Series'>;
 export type ChapterID = ID<'Chapter'>;
 export type SceneID = ID<'Scene'>;
 export type CharacterID = ID<'Character'>;
-
+export type ProjectID = ID<'Project'>;
 // Функция для создания типизированного ID
-export function createID<Brand extends string>(id: string): ID<Brand> {
-  if (!isValidID(id)) {
+export function createID<Brand extends string>(id?: string): ID<Brand> {
+  const uuid = id ?? uuidv4();
+
+  if (!isValidID(uuid)) {
     throw new Error('Неверный формат ID');
   }
 
-  return id as ID<Brand>;
+  return uuid as ID<Brand>;
 }
 
 // Функция для проверки валидности ID

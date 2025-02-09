@@ -15,20 +15,16 @@ describe('ID utilities', () => {
       });
     });
 
-    it('должен возвращать false для некорректного UUID', () => {
-      const invalidUUIDs = [
-        '',                                       // пустая строка
-        'not-a-uuid',                            // неверный формат
-        '123e4567-e89b-12d3-a456-55664244000',  // неполный UUID
-        '123e4567-e89b-12d3-a456-5566424400000', // слишком длинный UUID
-        '123e4567-e89b-42d3-x456-556642440000',  // неверные символы
+    it.each([
+      '',                                         // пустая строка
+      'not-a-uuid',                               // неверный формат
+        '123e4567-e89b-12d3-a456-55664244000',    // неполный UUID
+        '123e4567-e89b-12d3-a456-5566424400000',  // слишком длинный UUID
+        '123e4567-e89b-42d3-x456-556642440000',   // неверные символы
         null,                                     // null
         undefined,                                // undefined
-      ];
-
-      invalidUUIDs.forEach(uuid => {
-        expect(isValidID(uuid as string)).toBe(false);
-      });
+    ])('должен возвращать false для некорректного UUID %s', (uuid) => {
+      expect(isValidID(uuid as string)).toBe(false);
     });
   });
 
@@ -37,6 +33,12 @@ describe('ID utilities', () => {
       const validUUID = '123e4567-e89b-42d3-a456-556642440000';
       const bookId = createID<'Book'>(validUUID);
       expect(bookId).toBe(validUUID);
+    });
+
+    it('должен создавать типизированный ID при отсутствии аргумента, undefined или null с помощью uuid v4', () => {
+      const bookId = createID<'Book'>();
+      expect(bookId).toBeDefined();
+      expect(isValidID(bookId)).toBe(true);
     });
 
     it('должен выбрасывать ошибку при попытке создать ID из некорректного UUID', () => {
