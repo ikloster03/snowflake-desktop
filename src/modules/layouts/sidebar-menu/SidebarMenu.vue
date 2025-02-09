@@ -5,6 +5,9 @@ import { ref } from 'vue';
 import DrawerLeftMenu from './DrawerLeftMenu.vue';
 import menuOptions from './menu';
 import { Key } from 'naive-ui/es/cascader/src/interface';
+import { useProjectStore } from '@/modules/project/project.store';
+
+const projectStore = useProjectStore();
 
 const showSettings = ref(false);
 const menuValue = ref<Key | null>(menuOptions.at(0)?.key ?? null);
@@ -17,6 +20,7 @@ const close = () => {
 
 <template>
   <NLayoutSider
+    v-if="projectStore.hasOpenProject"
     bordered
     collapsed
     collapse-mode="width"
