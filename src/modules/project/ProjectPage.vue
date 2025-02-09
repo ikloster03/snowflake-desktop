@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { NCard, NButton, NFlex, NAlert } from 'naive-ui';
+import { open } from '@tauri-apps/plugin-dialog';
+import { NButton, NCard, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
-import { open } from '@tauri-apps/plugin-dialog';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();

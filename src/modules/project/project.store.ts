@@ -34,7 +34,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     return state.defaultProjectPath;
   };
 
-  const createProject = async (project: Omit<IProject, 'id' | 'created' | 'updated'>) => {
+  const createProject = async (_project: Omit<IProject, 'id' | 'created' | 'updated'>) => {
     // TODO: Реализовать создание проекта через Tauri API
   };
 
