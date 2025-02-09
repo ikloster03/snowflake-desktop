@@ -6,11 +6,18 @@
 
 ```mermaid
 graph TD
-    A[Book Editor] --> B[Modules]
+    A[Snowflake] --> P[Project]
+    P --> B[Book Editor]
+    B --> M[Modules]
 
-    B --> C[Book Module]
-    B --> D[Projection Module]
-    B --> E[Lore Module]
+    M --> Project[Project Module]
+    M --> C[Book Module]
+    M --> D[Projection Module]
+    M --> E[Lore Module]
+
+    Project --> P1[Project Management]
+    Project --> P2[Recent Projects]
+    Project --> P3[Project Settings]
 
     C --> C1[Author Management]
     C --> C2[Book Management]

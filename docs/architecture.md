@@ -12,6 +12,7 @@ graph TB
     UI_Kit[Naive UI]
   end
   subgraph "Core Modules"
+    Project[Project Module]
     Book[Book Module]
     Projection[Projection Module]
     Lore[Lore Module]
@@ -40,11 +41,12 @@ graph TB
     UI --> I18n
     UI --> UI_Kit
   %% Module connections
-    State --> Book
-    State --> Projection
-    State --> Lore
-    State --> Export
-    State --> Storage
+    State --> Project
+    Project --> Book
+    Project --> Projection
+    Project --> Lore
+    Project --> Export
+    Project --> Storage
   %% Backend connections
     Book --> Tauri
     Projection --> Tauri
@@ -81,6 +83,7 @@ style FileSystem fill:#4a5568
 
 ### Core Modules
 
+- **Project Module**: Управление проектами и их конфигурацией
 - **Book Module**: Управление книгами и сериями
 - **Projection Module**: Планирование и структурирование книг
 - **Lore Module**: Управление миром и персонажами
