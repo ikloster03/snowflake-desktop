@@ -1,9 +1,9 @@
 import { ValueOf } from "@/core";
 import { ISBN } from "@/core/isbn";
 import { BOOK_STATUS, BOOK_GENRES, SERIES_TYPES, BOOK_RELATION_TYPES } from './book.const';
-
+import { AuthorID } from "@/core/id";
 export interface IAuthor {
-  id: string;
+  id: AuthorID;
   firstName: string;
   middleName: string | null;
   lastName: string;

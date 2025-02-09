@@ -11,18 +11,20 @@ import {
   useMessage,
 } from 'naive-ui';
 import { useBookStore } from '../book.store';
-import { AuthorKeys, IAuthor } from '../book.types';
+import { IAuthor } from '../book.types';
 import { useI18n } from 'vue-i18n';
 import { ArrowBackFilled as ArrowBack } from '@vicons/material';
 import { RouterLink } from 'vue-router';
 import { BOOK_PAGE } from '../book.const';
 import { ref } from 'vue';
+import { createID } from '@/core/id';
 
 const { t } = useI18n();
 const bookStore = useBookStore();
 const formAuthorRef = ref<FormInst | null>(null);
 const message = useMessage();
 const author = ref<IAuthor>({
+  id: createID<'Author'>(),
   lastName: '', // bookStore.lastName,
   firstName: '', // bookStore.firstName,
   middleName: '', // bookStore.middleName,

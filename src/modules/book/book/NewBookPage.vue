@@ -12,7 +12,6 @@ import {
   NInputNumber,
   useMessage,
 } from 'naive-ui';
-import { useBookStore } from '../book.store';
 import { ArrowBackFilled as ArrowBack } from '@vicons/material';
 import { RouterLink } from 'vue-router';
 import { BOOK_GENRES, BOOK_PAGE, BOOK_STATUS } from '../book.const';
@@ -25,7 +24,6 @@ import Synopsis from '../synopsis/Synopsis.vue';
 import type { Value } from 'naive-ui/es/date-picker/src/interface';
 
 const { t } = useI18n();
-const bookStore = useBookStore();
 const formRef = ref<FormInst | null>(null);
 const message = useMessage();
 
