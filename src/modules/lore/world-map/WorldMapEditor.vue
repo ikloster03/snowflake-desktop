@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { Stage, Layer, Image as KonvaImage } from 'vue-konva';
+// import { Stage, Layer, Image as KonvaImage } from 'vue-konva';
 
 const stageWidth = ref(800);
 const stageHeight = ref(600);
@@ -20,24 +20,24 @@ const loadImage = () => {
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault();
 
-  const scaleBy = 1.1;
-  const oldScale = scale.value;
+  // const scaleBy = 1.1;
+  // const oldScale = scale.value;
 
-  const pointer = e.target?.getStage().getPointerPosition();
-  const mousePointTo = {
-    x: (pointer.x - e.target?.getStage().x()) / oldScale,
-    y: (pointer.y - e.target?.getStage().y()) / oldScale,
-  };
+  // const pointer = e.target?.getStage().getPointerPosition();
+  // const mousePointTo = {
+  //   x: (pointer.x - e.target?.getStage().x()) / oldScale,
+  //   y: (pointer.y - e.target?.getStage().y()) / oldScale,
+  // };
 
-  const newScale = e.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
-  scale.value = newScale;
+  // const newScale = e.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+  // scale.value = newScale;
 
-  const newPos = {
-    x: pointer.x - mousePointTo.x * newScale,
-    y: pointer.y - mousePointTo.y * newScale,
-  };
+  // const newPos = {
+  //   x: pointer.x - mousePointTo.x * newScale,
+  //   y: pointer.y - mousePointTo.y * newScale,
+  // };
 
-  e.target.getStage().position(newPos);
+  // e?.target?.getStage()?.position(newPos);
 };
 
 onMounted(() => {

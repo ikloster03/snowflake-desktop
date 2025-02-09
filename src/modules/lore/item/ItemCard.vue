@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { NCard, NSpace, NTag, NButton, NTooltip } from 'naive-ui';
+import { NCard, NSpace, NTag, NButton } from 'naive-ui';
 import { usePrivateItemStore } from './item.store';
 import type { IItem } from './item.types';
 
-const props = defineProps<{
+defineProps<{
   item: IItem;
 }>();
 

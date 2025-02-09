@@ -10,9 +10,9 @@ import {
   NSpace,
 } from 'naive-ui';
 import { ref } from 'vue';
-import type { ILocation } from './location.types';
+import { ILocation } from './location.types';
 
-const locationData = ref<ILocation>({
+const locationData = ref<Required<ILocation>>({
   id: crypto.randomUUID(),
   name: '',
   description: '',

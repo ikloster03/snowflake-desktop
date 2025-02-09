@@ -2,15 +2,16 @@
 import { NCard, NSpace, NButton, NInput } from 'naive-ui';
 import WorldMapEditor from './WorldMapEditor.vue';
 import { ref } from 'vue';
+import { ILocation } from '../location/location.types';
 
 const locations = ref([
   { id: '1', name: 'Город А', x: 100, y: 100 },
   { id: '2', name: 'Деревня Б', x: 200, y: 150 },
 ]);
 
-const selectedLocation = ref<Location | null>(null);
+const selectedLocation = ref<ILocation | null>(null);
 
-const handleLocationSelect = (location: Location) => {
+const handleLocationSelect = (location: ILocation) => {
   selectedLocation.value = location;
 };
 

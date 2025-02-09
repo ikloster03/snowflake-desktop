@@ -12,7 +12,7 @@ export type SecondaryCharacterType = ValueOf<typeof SECONDARY_CHARACTER_TYPE>;
 interface IBaseCharacter {
   id: string;
   name: string;
-  description: string
+  description?: string;
 }
 
 interface IMainCharacter extends IBaseCharacter {
