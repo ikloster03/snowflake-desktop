@@ -1,5 +1,4 @@
 import { BOOK_PAGE } from '@/modules/book/book.const';
-import { HOME_PAGE } from '@/modules/home/home.const';
 import { LORE_PAGE } from '@/modules/lore/lore.const';
 import {
   CHARACTER_MAP_PAGE,
@@ -9,8 +8,7 @@ import {
 import {
   Book20Filled as BookIcon,
   PeopleCommunity20Filled as CharactersIcon,
-  Home20Filled as HomeIcon,
-  Timeline20Filled as TimelineIcon,
+  Timeline20Filled as TimelineIcon
 } from '@vicons/fluent';
 import { Notes as NotesIcon, World as WorldIcon } from '@vicons/tabler';
 import { MenuMixedOption } from 'naive-ui/es/menu/src/interface';
