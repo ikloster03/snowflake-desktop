@@ -84,11 +84,6 @@ const characters: Character[] = [
   },
 ];
 
-const characterOptions = characters.map((char) => ({
-  label: char.name,
-  value: char.id,
-}));
-
 const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
   id: '',
   title: '',
@@ -106,11 +101,6 @@ const typeOptions = [
   { label: 'Путешествие', value: 'journey' },
   { label: 'Другое', value: 'other' },
 ];
-
-const chapterOptions = chapters.map((chapter) => ({
-  label: chapter.title,
-  value: chapter.id,
-}));
 
 const handleStageSelect = (stageId: string) => {
   const selectedStage = stageStore.getStageById(stageId);
