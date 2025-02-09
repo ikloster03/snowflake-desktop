@@ -1,34 +1,30 @@
 <script lang="ts" setup>
 import {
+  FormInst,
+  FormRules,
+  NAvatar,
+  NButton,
   NCard,
   NForm,
   NFormItem,
   NInput,
-  NSelect,
-  NButton,
-  NAvatar,
-  FormInst,
   useMessage,
 } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useSettingsStore } from '@/modules/settings/settings.store';
 import type { IProfileForm } from './profile.types';
 
 const { t } = useI18n();
 const message = useMessage();
-const settingsStore = useSettingsStore();
 const formRef = ref<FormInst | null>(null);
 
 const profileForm = ref<IProfileForm>({
   email: 'user@example.com', // Здесь должны быть реальные данные из стора
   displayName: 'User Name',
   avatar: undefined,
-  language: settingsStore.currentLocale,
-  theme: settingsStore.theme.name,
 });
 
-const rules = {
+const rules: FormRules = {
   email: {
     required: true,
     type: 'email',
@@ -36,15 +32,6 @@ const rules = {
   },
   displayName: {
     required: true,
-    trigger: ['blur', 'input'],
-  },
-  confirmPassword: {
-    validator: (rule: any, value: string) => {
-      return (
-        !profileForm.value.newPassword ||
-        value === profileForm.value.newPassword
-      );
-    },
     trigger: ['blur', 'input'],
   },
 };
