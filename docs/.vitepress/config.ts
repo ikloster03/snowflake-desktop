@@ -23,7 +23,8 @@ export default withMermaid(
           items: [
             { text: 'О проекте', link: '/readme' },
             { text: 'Навигация', link: '/navigation' },
-            { text: 'Структура', link: '/structure' }
+            { text: 'Структура', link: '/structure' },
+            { text: 'Ключевые возможности', link: '/features' }
           ]
         },
         {
