@@ -24,7 +24,8 @@ export default withMermaid(
             { text: 'О проекте', link: '/readme' },
             { text: 'Навигация', link: '/navigation' },
             { text: 'Структура', link: '/structure' },
-            { text: 'Ключевые возможности', link: '/features' }
+            { text: 'Ключевые возможности', link: '/features' },
+            { text: 'SWOT-анализ', link: '/swot' }
           ]
         },
         {
