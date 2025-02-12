@@ -5,18 +5,22 @@ import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from './settings.store';
+import { DATE_LOCALE_OPTIONS, DICT_LANG, THEME_OPTIONS } from './settings.const';
 
 const { t } = useI18n();
 const appStore = useSettingsStore();
 
+const [DARK_THEME, LIGHT_THEME] = THEME_OPTIONS;
+const [EN_LOCALE, RU_LOCALE] = DATE_LOCALE_OPTIONS;
+
 const themeOptions = computed<SelectBaseOption<string, string>[]>(() => [
   {
-    label: `${t('dark')}`,
-    value: 'dark',
+    label: `${t(DARK_THEME)}`,
+    value: DARK_THEME,
   },
   {
-    label: `${t('light')}`,
-    value: 'light',
+    label: `${t(LIGHT_THEME)}`,
+    value: LIGHT_THEME,
   },
 ]);
 
@@ -41,11 +45,11 @@ const handleUpdateTheme = (value: string) => {
 const langOptions = computed<SelectBaseOption<string, string>[]>(() => [
   {
     label: `${t('english')}`,
-    value: 'en-US',
+    value: EN_LOCALE,
   },
   {
     label: `${t('russian')}`,
-    value: 'ru-RU',
+    value: RU_LOCALE,
   },
 ]);
 
@@ -61,13 +65,8 @@ const defaultLangOption = computed(() => {
   return option;
 });
 
-const dictLang = {
-  'en-US': [enUS, dateEnUS],
-  'ru-RU': [ruRU, dateRuRU],
-} as const;
-
 const handleUpdateLang = (value: 'en-US' | 'ru-RU') => {
-  const [locale, dateLocale] = dictLang[value];
+  const [locale, dateLocale] = DICT_LANG[value];
 
   i18n.global.locale.value = value.split('-')[0] as 'en' | 'ru';
 
