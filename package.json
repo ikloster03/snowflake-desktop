@@ -18,6 +18,7 @@
     "@tauri-apps/plugin-dialog": "~2",
     "@tauri-apps/plugin-fs": "~2",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-store": "~2.2.0",
     "konva": "^9.3.18",
     "pinia": "^2.3.0",
     "uuid": "^11.0.5",
