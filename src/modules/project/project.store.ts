@@ -5,6 +5,7 @@ import { PRIVATE_STORE_PREFIX } from '@/store.const';
 // import { invoke } from '@tauri-apps/api/core';
 import { homeDir } from '@tauri-apps/api/path';
 import { createID } from '@/core/id';
+import { load } from '@tauri-apps/plugin-store';
 
 export const PROJECT_STORE = 'project';
 
@@ -32,10 +33,6 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
       state.defaultProjectPath = await homeDir();
     }
     return state.defaultProjectPath;
-  };
-
-  const createProject = async (_project: Omit<IProject, 'id' | 'created' | 'updated'>) => {
-    // TODO: Реализовать создание проекта через Tauri API
   };
 
   // Функция закрытия проекта
@@ -69,7 +66,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
         updated: new Date(),
       };
       state.currentProject = project;
-      addToRecent(project);
+      await addToRecent(project);
 
       return project;
     } catch (error) {
@@ -78,7 +75,21 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     }
   };
 
-  const addToRecent = (project: IProject) => {
+  const loadRecentProjects = async () => {
+    // ~/.local/share/com.snowflake.app/.settings.dat # linux (dev)
+    // ~/.local/share/{app-name}/.settings.dat # linux
+    // C:\Users\{username}\AppData\Roaming\{app-name}\{app-name}\.settings.dat # windows
+    // ~/Library/Application Support/{app-name}/.settings.dat # macos
+    const store = await load('.settings.dat');
+    state.recentProjects = await store.get<IProject[]>('recentProjects') || [];
+  };
+
+  const saveRecentProjects = async () => {
+    const store = await load('.settings.dat');
+    await store.set('recentProjects', state.recentProjects);
+  };
+
+  const addToRecent = async (project: IProject) => {
     // проверить, есть ли проект в recentProjects по пути
     const index = state.recentProjects.findIndex((p) => p.path === project.path);
 
@@ -86,17 +97,24 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
       state.recentProjects.unshift(project); // вставляем в начало
     } else {
       state.recentProjects[index] = project; // обновляем проект в recentProjects
+      state.recentProjects.splice(index, 1);
+      state.recentProjects.unshift(project);
     }
+
+    // храним небольше 10 последних проектов
+    state.recentProjects = state.recentProjects.filter((_, index) => index < 10);
+
+    await saveRecentProjects();
   };
 
   return {
     currentProject,
     recentProjects,
     hasOpenProject,
-    createProject,
     openProject,
     closeProject,
     addToRecent,
     getDefaultProjectPath,
+    loadRecentProjects,
   };
 });

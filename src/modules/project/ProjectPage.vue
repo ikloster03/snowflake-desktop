@@ -3,6 +3,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { NButton, NCard, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
+import { onMounted } from 'vue';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();
@@ -31,6 +32,10 @@ const handleOpenProject = async () => {
     console.error('Failed to open project:', error);
   }
 };
+
+onMounted(async () => {
+  await projectStore.loadRecentProjects();
+});
 </script>
 
 <template>
