@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-import { NGrid, NGridItem, NButton } from 'naive-ui';
-import { ref } from 'vue';
+import { NGrid, NGridItem } from 'naive-ui';
 import { usePrivateEventStore } from './event.store';
 import Event from './Event.vue';
 import NewEvent from './NewEvent.vue';
 import type { IEvent } from './event.types';
 
 const eventStore = usePrivateEventStore();
-const showNewEventForm = ref(false);
 
 const handleEventUpdate = (updatedEvent: IEvent) => {
   eventStore.updateEvent(updatedEvent);
@@ -15,7 +13,6 @@ const handleEventUpdate = (updatedEvent: IEvent) => {
 
 const handleEventCreate = (newEvent: IEvent) => {
   eventStore.addEvent(newEvent);
-  showNewEventForm.value = false;
 };
 
 const handleEventDelete = (id: string) => {
@@ -34,12 +31,7 @@ const handleEventDelete = (id: string) => {
     </NGridItem>
 
     <NGridItem>
-      <div v-if="!showNewEventForm" class="add-event-card">
-        <NButton type="primary" @click="showNewEventForm = true">
-          Добавить событие
-        </NButton>
-      </div>
-      <NewEvent v-else @create="handleEventCreate" />
+      <NewEvent @create="handleEventCreate" />
     </NGridItem>
   </NGrid>
 </template>
