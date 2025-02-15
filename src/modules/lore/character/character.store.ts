@@ -1,9 +1,11 @@
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import * as fs from '@tauri-apps/plugin-fs';
 import { Character } from './character.types';
 import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+// import { useMessage } from 'naive-ui';
 
 export const CHARACTER_STORE = 'character';
 
@@ -12,6 +14,11 @@ export const usePrivateCharacterStore = defineStore(
   () => {
     const characters = ref<Character[]>([]);
     const projectStore = useProjectStore();
+    // const message = useMessage();
+
+    const canAddCharacter = computed(() =>
+      characters.value.length < PROJECT_LIMITS.CHARACTERS.MAX_CHARACTERS_PER_PROJECT
+    );
 
     // Загрузка персонажей
     const loadCharacters = async () => {
@@ -48,7 +55,18 @@ export const usePrivateCharacterStore = defineStore(
 
     // Функции для работы с персонажами
     const addCharacter = (character: Character) => {
+      if (!canAddCharacter.value) {
+        // message.error(`Достигнут лимит персонажей (${PROJECT_LIMITS.CHARACTERS.MAX_CHARACTERS_PER_PROJECT})`);
+        return false;
+      }
+
+      if (character.name.length > PROJECT_LIMITS.CHARACTERS.MAX_CHARACTER_NAME_LENGTH) {
+        // message.error(`Имя персонажа не может быть длиннее ${PROJECT_LIMITS.CHARACTERS.MAX_CHARACTER_NAME_LENGTH} символов`);
+        return false;
+      }
+
       characters.value.push(character);
+      return true;
     };
 
     const removeCharacter = (characterId: string) => {
@@ -81,6 +99,7 @@ export const usePrivateCharacterStore = defineStore(
       removeCharacter,
       updateCharacter,
       getCharacterById,
+      canAddCharacter
     };
   }
 );
