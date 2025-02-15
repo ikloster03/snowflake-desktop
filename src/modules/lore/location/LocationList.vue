@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-import { NGrid, NGridItem, NButton } from 'naive-ui';
-import { ref } from 'vue';
+import { NGrid, NGridItem } from 'naive-ui';
 import { usePrivateLocationStore } from './location.store';
 import Location from './Location.vue';
 import NewLocation from './NewLocation.vue';
 import type { ILocation } from './location.types';
 
 const locationStore = usePrivateLocationStore();
-const showNewLocationForm = ref(false);
 
 const handleLocationUpdate = (updatedLocation: ILocation, index: number) => {
   locationStore.updateLocation(index, updatedLocation);
@@ -15,7 +13,6 @@ const handleLocationUpdate = (updatedLocation: ILocation, index: number) => {
 
 const handleLocationCreate = (newLocation: ILocation) => {
   locationStore.addLocation(newLocation);
-  showNewLocationForm.value = false;
 };
 
 const handleDelete = (locationId: string) => {
@@ -44,12 +41,7 @@ const handleDelete = (locationId: string) => {
     </NGridItem>
 
     <NGridItem>
-      <div v-if="!showNewLocationForm" class="add-location-card">
-        <NButton type="primary" @click="showNewLocationForm = true">
-          Добавить локацию
-        </NButton>
-      </div>
-      <NewLocation v-else @create="handleLocationCreate" />
+      <NewLocation @create="handleLocationCreate" />
     </NGridItem>
   </NGrid>
 </template>
