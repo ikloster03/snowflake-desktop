@@ -1,9 +1,11 @@
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import * as fs from '@tauri-apps/plugin-fs';
 import { IEvent } from './event.types';
 import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+// import { useMessage } from 'naive-ui';
 
 export const EVENT_STORE = 'event';
 
@@ -12,6 +14,11 @@ export const usePrivateEventStore = defineStore(
   () => {
     const events = ref<IEvent[]>([]);
     const projectStore = useProjectStore();
+    // const message = useMessage();
+
+    const canAddEvent = computed(() =>
+      events.value.length < PROJECT_LIMITS.TIMELINE.MAX_EVENTS_PER_PROJECT
+    );
 
     // Загрузка событий
     const loadEvents = async () => {
@@ -48,10 +55,26 @@ export const usePrivateEventStore = defineStore(
 
     // Методы работы с событиями
     const addEvent = (event: IEvent) => {
+      if (!canAddEvent.value) {
+        // message.error(`Достигнут лимит событий (${PROJECT_LIMITS.TIMELINE.MAX_EVENTS_PER_PROJECT})`);
+        return false;
+      }
+
+      if (event.title.length > PROJECT_LIMITS.TIMELINE.MAX_EVENT_NAME_LENGTH) {
+        // message.error(`Название события не может быть длиннее ${PROJECT_LIMITS.TIMELINE.MAX_EVENT_NAME_LENGTH} символов`);
+        return false;
+      }
+
+      if (event.description && event.description.length > PROJECT_LIMITS.TIMELINE.MAX_EVENT_DESCRIPTION_LENGTH) {
+        // message.error(`Описание события не может быть длиннее ${PROJECT_LIMITS.TIMELINE.MAX_EVENT_DESCRIPTION_LENGTH} символов`);
+        return false;
+      }
+
       events.value.push({
         ...event,
         id: crypto.randomUUID()
       });
+      return true;
     };
 
     const updateEvent = (event: IEvent) => {
@@ -78,7 +101,8 @@ export const usePrivateEventStore = defineStore(
       events,
       addEvent,
       updateEvent,
-      removeEvent
+      removeEvent,
+      canAddEvent
     };
   }
 );
