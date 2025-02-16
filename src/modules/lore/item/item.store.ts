@@ -1,9 +1,11 @@
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import * as fs from '@tauri-apps/plugin-fs';
 import type { IItem } from './item.types';
 import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+// import { useMessage } from 'naive-ui';
 
 export const ITEM_STORE = 'item';
 
@@ -12,6 +14,11 @@ export const usePrivateItemStore = defineStore(
   () => {
     const items = ref<IItem[]>([]);
     const projectStore = useProjectStore();
+    // const message = useMessage();
+
+    const canAddItem = computed(() =>
+      items.value.length < PROJECT_LIMITS.ITEMS.MAX_ITEMS_PER_PROJECT
+    );
 
     // Загрузка предметов
     const loadItems = async () => {
@@ -48,10 +55,26 @@ export const usePrivateItemStore = defineStore(
 
     // Методы работы с предметами
     const addItem = (item: IItem) => {
+      if (!canAddItem.value) {
+        // message.error(`Достигнут лимит предметов (${PROJECT_LIMITS.ITEMS.MAX_ITEMS_PER_PROJECT})`);
+        return false;
+      }
+
+      if (item.name.length > PROJECT_LIMITS.ITEMS.MAX_ITEM_NAME_LENGTH) {
+        // message.error(`Название предмета не может быть длиннее ${PROJECT_LIMITS.ITEMS.MAX_ITEM_NAME_LENGTH} символов`);
+        return false;
+      }
+
+      if (item.description && item.description.length > PROJECT_LIMITS.ITEMS.MAX_ITEM_DESCRIPTION_LENGTH) {
+        // message.error(`Описание предмета не может быть длиннее ${PROJECT_LIMITS.ITEMS.MAX_ITEM_DESCRIPTION_LENGTH} символов`);
+        return false;
+      }
+
       items.value.push({
         ...item,
         id: crypto.randomUUID()
       });
+      return true;
     };
 
     const updateItem = (updatedItem: IItem) => {
@@ -78,7 +101,8 @@ export const usePrivateItemStore = defineStore(
       items,
       addItem,
       updateItem,
-      removeItem
+      removeItem,
+      canAddItem
     };
   }
 );
