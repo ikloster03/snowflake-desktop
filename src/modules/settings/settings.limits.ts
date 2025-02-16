@@ -26,6 +26,13 @@ export const PROJECT_LIMITS = {
     MAX_LOCATION_DESCRIPTION_LENGTH: 3000,
   },
 
+  // Ограничения для предметов
+  ITEMS: {
+    MAX_ITEMS_PER_PROJECT: 100,
+    MAX_ITEM_NAME_LENGTH: 100,
+    MAX_ITEM_DESCRIPTION_LENGTH: 3000,
+  },
+
   // Ограничения для событий и временной шкалы
   TIMELINE: {
     MAX_EVENTS_PER_PROJECT: 1000,
