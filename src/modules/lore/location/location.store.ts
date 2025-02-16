@@ -1,9 +1,11 @@
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import * as fs from '@tauri-apps/plugin-fs';
 import type { ILocation } from './location.types';
 import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+// import { useMessage } from 'naive-ui';
 
 export const LOCATION_STORE = 'location';
 
@@ -12,6 +14,11 @@ export const usePrivateLocationStore = defineStore(
   () => {
     const locations = ref<ILocation[]>([]);
     const projectStore = useProjectStore();
+    // const message = useMessage();
+
+    const canAddLocation = computed(() =>
+      locations.value.length < PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT
+    );
 
     // Загрузка локаций
     const loadLocations = async () => {
@@ -48,14 +55,29 @@ export const usePrivateLocationStore = defineStore(
 
     // Методы работы с локациями
     const addLocation = (location: ILocation) => {
+      if (!canAddLocation.value) {
+        // message.error(`Достигнут лимит локаций (${PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT})`);
+        return false;
+      }
+
+      if (location.name.length > PROJECT_LIMITS.LOCATIONS.MAX_LOCATION_NAME_LENGTH) {
+        // message.error(`Название локации не может быть длиннее ${PROJECT_LIMITS.LOCATIONS.MAX_LOCATION_NAME_LENGTH} символов`);
+        return false;
+      }
+
+      if (location.description && location.description.length > PROJECT_LIMITS.LOCATIONS.MAX_LOCATION_DESCRIPTION_LENGTH) {
+        // message.error(`Описание локации не может быть длиннее ${PROJECT_LIMITS.LOCATIONS.MAX_LOCATION_DESCRIPTION_LENGTH} символов`);
+        return false;
+      }
+
       locations.value.push({
         ...location,
         id: crypto.randomUUID()
       });
+      return true;
     };
 
-    const updateLocation = (location: ILocation) => {
-      const index = locations.value.findIndex((loc) => loc.id === location.id);
+    const updateLocation = (index: number, location: ILocation) => {
       if (index !== -1) {
         locations.value[index] = location;
       }
@@ -78,7 +100,8 @@ export const usePrivateLocationStore = defineStore(
       locations,
       addLocation,
       updateLocation,
-      removeLocation
+      removeLocation,
+      canAddLocation
     };
   }
 );
