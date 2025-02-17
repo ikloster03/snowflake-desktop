@@ -27,11 +27,10 @@ export interface ISingleBook {
   description: string;
   authors: IAuthor[];
   publicationDate: string;
-  pages: number;
   isbn?: ISBN;
   genres: BookGenre[];
   status: BookStatus;
-  relations?: IBookRelation[]; // Добавляем связи с другими книгами
+  relations?: IBookRelation[];
 }
 
 export interface IBookInSeries extends ISingleBook {
