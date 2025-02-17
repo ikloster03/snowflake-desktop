@@ -10,6 +10,7 @@ export const PROJECT_LIMITS = {
     MAX_BOOK_SYNOPSIS_LENGTH: 10000, // максимальная длина синопсиса
     MAX_GENRES_PER_BOOK: 5, // максимальное количество жанров для одной книги
     MAX_AUTHORS_PER_BOOK: 5, // максимальное количество авторов
+    MAX_AUTHOR_NAME_LENGTH: 100, // максимальная длина имени автора
   },
 
   // Ограничения для персонажей
