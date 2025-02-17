@@ -1,7 +1,7 @@
 import { ValueOf } from "@/core";
 import { ISBN } from "@/core/isbn";
 import { BOOK_STATUS, BOOK_GENRES, SERIES_TYPES, BOOK_RELATION_TYPES } from './book.const';
-import { AuthorID } from "@/core/id";
+import { AuthorID, BookID, SeriesID } from "@/core/id";
 export interface IAuthor {
   id: AuthorID;
   firstName: string;
@@ -22,7 +22,7 @@ export interface IBookRelation {
 }
 
 export interface ISingleBook {
-  id: string;
+  id: BookID;
   title: string;
   description: string;
   authors: IAuthor[];
@@ -35,12 +35,12 @@ export interface ISingleBook {
 }
 
 export interface IBookInSeries extends ISingleBook {
-  seriesId: string;
+  seriesId: SeriesID;
   orderInSeries: number;
 }
 
 export interface IBookSeries {
-  id: string;
+  id: SeriesID;
   title: string;
   description: string;
   authors: IAuthor[];
