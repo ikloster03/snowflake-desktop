@@ -4,9 +4,11 @@ import { NButton, NCard, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
 import { onMounted } from 'vue';
-
+import { useRouter } from 'vue-router';
+import { BOOK_PAGE } from '../book/book.const';
 const { t } = useI18n();
 const projectStore = useProjectStore();
+const router = useRouter();
 
 const handleCloseProject = async () => {
   try {
@@ -16,7 +18,7 @@ const handleCloseProject = async () => {
   }
 };
 
-const handleOpenProject = async () => {
+const handleOpenNewProject = async () => {
   try {
     const selected = await open({
       directory: true,
@@ -27,10 +29,16 @@ const handleOpenProject = async () => {
 
     if (selected) {
       await projectStore.openProject(selected as string);
+      await router.push({ name: BOOK_PAGE.name });
     }
   } catch (error) {
     console.error('Failed to open project:', error);
   }
+};
+
+const handleOpenProject = async (path: string) => {
+  await projectStore.openProject(path);
+  await router.push({ name: BOOK_PAGE.name });
 };
 
 onMounted(async () => {
@@ -57,7 +65,7 @@ onMounted(async () => {
 
     <!-- Показываем кнопки создания/открытия, только если нет открытого проекта -->
     <NFlex v-else :x-gap="12">
-      <NButton @click="handleOpenProject">
+      <NButton @click="handleOpenNewProject">
         {{ t('open-project') }}
       </NButton>
     </NFlex>
@@ -75,7 +83,7 @@ onMounted(async () => {
             {{ t('last-updated') }}:
             {{ new Date(project.updated).toLocaleString() }}
           </p>
-          <NButton @click="projectStore.openProject(project.path)">
+          <NButton @click="handleOpenProject(project.path)">
             {{ t('open') }}
           </NButton>
         </NCard>
