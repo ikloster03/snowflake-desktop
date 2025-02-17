@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n';
 import { profileI18n } from '@/modules/profile/profile.i18n';
 import { projectI18n } from '@/modules/project/project.i18n';
+import { bookI18n } from '@/modules/book/book.i18n';
 
 const i18n = createI18n({
   locale: 'en',
@@ -10,10 +11,12 @@ const i18n = createI18n({
     en: {
       ...profileI18n.en,
       ...projectI18n.en,
+      ...bookI18n.en,
     },
     ru: {
       ...profileI18n.ru,
       ...projectI18n.ru,
+      ...bookI18n.ru,
     },
   }
 });
