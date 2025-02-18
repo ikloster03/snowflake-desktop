@@ -44,6 +44,7 @@
     },
     "dialog:default",
     "store:default",
-    "store:default"
+    "store:default",
+    "os:default"
   ]
 }
