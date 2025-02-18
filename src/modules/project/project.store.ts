@@ -107,6 +107,11 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     await saveRecentProjects();
   };
 
+  const removeFromRecent = async (projectPath: string) => {
+    state.recentProjects = state.recentProjects.filter(p => p.path !== projectPath);
+    await saveRecentProjects();
+  };
+
   const getLastProject = computed(() => {
     if (!state.recentProjects.length) return null;
     return state.recentProjects[0];
@@ -119,6 +124,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     openProject,
     closeProject,
     addToRecent,
+    removeFromRecent,
     getDefaultProjectPath,
     loadRecentProjects,
     getLastProject,

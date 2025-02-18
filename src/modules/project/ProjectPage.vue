@@ -41,6 +41,14 @@ const handleOpenProject = async (path: string) => {
   await router.push({ name: BOOK_PAGE.name });
 };
 
+const handleRemoveFromRecent = async (path: string) => {
+  try {
+    await projectStore.removeFromRecent(path);
+  } catch (error) {
+    console.error('Failed to remove from recent:', error);
+  }
+};
+
 onMounted(async () => {
   await projectStore.loadRecentProjects();
 });
@@ -85,6 +93,9 @@ onMounted(async () => {
           </p>
           <NButton @click="handleOpenProject(project.path)">
             {{ t('open') }}
+          </NButton>
+          <NButton @click="handleRemoveFromRecent(project.path)">
+            {{ t('remove-from-recent') }}
           </NButton>
         </NCard>
       </NFlex>

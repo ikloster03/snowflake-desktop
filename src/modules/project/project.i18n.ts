@@ -22,7 +22,8 @@ const projectI18nEn = {
   "cancel": "Cancel",
   "create": "Create",
   "select-project-file": "Select a Snowflake project file (.snflk)",
-  "browse": "Browse"
+  "browse": "Browse",
+  "remove-from-recent": "Remove from recent"
 } as const;
 
 const projectI18nRu = {
@@ -49,7 +50,8 @@ const projectI18nRu = {
   "cancel": "Отмена",
   "create": "Создать",
   "select-project-file": "Выберите файл проекта Snowflake (.snflk)",
-  "browse": "Обзор"
+  "browse": "Обзор",
+  "remove-from-recent": "Удалить из недавних"
 } as const;
 
 export const projectI18n = {
