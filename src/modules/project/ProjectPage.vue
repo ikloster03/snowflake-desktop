@@ -1,14 +1,21 @@
 <script lang="ts" setup>
 import { open } from '@tauri-apps/plugin-dialog';
-import { NButton, NCard, NFlex } from 'naive-ui';
+import { NButton, NCard, NFlex, NSelect } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../book/book.const';
+import i18n from '@/i18n';
+
 const { t } = useI18n();
 const projectStore = useProjectStore();
 const router = useRouter();
+
+const languages = [
+  { label: 'English', value: 'en' },
+  { label: 'Русский', value: 'ru' }
+];
 
 const handleCloseProject = async () => {
   try {
@@ -51,12 +58,25 @@ const handleRemoveFromRecent = async (path: string) => {
 
 onMounted(async () => {
   await projectStore.loadRecentProjects();
+  await projectStore.initLocale();
 });
+
+const handleLanguageChange = (value: string) => {
+  i18n.global.locale.value = value as 'en' | 'ru';
+};
 </script>
 
 <template>
   <NFlex vertical :y-gap="24">
-    <h1>{{ t('project-manager') }}</h1>
+    <NFlex justify="space-between" align="center">
+      <h1>{{ t('project-manager') }}</h1>
+      <NSelect
+        :value="i18n.global.locale.value"
+        :options="languages"
+        @update:value="handleLanguageChange"
+        style="width: 120px"
+      />
+    </NFlex>
 
     <!-- Показываем текущий проект, если он открыт -->
     <NCard v-if="projectStore.hasOpenProject">
