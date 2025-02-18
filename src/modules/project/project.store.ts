@@ -107,6 +107,11 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     await saveRecentProjects();
   };
 
+  const getLastProject = computed(() => {
+    if (!state.recentProjects.length) return null;
+    return state.recentProjects[0];
+  });
+
   return {
     currentProject,
     recentProjects,
@@ -116,5 +121,6 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     addToRecent,
     getDefaultProjectPath,
     loadRecentProjects,
+    getLastProject,
   };
 });
