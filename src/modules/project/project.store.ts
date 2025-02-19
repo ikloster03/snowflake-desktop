@@ -6,8 +6,6 @@ import { PRIVATE_STORE_PREFIX } from '@/store.const';
 import { homeDir } from '@tauri-apps/api/path';
 import { createID } from '@/core/id';
 import { load } from '@tauri-apps/plugin-store';
-import { locale } from '@tauri-apps/plugin-os';
-import i18n from '@/i18n';
 
 export const PROJECT_STORE = 'project';
 
@@ -119,21 +117,6 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     return state.recentProjects[0];
   });
 
-  const getSystemLocale = async () => {
-    try {
-      const osLocale = await locale();
-      return osLocale?.startsWith('ru') ? 'ru' : 'en';
-    } catch (error) {
-      console.error('Failed to get system locale:', error);
-      return 'en';
-    }
-  };
-
-  const initLocale = async () => {
-    const systemLocale = await getSystemLocale();
-    i18n.global.locale.value = systemLocale;
-  };
-
   return {
     currentProject,
     recentProjects,
@@ -145,6 +128,5 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     getDefaultProjectPath,
     loadRecentProjects,
     getLastProject,
-    initLocale,
   };
 });

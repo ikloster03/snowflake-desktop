@@ -1,20 +1,24 @@
 <script lang="ts" setup>
 import { open } from '@tauri-apps/plugin-dialog';
-import { NButton, NCard, NFlex, NSelect } from 'naive-ui';
+import { NButton, NCard, NFlex, NSelect, enUS, ruRU } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../book/book.const';
 import i18n from '@/i18n';
+import { useSettingsStore } from '../settings/settings.store';
+import { DICT_LANG } from '../settings/settings.const';
+import { Locale } from '../settings/settings.types';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();
+const settingsStore = useSettingsStore();
 const router = useRouter();
 
 const languages = [
-  { label: 'English', value: 'en' },
-  { label: 'Русский', value: 'ru' }
+  { label: 'English', value: 'en-US' as Locale },
+  { label: 'Русский', value: 'ru-RU' as Locale }
 ];
 
 const handleCloseProject = async () => {
@@ -58,11 +62,14 @@ const handleRemoveFromRecent = async (path: string) => {
 
 onMounted(async () => {
   await projectStore.loadRecentProjects();
-  await projectStore.initLocale();
+  await settingsStore.loadSettings();
 });
 
-const handleLanguageChange = (value: string) => {
-  i18n.global.locale.value = value as 'en' | 'ru';
+const handleLanguageChange = (value: Locale) => {
+  const [locale, dateLocale] = DICT_LANG[value];
+  i18n.global.locale.value = value.split('-')[0] as 'en' | 'ru';
+  settingsStore.changeLocale(locale);
+  settingsStore.changeDateLocale(dateLocale);
 };
 </script>
 
@@ -71,7 +78,7 @@ const handleLanguageChange = (value: string) => {
     <NFlex justify="space-between" align="center">
       <h1>{{ t('project-manager') }}</h1>
       <NSelect
-        :value="i18n.global.locale.value"
+        :value="settingsStore.locale.name"
         :options="languages"
         @update:value="handleLanguageChange"
         style="width: 120px"

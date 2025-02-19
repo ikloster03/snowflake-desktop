@@ -15,6 +15,7 @@ import { useProjectStore } from '../project/project.store';
 import { DateLocale, Locale, SettingsData, ThemeName } from './settings.types';
 import { DICT_LANG } from './settings.const';
 import i18n from '@/i18n';
+import { locale as osLocale } from '@tauri-apps/plugin-os';
 
 export const SETTINGS_STORE = 'settings';
 
@@ -42,9 +43,29 @@ const usePrivateSettingsStore = defineStore(`${PRIVATE_STORE_PREFIX}_${SETTINGS_
     return DICT_LANG[lang].at(1) as NDateLocale;
   };
 
+  const getSystemLocale = async () => {
+    try {
+      const currentOsLocale = await osLocale();
+      return currentOsLocale as Locale;
+    } catch (error) {
+      console.error('Failed to get system locale:', error);
+      return 'en-US';
+    }
+  };
+
+
   // Загрузка настроек
   const loadSettings = async () => {
-    if (!projectStore.currentProject?.path) return;
+    if (!projectStore.currentProject?.path) {
+      const systemLocale = await getSystemLocale();
+
+      locale.value = getLocale(systemLocale);
+      dateLocale.value = getDateLocale(systemLocale);
+      theme.value = getTheme('dark');
+
+      i18n.global.locale.value = locale.value.name.split('-')[0] as 'en' | 'ru';
+      return;
+    };
 
     try {
       const settingsPath = `${projectStore.currentProject.path}/settings.json`;
@@ -93,7 +114,7 @@ const usePrivateSettingsStore = defineStore(`${PRIVATE_STORE_PREFIX}_${SETTINGS_
   // Следим за изменениями настроек
   watch([theme, locale, dateLocale], saveSettings);
 
-  return { theme, locale, dateLocale };
+  return { theme, locale, dateLocale, loadSettings };
 });
 
 export const useSettingsStore = defineStore(SETTINGS_STORE, () => {
@@ -122,5 +143,6 @@ export const useSettingsStore = defineStore(SETTINGS_STORE, () => {
     toggleTheme,
     changeLocale,
     changeDateLocale,
+    loadSettings: state.loadSettings,
   };
 });
