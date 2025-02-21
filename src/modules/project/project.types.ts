@@ -7,4 +7,5 @@ export interface IProject {
   path: string; // путь к папке проекта
   created: Date;
   updated: Date;
+  isOpen: boolean;
 }
