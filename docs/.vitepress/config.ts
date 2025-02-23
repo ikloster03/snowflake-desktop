@@ -14,7 +14,9 @@ export default withMermaid(
 
       nav: [
         { text: 'Главная', link: '/' },
-        { text: 'Руководство', link: '/guide/' }
+        { text: 'Руководство', link: '/guide/' },
+        { text: 'Архитектура', link: '/architecture' },
+        { text: 'Разработка', link: '/development/' }
       ],
 
       sidebar: [
@@ -24,23 +26,17 @@ export default withMermaid(
             { text: 'О проекте', link: '/readme' },
             { text: 'Навигация', link: '/navigation' },
             { text: 'Структура', link: '/structure' },
-            { text: 'Ключевые возможности', link: '/features' },
             { text: 'SWOT-анализ', link: '/swot' }
           ]
         },
         {
-          text: 'Архитектура',
-          items: [
-            { text: 'Обзор архитектуры', link: '/architecture' }
-          ]
-        },
-        {
-          text: 'Планирование',
+          text: 'Разработка',
           items: [
             { text: 'План разработки', link: '/plan' },
             { text: 'Стратегия', link: '/product-strategy' },
             { text: 'Пользовательские истории', link: '/user-stories-tasks' },
-            { text: 'Критерии приемки', link: '/acceptance-criteria' }
+            { text: 'Критерии приемки', link: '/acceptance-criteria' },
+            { text: 'Архитектура', link: '/architecture' }
           ]
         }
       ],
