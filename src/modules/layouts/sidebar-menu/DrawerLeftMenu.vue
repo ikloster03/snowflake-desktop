@@ -95,19 +95,4 @@ const settingsStore = useSettingsStore();
   </NDrawerContent>
 </template>
 
-<i18n>
-  {
-    "en": {
-      "settings": "Settings",
-      "profile": "My Profile",
-      "project": "Project"
-    },
-    "ru": {
-      "settings": "Настройки",
-      "profile": "Мой профиль",
-      "project": "Проект"
-    }
-  }
-</i18n>
-
 <style scoped></style>

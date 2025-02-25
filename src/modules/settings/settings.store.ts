@@ -63,7 +63,7 @@ const usePrivateSettingsStore = defineStore(`${PRIVATE_STORE_PREFIX}_${SETTINGS_
       dateLocale.value = getDateLocale(systemLocale);
       theme.value = getTheme('dark');
 
-      i18n.global.locale.value = locale.value.name.split('-')[0] as 'en' | 'ru';
+      i18n.global.locale.value = locale.value.name.split('-')[0] as 'en-US' | 'ru-RU';
       return;
     };
 
@@ -82,7 +82,7 @@ const usePrivateSettingsStore = defineStore(`${PRIVATE_STORE_PREFIX}_${SETTINGS_
       locale.value = getLocale(settings.locale);
       dateLocale.value = getDateLocale(settings.locale);
 
-      i18n.global.locale.value = locale.value.name.split('-')[0] as 'en' | 'ru';
+      i18n.global.locale.value = locale.value.name.split('-')[0] as 'en-US' | 'ru-RU';
     } catch (error) {
       console.error('Error loading settings:', error);
     }

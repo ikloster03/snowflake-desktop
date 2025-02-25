@@ -1,5 +1,5 @@
 export const profileI18n = {
-  en: {
+  'en-US': {
     profile: {
       title: 'My Profile',
       email: 'Email',
@@ -18,7 +18,7 @@ export const profileI18n = {
       },
     },
   },
-  ru: {
+  'ru-RU': {
     profile: {
       title: 'Мой профиль',
       email: 'Email',

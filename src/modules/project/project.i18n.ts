@@ -55,6 +55,6 @@ const projectI18nRu = {
 } as const;
 
 export const projectI18n = {
-  en: projectI18nEn,
-  ru: projectI18nRu
+  'en-US': projectI18nEn,
+  'ru-RU': projectI18nRu
 } as const;

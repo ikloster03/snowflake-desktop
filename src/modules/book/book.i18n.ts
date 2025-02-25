@@ -1,5 +1,5 @@
 export const bookI18n = {
-  en: {
+  'en-US': {
     'book-editor': 'Book Editor',
     common: {
       save: 'Save',
@@ -123,7 +123,7 @@ export const bookI18n = {
       },
     },
   },
-  ru: {
+  'ru-RU': {
     'book-editor': 'Редактор книг',
     common: {
       save: 'Сохранить',

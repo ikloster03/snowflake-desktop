@@ -18,3 +18,8 @@ export const DICT_LANG: Record<Locale, [NLocale, NDateLocale]> = {
   [EN_LOCALE]: [enUS, dateEnUS],
   [RU_LOCALE]: [ruRU, dateRuRU],
 } as const;
+
+const languages = [
+  { label: 'English', value: 'en-US' as Locale },
+  { label: 'Русский', value: 'ru-RU' as Locale }
+];
