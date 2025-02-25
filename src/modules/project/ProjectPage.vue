@@ -10,6 +10,7 @@ import i18n from '@/i18n';
 import { useSettingsStore } from '../settings/settings.store';
 import { DICT_LANG } from '../settings/settings.const';
 import { Locale } from '../settings/settings.types';
+import { IProject } from './project.types';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();
@@ -39,7 +40,7 @@ const handleOpenNewProject = async () => {
     });
 
     if (selected) {
-      await projectStore.openProject(selected as string);
+      await projectStore.openNewProject(selected as string);
       await router.push({ name: BOOK_PAGE.name });
     }
   } catch (error) {
@@ -47,14 +48,14 @@ const handleOpenNewProject = async () => {
   }
 };
 
-const handleOpenProject = async (path: string) => {
-  await projectStore.openProject(path);
+const handleOpenProject = async (project: IProject) => {
+  await projectStore.openProject(project);
   await router.push({ name: BOOK_PAGE.name });
 };
 
-const handleRemoveFromRecent = async (path: string) => {
+const handleRemoveFromRecent = async (project: IProject) => {
   try {
-    await projectStore.removeFromRecent(path);
+    await projectStore.removeFromRecent(project);
   } catch (error) {
     console.error('Failed to remove from recent:', error);
   }
@@ -63,6 +64,7 @@ const handleRemoveFromRecent = async (path: string) => {
 onMounted(async () => {
   await projectStore.loadRecentProjects();
   await settingsStore.loadSettings();
+  console.log(projectStore.recentProjects);
 });
 
 const handleLanguageChange = (value: Locale) => {
@@ -118,10 +120,10 @@ const handleLanguageChange = (value: Locale) => {
             {{ t('last-updated') }}:
             {{ new Date(project.updated).toLocaleString() }}
           </p>
-          <NButton @click="handleOpenProject(project.path)">
+          <NButton @click="handleOpenProject(project)">
             {{ t('open') }}
           </NButton>
-          <NButton @click="handleRemoveFromRecent(project.path)">
+          <NButton @click="handleRemoveFromRecent(project)">
             {{ t('remove-from-recent') }}
           </NButton>
         </NCard>
