@@ -39,15 +39,18 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
   const closeProject = async () => {
     try {
       // Если есть несохраненные изменения, можно добавить проверку здесь
-      state.currentProject = null;
+      if (state.currentProject?.isOpen) {
+        state.currentProject.isOpen = false;
+        await addToRecent(state.currentProject);
+        state.currentProject = null;
+      }
     } catch (error) {
       console.error('Failed to close project:', error);
       throw error;
     }
   };
 
-  // Функция открытия с проверкой
-  const openProject = async (path: string) => {
+  const openNewProject = async (path: string) => {
     try {
       if (hasOpenProject.value) {
         throw new Error('Another project is already open. Please close it first.');
@@ -64,11 +67,37 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
         path: path,
         created: new Date(),
         updated: new Date(),
+        isOpen: true,
       };
       state.currentProject = project;
       await addToRecent(project);
 
       return project;
+    } catch (error) {
+      console.error('Failed to open project:', error);
+      throw error;
+    }
+  };
+
+  // Функция открытия с проверкой
+  const openProject = async (project: IProject) => {
+    try {
+      if (hasOpenProject.value) {
+        throw new Error('Another project is already open. Please close it first.');
+      }
+
+      // Сохраняем путь как defaultPath для следующего открытия
+      state.defaultProjectPath = project.path;
+
+      const projectToOpen = {
+        ...project,
+        updated: new Date(),
+        isOpen: true,
+      };
+      state.currentProject = projectToOpen;
+      await addToRecent(projectToOpen);
+
+      return projectToOpen;
     } catch (error) {
       console.error('Failed to open project:', error);
       throw error;
@@ -107,13 +136,14 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     await saveRecentProjects();
   };
 
-  const removeFromRecent = async (projectPath: string) => {
-    state.recentProjects = state.recentProjects.filter(p => p.path !== projectPath);
+  const removeFromRecent = async (project: IProject) => {
+    state.recentProjects = state.recentProjects.filter((p) => p.path !== project.path);
     await saveRecentProjects();
   };
 
   const getLastProject = computed(() => {
     if (!state.recentProjects.length) return null;
+
     return state.recentProjects[0];
   });
 
@@ -121,6 +151,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     currentProject,
     recentProjects,
     hasOpenProject,
+    openNewProject,
     openProject,
     closeProject,
     addToRecent,
