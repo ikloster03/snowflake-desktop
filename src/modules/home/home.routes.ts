@@ -17,9 +17,9 @@ export const routes: RouteRecordRaw[] = [
 
       const lastProject = projectStore.getLastProject;
 
-      if (lastProject) {
+      if (lastProject && lastProject.isOpen) {
         try {
-          await projectStore.openProject(lastProject.path);
+          await projectStore.openProject(lastProject);
           next({ name: BOOK_PAGE.name });
         } catch (error) {
           console.error('Failed to open last project:', error);
