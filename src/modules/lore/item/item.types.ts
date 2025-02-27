@@ -1,3 +1,5 @@
+import { ItemID } from "@/core/id";
+
 export type ItemType =
   | 'weapon'
   | 'armor'
@@ -7,7 +9,7 @@ export type ItemType =
   | 'other';
 
 export interface IItem {
-  id: string;
+  id: ItemID;
   name: string;
   description: string;
   type: ItemType;
