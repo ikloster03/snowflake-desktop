@@ -1,3 +1,5 @@
+import { LocationID } from "@/core/id";
+
 export type LocationType =
   | 'city'
   | 'village'
@@ -6,7 +8,7 @@ export type LocationType =
   | 'other';
 
 export interface ILocation {
-  id: string;
+  id: LocationID;
   name: string;
   description: string;
   type: LocationType;
