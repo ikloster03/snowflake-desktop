@@ -8,8 +8,11 @@ export type BookID = ID<'Book'>;
 export type AuthorID = ID<'Author'>;
 export type SeriesID = ID<'Series'>;
 export type ChapterID = ID<'Chapter'>;
-export type SceneID = ID<'Scene'>;
+export type StageID = ID<'Stage'>;
 export type CharacterID = ID<'Character'>;
+export type EventID = ID<'Event'>;
+export type ItemID = ID<'Item'>;
+export type LocationID = ID<'Location'>;
 export type ProjectID = ID<'Project'>;
 // Функция для создания типизированного ID
 export function createID<Brand extends string>(id?: string): ID<Brand> {
