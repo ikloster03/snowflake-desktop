@@ -4,13 +4,14 @@ import {
   MAIN_CHARACTER_TYPE,
   SECONDARY_CHARACTER_TYPE,
 } from './character.const';
+import { CharacterID } from '@/core/id';
 
 export type CharacterLevel = ValueOf<typeof CHARACTER_LEVEL>;
 export type MainCharacterType = ValueOf<typeof MAIN_CHARACTER_TYPE>;
 export type SecondaryCharacterType = ValueOf<typeof SECONDARY_CHARACTER_TYPE>;
 
 interface IBaseCharacter {
-  id: string;
+  id: CharacterID;
   name: string;
   description?: string;
 }
