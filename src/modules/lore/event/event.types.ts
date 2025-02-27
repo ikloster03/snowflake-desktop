@@ -1,12 +1,13 @@
+import { EventID, ChapterID, StageID, CharacterID } from '@/core/id';
 import type { EventType } from './event.const';
 
 export interface IEvent {
-  id: string;
+  id: EventID;
   title: string;
   description: string;
   time: string;
   type: EventType;
-  chapterId?: string;
-  stageId?: string;
-  characterIds?: string[];
+  chapterId?: ChapterID;
+  stageId?: StageID;
+  characterIds?: CharacterID[];
 }
