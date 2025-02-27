@@ -16,8 +16,8 @@ export type SeriesType = ValueOf<typeof SERIES_TYPES>;
 export type BookRelationType = ValueOf<typeof BOOK_RELATION_TYPES>;
 
 export interface IBookRelation {
-  sourceBookId: string; // ID исходной книги
-  targetBookId: string; // ID связанной книги
+  sourceBookId: BookID; // ID исходной книги
+  targetBookId: BookID; // ID связанной книги
   type: BookRelationType; // Тип связи
 }
 
