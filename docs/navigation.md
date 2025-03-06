@@ -2,34 +2,32 @@
 
 [Назад к README](readme.md)
 
-// Start Generation Here
-
 ## Навигационная структура
 
 ```mermaid
 graph LR
-    A[Main Page] --> B[Book Editor]
-    B --> C[New Book]
-    B --> D[New Series]
-    B --> E[New Author]
-    C --> F[Synopsis]
-    C --> G[Plan]
-    C --> H[Character Map]
+    A[Главная страница] --> B[Редактор книг]
+    B --> C[Новая книга]
+    B --> D[Новая серия]
+    B --> E[Новый автор]
+    C --> F[Синопсис]
+    C --> G[План]
+    C --> H[Карта персонажей]
 ```
 
 ## Процесс создания книги
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant F as Form
-    participant S as Store
-    participant V as Validation
+    participant U as Пользователь
+    participant F as Форма
+    participant S as Хранилище
+    participant V as Валидация
 
-    U->>F: Fill Book Details
-    F->>V: Validate Input
-    V-->>F: Validation Result
-    F->>S: Save Book
-    S-->>F: Success/Error
-    F-->>U: Show Message
+    U->>F: Заполнение деталей книги
+    F->>V: Проверка ввода
+    V-->>F: Результат валидации
+    F->>S: Сохранение книги
+    S-->>F: Успех/Ошибка
+    F-->>U: Отображение сообщения
 ```
