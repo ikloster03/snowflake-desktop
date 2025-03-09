@@ -49,4 +49,5 @@ Snowflake - это десктопное приложение для писате
 - [Критерии приемки](acceptance-criteria.md)
 - [SWOT-анализ](swot.md)
 - [Карта пути клиента](customer-journey-map.md)
+- [Карта влияния](impact-mapping.md)
 - [Навигация](navigation.md)
