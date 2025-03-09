@@ -31,3 +31,7 @@ sequenceDiagram
     S-->>F: Success/Error
     F-->>U: Show Message
 ```
+
+## Additional Materials
+
+- [Customer Journey Map](customer-journey-map.md) - visualization of the user's interaction process with the application
