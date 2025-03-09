@@ -7,18 +7,21 @@ Snowflake is a desktop application for writers, helping to create and manage lit
 ## Main Modules
 
 1. Project Module
+
    - Project management
    - Project history
    - Project settings
    - Export/import (.snflk)
 
 2. Book Module
+
    - Book management
    - Series management
    - Author management
    - Annotations and synopses
 
 3. Projection Module
+
    - Book planning
    - Timeline
    - Chapter and scene structure
@@ -45,3 +48,5 @@ Snowflake is a desktop application for writers, helping to create and manage lit
 - [User Stories](user-stories-tasks.md)
 - [Acceptance Criteria](acceptance-criteria.md)
 - [SWOT Analysis](swot.md)
+- [Customer Journey Map](customer-journey-map.md)
+- [Navigation](navigation.md)
