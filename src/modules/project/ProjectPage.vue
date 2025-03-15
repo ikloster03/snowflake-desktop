@@ -69,7 +69,7 @@ onMounted(async () => {
 
 const handleLanguageChange = (value: Locale) => {
   const [locale, dateLocale] = DICT_LANG[value];
-  i18n.global.locale.value = value.split('-')[0] as 'en-US' | 'ru-RU';
+  i18n.global.locale.value = value as 'en-US' | 'ru-RU';
   settingsStore.changeLocale(locale);
   settingsStore.changeDateLocale(dateLocale);
 };

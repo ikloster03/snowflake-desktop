@@ -68,7 +68,7 @@ const defaultLangOption = computed(() => {
 const handleUpdateLang = (value: 'en-US' | 'ru-RU') => {
   const [locale, dateLocale] = DICT_LANG[value];
 
-  i18n.global.locale.value = value.split('-')[0] as 'en-US' | 'ru-RU';
+  i18n.global.locale.value = value as 'en-US' | 'ru-RU';
 
   appStore.changeLocale(locale);
   appStore.changeDateLocale(dateLocale);
@@ -93,13 +93,13 @@ const handleUpdateLang = (value: 'en-US' | 'ru-RU') => {
 
 <i18n>
   {
-    "en": {
+    "en-US": {
       "dark": "Dark",
       "light": "Light",
       "english": "English",
       "russian": "Russian",
     },
-    "ru": {
+    "ru-RU": {
       "dark": "Темная тема",
       "light": "Светлая тема",
       "english": "Английский язык",
