@@ -2,6 +2,7 @@
 // mod project;
 
 use tauri::menu::{Menu, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
+use tauri::Manager;
 use tauri::{AppHandle, Runtime};
 
 // use project::{create_project, open_project};
@@ -73,6 +74,22 @@ pub fn run() {
         //     create_project,
         //     open_project,
         // ])
+        .setup(|app| {
+            let window = app.get_webview_window("main").unwrap();
+
+            // Получаем размер основного монитора
+            if let Some(monitor) = window.current_monitor()? {
+                let size = monitor.size();
+
+                // Устанавливаем размер окна как 1/4 от размера экрана
+                let width = (size.width as f64 * 0.5) as u32;
+                let height = (size.height as f64 * 0.5) as u32;
+
+                window.set_size(tauri::Size::Physical(tauri::PhysicalSize { width, height }))?;
+            }
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
