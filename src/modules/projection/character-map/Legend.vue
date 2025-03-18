@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 
 defineProps<{
   relationColors: Record<string, string>;
