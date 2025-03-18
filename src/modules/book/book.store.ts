@@ -253,6 +253,9 @@ export const useBookPrivateStore = defineStore(
       deleteBook,
       deleteSeries,
       deleteAuthor,
+      loadBooks,
+      loadSeries,
+      loadAuthors,
     };
   }
 );
@@ -279,5 +282,8 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     deleteBook: privateStore.deleteBook,
     deleteSeries: privateStore.deleteSeries,
     deleteAuthor: privateStore.deleteAuthor,
+    loadBooks: privateStore.loadBooks,
+    loadSeries: privateStore.loadSeries,
+    loadAuthors: privateStore.loadAuthors,
   };
 });
