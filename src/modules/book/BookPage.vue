@@ -1,6 +1,14 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { NFlex, NTabs, NTabPane, NButton, NSpace, NModal } from 'naive-ui';
+import {
+  NFlex,
+  NTabs,
+  NTabPane,
+  NButton,
+  NSpace,
+  NModal,
+  NSpin,
+} from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useBookStore } from './book.store';
 import { ISingleBook, IBookSeries, IAuthor } from './book.types';
@@ -19,15 +27,37 @@ const showAddBookModal = ref(false);
 const showAddSeriesModal = ref(false);
 const showAddAuthorModal = ref(false);
 
+// Индикаторы загрузки
+const loadingBooks = ref(true);
+const loadingSeries = ref(true);
+const loadingAuthors = ref(true);
+
 // Ссылки на компоненты форм
 const bookFormRef = ref<any>(null);
 const seriesFormRef = ref<any>(null);
 const authorFormRef = ref<any>(null);
 
 onMounted(async () => {
-  await bookStore.loadBooks();
-  await bookStore.loadSeries();
-  await bookStore.loadAuthors();
+  try {
+    loadingBooks.value = true;
+    loadingSeries.value = true;
+    loadingAuthors.value = true;
+
+    await bookStore.loadBooks();
+    loadingBooks.value = false;
+
+    await bookStore.loadSeries();
+    loadingSeries.value = false;
+
+    await bookStore.loadAuthors();
+    loadingAuthors.value = false;
+  } catch (error) {
+    console.error('Ошибка при загрузке данных:', error);
+  } finally {
+    loadingBooks.value = false;
+    loadingSeries.value = false;
+    loadingAuthors.value = false;
+  }
 });
 
 const handleAddBook = (book: ISingleBook): void => {
@@ -123,11 +153,14 @@ const handleAuthorSave = (): void => {
             {{ t('book.actions.add') }}
           </NButton>
 
-          <BookList
-            v-if="bookStore.books"
-            :books="bookStore.books"
-            @delete="handleDeleteBook"
-          />
+          <NSpin :show="loadingBooks">
+            <div v-if="!loadingBooks && bookStore.books.length > 0">
+              <BookList :books="bookStore.books" @delete="handleDeleteBook" />
+            </div>
+            <div v-else-if="!loadingBooks && bookStore.books.length === 0">
+              {{ t('book.empty.books') }}
+            </div>
+          </NSpin>
         </NSpace>
       </NTabPane>
 
@@ -141,11 +174,17 @@ const handleAuthorSave = (): void => {
             {{ t('book.actions.addSeries') }}
           </NButton>
 
-          <SeriesList
-            v-if="bookStore.series"
-            :series="bookStore.series"
-            @delete="handleDeleteSeries"
-          />
+          <NSpin :show="loadingSeries">
+            <div v-if="!loadingSeries && bookStore.series.length > 0">
+              <SeriesList
+                :series="bookStore.series"
+                @delete="handleDeleteSeries"
+              />
+            </div>
+            <div v-else-if="!loadingSeries && bookStore.series.length === 0">
+              {{ t('book.empty.series') }}
+            </div>
+          </NSpin>
         </NSpace>
       </NTabPane>
 
@@ -159,11 +198,17 @@ const handleAuthorSave = (): void => {
             {{ t('book.actions.addAuthor') }}
           </NButton>
 
-          <AuthorList
-            v-if="bookStore.authors"
-            :authors="bookStore.authors"
-            @delete="handleDeleteAuthor"
-          />
+          <NSpin :show="loadingAuthors">
+            <div v-if="!loadingAuthors && bookStore.authors.length > 0">
+              <AuthorList
+                :authors="bookStore.authors"
+                @delete="handleDeleteAuthor"
+              />
+            </div>
+            <div v-else-if="!loadingAuthors && bookStore.authors.length === 0">
+              {{ t('book.empty.authors') }}
+            </div>
+          </NSpin>
         </NSpace>
       </NTabPane>
     </NTabs>
