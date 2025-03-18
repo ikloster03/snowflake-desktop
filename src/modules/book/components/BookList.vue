@@ -36,5 +36,11 @@ const columns = computed(() => [
 </script>
 
 <template>
-  <NDataTable :columns="columns" :data="books" :pagination="{ pageSize: 10 }" />
+  <div>
+    <NDataTable
+      :columns="columns"
+      :data="books"
+      :pagination="{ pageSize: 10 }"
+    />
+  </div>
 </template>
