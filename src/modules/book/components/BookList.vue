@@ -18,12 +18,14 @@ const columns = computed(() => [
   {
     title: t('book.authors'),
     key: 'authors',
-    render: (row: ISingleBook) => row.authors.map(a => a.titleName).join(', '),
+    render: (row: ISingleBook) =>
+      row.authors.map((a) => a.titleName).join(', '),
   },
   {
     title: t('book.genres'),
     key: 'genres',
-    render: (row: ISingleBook) => row.genres.map(g => t(`book.genres.${g}`)).join(', '),
+    render: (row: ISingleBook) =>
+      row.genres.map((g) => t(`book.genres.${g}`)).join(', '),
   },
   {
     title: t('book.status'),
@@ -34,9 +36,5 @@ const columns = computed(() => [
 </script>
 
 <template>
-  <NDataTable
-    :columns="columns"
-    :data="books"
-    :pagination="{ pageSize: 10 }"
-  />
+  <NDataTable :columns="columns" :data="books" :pagination="{ pageSize: 10 }" />
 </template>
