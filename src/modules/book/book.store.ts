@@ -263,19 +263,28 @@ export const useBookPrivateStore = defineStore(
 export const useBookStore = defineStore(BOOK_STORE, () => {
   const privateStore = useBookPrivateStore();
 
+  // Создаем вычисляемые свойства для обеспечения реактивности
+  const books = computed(() => privateStore.books);
+  const series = computed(() => privateStore.series);
+  const authors = computed(() => privateStore.authors);
+  const canAddBook = computed(() => privateStore.canAddBook);
+  const canAddSeries = computed(() => privateStore.canAddSeries);
+  const canAddAuthor = computed(() => privateStore.canAddAuthor);
+
   return {
-    books: privateStore.books,
-    series: privateStore.series,
-    authors: privateStore.authors,
+    // Используем вычисляемые свойства вместо прямых ссылок
+    books,
+    series,
+    authors,
     addBook: privateStore.addBook,
     addSeries: privateStore.addSeries,
     addAuthor: privateStore.addAuthor,
     updateBook: privateStore.updateBook,
     updateSeries: privateStore.updateSeries,
     updateAuthor: privateStore.updateAuthor,
-    canAddBook: privateStore.canAddBook,
-    canAddSeries: privateStore.canAddSeries,
-    canAddAuthor: privateStore.canAddAuthor,
+    canAddBook,
+    canAddSeries,
+    canAddAuthor,
     findBooksByAuthor: privateStore.findBooksByAuthor,
     findBooksBySeries: privateStore.findBooksBySeries,
     findSeriesByAuthor: privateStore.findSeriesByAuthor,
