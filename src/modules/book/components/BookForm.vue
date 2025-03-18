@@ -1,6 +1,14 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { NForm, NFormItem, NInput, NSelect, NInputNumber, FormInst, FormRules } from 'naive-ui';
+import { ref, defineExpose } from 'vue';
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NInputNumber,
+  FormInst,
+  FormRules,
+} from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { ISingleBook, BookStatus, BookGenre } from '../book.types';
 import { BOOK_GENRES, BOOK_STATUS } from '../book.const';
@@ -33,17 +41,31 @@ const rules: FormRules = {
   title: {
     required: true,
     message: t('book.validation.titleRequired'),
-    trigger: ['blur', 'input']
-  }
+    trigger: ['blur', 'input'],
+  },
 };
 
 const handleSubmit = () => {
+  console.log('BookForm: handleSubmit called');
   formRef.value?.validate((errors) => {
     if (!errors) {
+      console.log('BookForm: validation passed, emitting submit event');
       emit('submit', formData.value as ISingleBook);
+    } else {
+      console.log('BookForm: validation failed', errors);
     }
   });
 };
+
+const submitForm = () => {
+  console.log('BookForm: submitForm called directly');
+  handleSubmit();
+};
+
+// Экспозируем метод для внешнего вызова
+defineExpose({
+  submitForm,
+});
 </script>
 
 <template>
@@ -76,10 +98,12 @@ const handleSubmit = () => {
       <NSelect
         v-model:value="formData.genres"
         multiple
-        :options="Object.entries(BOOK_GENRES).map(([key, value]) => ({
-          label: t(`book.genres.${key.toLowerCase()}`),
-          value
-        }))"
+        :options="
+          Object.entries(BOOK_GENRES).map(([key, value]) => ({
+            label: t(`book.genres.${key.toLowerCase()}`),
+            value,
+          }))
+        "
         :max-tag-count="PROJECT_LIMITS.BOOKS.MAX_GENRES_PER_BOOK"
         :placeholder="t('book.placeholders.genres')"
       />
@@ -88,10 +112,12 @@ const handleSubmit = () => {
     <NFormItem :label="t('book.statusTitle')" path="status">
       <NSelect
         v-model:value="formData.status"
-        :options="Object.entries(BOOK_STATUS).map(([key, value]) => ({
-          label: t(`book.status.${key.toLowerCase()}`),
-          value
-        }))"
+        :options="
+          Object.entries(BOOK_STATUS).map(([key, value]) => ({
+            label: t(`book.status.${key.toLowerCase()}`),
+            value,
+          }))
+        "
         :placeholder="t('book.placeholders.status')"
       />
     </NFormItem>

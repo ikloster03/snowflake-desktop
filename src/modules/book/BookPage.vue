@@ -19,7 +19,13 @@ const showAddBookModal = ref(false);
 const showAddSeriesModal = ref(false);
 const showAddAuthorModal = ref(false);
 
+// Ссылки на компоненты форм
+const bookFormRef = ref<any>(null);
+const seriesFormRef = ref<any>(null);
+const authorFormRef = ref<any>(null);
+
 const handleAddBook = (book: ISingleBook) => {
+  console.log('handleAddBook', book);
   try {
     if (bookStore.addBook(book)) {
       showAddBookModal.value = false;
@@ -78,6 +84,22 @@ const handleDeleteAuthor = (authorId: string) => {
     console.error(error);
   }
 };
+
+// Функции для обработки клика по кнопкам 'Сохранить'
+const handleBookSave = () => {
+  console.log('BookPage: handleBookSave clicked');
+  bookFormRef.value?.submitForm();
+};
+
+const handleSeriesSave = () => {
+  console.log('BookPage: handleSeriesSave clicked');
+  seriesFormRef.value?.submitForm();
+};
+
+const handleAuthorSave = () => {
+  console.log('BookPage: handleAuthorSave clicked');
+  authorFormRef.value?.submitForm();
+};
 </script>
 
 <template>
@@ -123,7 +145,10 @@ const handleDeleteAuthor = (authorId: string) => {
             {{ t('book.actions.addAuthor') }}
           </NButton>
 
-          <AuthorList :authors="bookStore.authors" @delete="handleDeleteAuthor" />
+          <AuthorList
+            :authors="bookStore.authors"
+            @delete="handleDeleteAuthor"
+          />
         </NSpace>
       </NTabPane>
     </NTabs>
@@ -135,7 +160,7 @@ const handleDeleteAuthor = (authorId: string) => {
       style="width: 600px"
       :mask-closable="false"
     >
-      <BookForm @submit="handleAddBook" />
+      <BookForm ref="bookFormRef" @submit="handleAddBook" />
       <template #footer>
         <NSpace justify="end">
           <NButton @click="showAddBookModal = false">
@@ -143,7 +168,7 @@ const handleDeleteAuthor = (authorId: string) => {
           </NButton>
           <NButton
             type="primary"
-            form="book-form"
+            @click="handleBookSave"
             :disabled="!bookStore.canAddBook"
           >
             {{ t('common.save') }}
@@ -159,7 +184,7 @@ const handleDeleteAuthor = (authorId: string) => {
       style="width: 600px"
       :mask-closable="false"
     >
-      <SeriesForm @submit="handleAddSeries" />
+      <SeriesForm ref="seriesFormRef" @submit="handleAddSeries" />
       <template #footer>
         <NSpace justify="end">
           <NButton @click="showAddSeriesModal = false">
@@ -167,7 +192,7 @@ const handleDeleteAuthor = (authorId: string) => {
           </NButton>
           <NButton
             type="primary"
-            form="series-form"
+            @click="handleSeriesSave"
             :disabled="!bookStore.canAddSeries"
           >
             {{ t('common.save') }}
@@ -183,7 +208,7 @@ const handleDeleteAuthor = (authorId: string) => {
       style="width: 600px"
       :mask-closable="false"
     >
-      <AuthorForm @submit="handleAddAuthor" />
+      <AuthorForm ref="authorFormRef" @submit="handleAddAuthor" />
       <template #footer>
         <NSpace justify="end">
           <NButton @click="showAddAuthorModal = false">
@@ -191,7 +216,7 @@ const handleDeleteAuthor = (authorId: string) => {
           </NButton>
           <NButton
             type="primary"
-            form="author-form"
+            @click="handleAuthorSave"
             :disabled="!bookStore.canAddAuthor"
           >
             {{ t('common.save') }}
@@ -201,4 +226,3 @@ const handleDeleteAuthor = (authorId: string) => {
     </NModal>
   </NFlex>
 </template>
-

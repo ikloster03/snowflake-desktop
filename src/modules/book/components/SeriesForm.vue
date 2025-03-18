@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, defineExpose } from 'vue';
 import { NForm, NFormItem, NInput, NSelect, FormInst } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { IBookSeries, SeriesType } from '../book.types';
@@ -32,13 +32,13 @@ const rules = {
   title: {
     required: true,
     message: t('book.validation.titleRequired'),
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   type: {
     required: true,
     message: t('book.validation.typeRequired'),
-    trigger: ['blur', 'change']
-  }
+    trigger: ['blur', 'change'],
+  },
 };
 
 const handleSubmit = () => {
@@ -48,6 +48,16 @@ const handleSubmit = () => {
     }
   });
 };
+
+const submitForm = () => {
+  console.log('SeriesForm: submitForm called directly');
+  handleSubmit();
+};
+
+// Экспозируем метод для внешнего вызова
+defineExpose({
+  submitForm,
+});
 </script>
 
 <template>
@@ -79,10 +89,12 @@ const handleSubmit = () => {
     <NFormItem :label="t('book.series.type')" path="type">
       <NSelect
         v-model:value="formData.type"
-        :options="Object.entries(SERIES_TYPES).map(([key, value]) => ({
-          label: t(`book.series.types.${key.toLowerCase()}`),
-          value
-        }))"
+        :options="
+          Object.entries(SERIES_TYPES).map(([key, value]) => ({
+            label: t(`book.series.types.${key.toLowerCase()}`),
+            value,
+          }))
+        "
         :placeholder="t('book.placeholders.seriesType')"
       />
     </NFormItem>

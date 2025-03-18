@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, defineExpose } from 'vue';
 import { NForm, NFormItem, NInput, FormInst } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { IAuthor } from '../book.types';
@@ -30,18 +30,18 @@ const rules = {
   firstName: {
     required: true,
     message: t('book.validation.firstNameRequired'),
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   lastName: {
     required: true,
     message: t('book.validation.lastNameRequired'),
-    trigger: ['blur', 'input']
+    trigger: ['blur', 'input'],
   },
   titleName: {
     required: true,
     message: t('book.validation.titleNameRequired'),
-    trigger: ['blur', 'input']
-  }
+    trigger: ['blur', 'input'],
+  },
 };
 
 const handleSubmit = () => {
@@ -51,6 +51,16 @@ const handleSubmit = () => {
     }
   });
 };
+
+const submitForm = () => {
+  console.log('AuthorForm: submitForm called directly');
+  handleSubmit();
+};
+
+// Экспозируем метод для внешнего вызова
+defineExpose({
+  submitForm,
+});
 </script>
 
 <template>
