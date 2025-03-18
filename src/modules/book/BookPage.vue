@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { NFlex, NTabs, NTabPane, NButton, NSpace, NModal } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useBookStore } from './book.store';
@@ -24,7 +24,13 @@ const bookFormRef = ref<any>(null);
 const seriesFormRef = ref<any>(null);
 const authorFormRef = ref<any>(null);
 
-const handleAddBook = (book: ISingleBook) => {
+onMounted(async () => {
+  await bookStore.loadBooks();
+  await bookStore.loadSeries();
+  await bookStore.loadAuthors();
+});
+
+const handleAddBook = (book: ISingleBook): void => {
   console.log('handleAddBook', book);
   try {
     if (bookStore.addBook(book)) {
@@ -35,7 +41,7 @@ const handleAddBook = (book: ISingleBook) => {
   }
 };
 
-const handleAddSeries = (series: IBookSeries) => {
+const handleAddSeries = (series: IBookSeries): void => {
   try {
     if (bookStore.addSeries(series)) {
       showAddSeriesModal.value = false;
@@ -45,7 +51,7 @@ const handleAddSeries = (series: IBookSeries) => {
   }
 };
 
-const handleAddAuthor = (author: IAuthor) => {
+const handleAddAuthor = (author: IAuthor): void => {
   try {
     if (bookStore.addAuthor(author)) {
       showAddAuthorModal.value = false;
@@ -55,7 +61,7 @@ const handleAddAuthor = (author: IAuthor) => {
   }
 };
 
-const handleDeleteBook = (bookId: string) => {
+const handleDeleteBook = (bookId: string): void => {
   try {
     if (bookStore.deleteBook(bookId)) {
       // Можно добавить уведомление об успешном удалении
@@ -65,7 +71,7 @@ const handleDeleteBook = (bookId: string) => {
   }
 };
 
-const handleDeleteSeries = (seriesId: string) => {
+const handleDeleteSeries = (seriesId: string): void => {
   try {
     if (bookStore.deleteSeries(seriesId)) {
       // Можно добавить уведомление об успешном удалении
@@ -75,7 +81,7 @@ const handleDeleteSeries = (seriesId: string) => {
   }
 };
 
-const handleDeleteAuthor = (authorId: string) => {
+const handleDeleteAuthor = (authorId: string): void => {
   try {
     if (bookStore.deleteAuthor(authorId)) {
       // Можно добавить уведомление об успешном удалении
@@ -86,17 +92,17 @@ const handleDeleteAuthor = (authorId: string) => {
 };
 
 // Функции для обработки клика по кнопкам 'Сохранить'
-const handleBookSave = () => {
+const handleBookSave = (): void => {
   console.log('BookPage: handleBookSave clicked');
   bookFormRef.value?.submitForm();
 };
 
-const handleSeriesSave = () => {
+const handleSeriesSave = (): void => {
   console.log('BookPage: handleSeriesSave clicked');
   seriesFormRef.value?.submitForm();
 };
 
-const handleAuthorSave = () => {
+const handleAuthorSave = (): void => {
   console.log('BookPage: handleAuthorSave clicked');
   authorFormRef.value?.submitForm();
 };
@@ -117,7 +123,11 @@ const handleAuthorSave = () => {
             {{ t('book.actions.add') }}
           </NButton>
 
-          <BookList :books="bookStore.books" @delete="handleDeleteBook" />
+          <BookList
+            v-if="bookStore.books"
+            :books="bookStore.books"
+            @delete="handleDeleteBook"
+          />
         </NSpace>
       </NTabPane>
 
@@ -131,7 +141,11 @@ const handleAuthorSave = () => {
             {{ t('book.actions.addSeries') }}
           </NButton>
 
-          <SeriesList :series="bookStore.series" @delete="handleDeleteSeries" />
+          <SeriesList
+            v-if="bookStore.series"
+            :series="bookStore.series"
+            @delete="handleDeleteSeries"
+          />
         </NSpace>
       </NTabPane>
 
@@ -146,6 +160,7 @@ const handleAuthorSave = () => {
           </NButton>
 
           <AuthorList
+            v-if="bookStore.authors"
             :authors="bookStore.authors"
             @delete="handleDeleteAuthor"
           />
