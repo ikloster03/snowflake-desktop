@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { IProject } from './project.types';
+import { IProject, ProjectType } from './project.types';
+import { PROJECT_TYPE } from './project.const';
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 // import { invoke } from '@tauri-apps/api/core';
 import { homeDir } from '@tauri-apps/api/path';
@@ -65,6 +66,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
         name: path.split('/').pop() ?? 'Test Project', // получить имя проекта из пути
         description: '',
         path: path,
+        type: PROJECT_TYPE.SINGLE_BOOK,
         created: new Date(),
         updated: new Date(),
         isOpen: true,
@@ -91,6 +93,7 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
 
       const projectToOpen = {
         ...project,
+        type: project.type ?? PROJECT_TYPE.SINGLE_BOOK,
         updated: new Date(),
         isOpen: true,
       };
@@ -147,10 +150,17 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     return state.recentProjects[0];
   });
 
+  const changeProjectType = (type: ProjectType) => {
+    if (state.currentProject) {
+      state.currentProject.type = type;
+    }
+  };
+
   return {
     currentProject,
     recentProjects,
     hasOpenProject,
+    getLastProject,
     openNewProject,
     openProject,
     closeProject,
@@ -158,6 +168,6 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     removeFromRecent,
     getDefaultProjectPath,
     loadRecentProjects,
-    getLastProject,
+    changeProjectType,
   };
 });
