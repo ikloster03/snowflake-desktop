@@ -10,7 +10,8 @@ import i18n from '@/i18n';
 import { useSettingsStore } from '../settings/settings.store';
 import { DICT_LANG } from '../settings/settings.const';
 import { Locale } from '../settings/settings.types';
-import { IProject } from './project.types';
+import { IProject, ProjectType } from './project.types';
+import { PROJECT_TYPE } from './project.const';
 
 const { t } = useI18n();
 const projectStore = useProjectStore();
@@ -19,7 +20,7 @@ const router = useRouter();
 
 const languages = [
   { label: 'English', value: 'en-US' as Locale },
-  { label: 'Русский', value: 'ru-RU' as Locale }
+  { label: 'Русский', value: 'ru-RU' as Locale },
 ];
 
 const handleCloseProject = async () => {
@@ -73,6 +74,15 @@ const handleLanguageChange = (value: Locale) => {
   settingsStore.changeLocale(locale);
   settingsStore.changeDateLocale(dateLocale);
 };
+
+const projectTypes = [
+  { label: 'Single Book', value: PROJECT_TYPE.SINGLE_BOOK },
+  { label: 'Series', value: PROJECT_TYPE.SERIES },
+];
+
+const handleProjectTypeChange = (value: ProjectType) => {
+  projectStore.changeProjectType(value);
+};
 </script>
 
 <template>
@@ -91,9 +101,17 @@ const handleLanguageChange = (value: Locale) => {
     <NCard v-if="projectStore.hasOpenProject">
       <NFlex vertical :y-gap="12">
         <h2>{{ t('current-project') }}</h2>
-        <p>{{ projectStore.currentProject?.name }}</p>
-        <p>{{ projectStore.currentProject?.description }}</p>
-        <p>{{ t('location') }}: {{ projectStore.currentProject?.path }}</p>
+        <div>{{ projectStore.currentProject?.name }}</div>
+        <div>
+          <NSelect
+            :value="projectStore.currentProject?.type"
+            :options="projectTypes"
+            @update:value="handleProjectTypeChange"
+          />
+        </div>
+        <div>{{ projectStore.currentProject?.description }}</div>
+        <div>{{ t('location') }}: {{ projectStore.currentProject?.path }}</div>
+
         <NButton @click="handleCloseProject">
           {{ t('close-project') }}
         </NButton>
@@ -115,11 +133,12 @@ const handleLanguageChange = (value: Locale) => {
       <NFlex vertical :y-gap="12">
         <NCard v-for="project in projectStore.recentProjects" :key="project.id">
           <h3>{{ project.name }}</h3>
-          <p>{{ project.description }}</p>
-          <p>
+          <div>{{ project.type }}</div>
+          <div>{{ project.description }}</div>
+          <div>
             {{ t('last-updated') }}:
             {{ new Date(project.updated).toLocaleString() }}
-          </p>
+          </div>
           <NButton @click="handleOpenProject(project)">
             {{ t('open') }}
           </NButton>
