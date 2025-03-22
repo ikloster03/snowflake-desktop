@@ -6,6 +6,18 @@ export const BOOK_PAGE: Page = {
   title: 'Book',
 } as const;
 
+export const BOOK_EDITOR_PAGE: Page = {
+  path: '/book/:id',
+  name: 'book-editor',
+  title: 'Book Editor',
+} as const;
+
+export const SERIES_EDITOR_PAGE: Page = {
+  path: '/series/:id',
+  name: 'series-editor',
+  title: 'Series Editor',
+} as const;
+
 export const BOOK_STATUS = {
   DRAFT: 'draft',
   PUBLISHED: 'published',
