@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import {
   NFlex,
   NTabs,
@@ -8,10 +8,15 @@ import {
   NSpace,
   NModal,
   NSpin,
+  NAlert,
 } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
-import { useBookStore } from './book.store';
+import { useBookPrivateStore } from './book.store';
 import { ISingleBook, IBookSeries, IAuthor } from './book.types';
+import { useProjectStore } from '../project/project.store';
+import { PROJECT_TYPE } from '../project/project.const';
+import { useRouter } from 'vue-router';
+import { BOOK_EDITOR_PAGE, SERIES_EDITOR_PAGE } from './book.const';
 import BookForm from './components/BookForm.vue';
 import SeriesForm from './components/SeriesForm.vue';
 import AuthorForm from './components/AuthorForm.vue';
@@ -20,7 +25,9 @@ import SeriesList from './components/SeriesList.vue';
 import AuthorList from './components/AuthorList.vue';
 
 const { t } = useI18n();
-const bookStore = useBookStore();
+const bookStore = useBookPrivateStore();
+const projectStore = useProjectStore();
+const router = useRouter();
 
 const activeTab = ref('books');
 const showAddBookModal = ref(false);
@@ -32,10 +39,53 @@ const loadingBooks = ref(true);
 const loadingSeries = ref(true);
 const loadingAuthors = ref(true);
 
+// Состояния проекта
+const redirected = ref(false);
+const redirectionError = ref<string | null>(null);
+
 // Ссылки на компоненты форм
 const bookFormRef = ref<any>(null);
 const seriesFormRef = ref<any>(null);
 const authorFormRef = ref<any>(null);
+
+// Логика перенаправления в зависимости от типа проекта
+const redirectBasedOnProjectType = () => {
+  if (redirected.value) return;
+
+  const currentProject = projectStore.currentProject;
+  if (!currentProject) {
+    redirectionError.value = 'Нет открытого проекта';
+    return;
+  }
+
+  try {
+    // Проверяем тип проекта
+    if (currentProject.type === PROJECT_TYPE.SINGLE_BOOK) {
+      // Для одиночной книги, проверяем есть ли хотя бы одна книга
+      if (bookStore.books.length > 0) {
+        const firstBook = bookStore.books[0];
+        router.push({
+          name: BOOK_EDITOR_PAGE.name,
+          params: { id: firstBook.id }
+        });
+        redirected.value = true;
+      }
+    } else if (currentProject.type === PROJECT_TYPE.SERIES) {
+      // Для серии, проверяем есть ли хотя бы одна серия
+      if (bookStore.series.length > 0) {
+        const firstSeries = bookStore.series[0];
+        router.push({
+          name: SERIES_EDITOR_PAGE.name,
+          params: { id: firstSeries.id }
+        });
+        redirected.value = true;
+      }
+    }
+  } catch (error) {
+    console.error('Ошибка при перенаправлении:', error);
+    redirectionError.value = error instanceof Error ? error.message : 'Неизвестная ошибка';
+  }
+};
 
 onMounted(async () => {
   try {
@@ -51,6 +101,9 @@ onMounted(async () => {
 
     await bookStore.loadAuthors();
     loadingAuthors.value = false;
+
+    // После загрузки данных пытаемся перенаправить пользователя
+    redirectBasedOnProjectType();
   } catch (error) {
     console.error('Ошибка при загрузке данных:', error);
   } finally {
@@ -60,11 +113,26 @@ onMounted(async () => {
   }
 });
 
+// Наблюдаем за изменениями в книгах и сериях для автоматического перенаправления
+watchEffect(() => {
+  if (!redirected.value && !loadingBooks.value && !loadingSeries.value) {
+    redirectBasedOnProjectType();
+  }
+});
+
 const handleAddBook = (book: ISingleBook): void => {
   console.log('handleAddBook', book);
   try {
     if (bookStore.addBook(book)) {
       showAddBookModal.value = false;
+
+      // Если это проект с одиночной книгой и это первая книга, перенаправляем на редактирование
+      if (projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK && bookStore.books.length === 1) {
+        router.push({
+          name: BOOK_EDITOR_PAGE.name,
+          params: { id: book.id }
+        });
+      }
     }
   } catch (error) {
     console.error(error);
@@ -75,6 +143,14 @@ const handleAddSeries = (series: IBookSeries): void => {
   try {
     if (bookStore.addSeries(series)) {
       showAddSeriesModal.value = false;
+
+      // Если это проект с серией и это первая серия, перенаправляем на редактирование
+      if (projectStore.currentProject?.type === PROJECT_TYPE.SERIES && bookStore.series.length === 1) {
+        router.push({
+          name: SERIES_EDITOR_PAGE.name,
+          params: { id: series.id }
+        });
+      }
     }
   } catch (error) {
     console.error(error);
@@ -141,6 +217,11 @@ const handleAuthorSave = (): void => {
 <template>
   <NFlex vertical>
     <h1>{{ t('book-editor') }}</h1>
+
+    <!-- Сообщение об ошибке перенаправления, если есть -->
+    <NAlert v-if="redirectionError" type="error" style="margin-bottom: 16px;">
+      {{ redirectionError }}
+    </NAlert>
 
     <NTabs v-model:value="activeTab">
       <NTabPane name="books" :tab="t('book.tabs.books')">
