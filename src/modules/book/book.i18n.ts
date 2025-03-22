@@ -15,6 +15,9 @@ export const bookI18n = {
       reset: 'Reset',
       required: 'Required',
       optional: 'Optional',
+      back: 'Back',
+      add: 'Add',
+      remove: 'Remove',
     },
     book: {
       tabs: {
@@ -50,9 +53,57 @@ export const bookI18n = {
       title: 'Title',
       description: 'Description',
       pages: 'Pages',
+      order: 'Order',
       authors: 'Authors',
       genresTitle: 'Genres',
       statusTitle: 'Status',
+      publicationDate: 'Publication Date',
+      errors: {
+        notFound: 'Book not found',
+      },
+      empty: {
+        books: 'No books added yet',
+        series: 'No series added yet',
+        authors: 'No authors added yet',
+        description: 'No description provided',
+        genres: 'No genres selected',
+      },
+      deletion: {
+        title: 'Delete Book',
+        content: 'Are you sure you want to delete this book? This action cannot be undone.',
+      },
+      series: {
+        title: 'Title',
+        description: 'Description',
+        type: 'Type',
+        books: 'Books',
+        details: 'Details',
+        addBook: 'Add Book to Series',
+        removeBook: {
+          title: 'Remove Book',
+          content: 'Are you sure you want to remove this book from the series? The book itself will not be deleted.',
+        },
+        noAvailableBooks: 'No available books to add to this series.',
+        empty: {
+          books: 'No books in this series yet',
+        },
+        errors: {
+          notFound: 'Series not found',
+        },
+        deletion: {
+          title: 'Delete Series',
+          content: 'Are you sure you want to delete this series? This action cannot be undone.',
+        },
+        types: {
+          dilogy: 'Dilogy',
+          trilogy: 'Trilogy',
+          tetralogy: 'Tetralogy',
+          pentalogy: 'Pentalogy',
+          hexalogy: 'Hexalogy',
+          heptalogy: 'Heptalogy',
+          series: 'Series',
+        },
+      },
       genres: {
         fiction: 'Fiction',
         'non_fiction': 'Non-Fiction',
@@ -97,21 +148,6 @@ export const bookI18n = {
         fullName: 'Full Name',
         books: 'Books',
         series: 'Series',
-      },
-      series: {
-        title: 'Title',
-        description: 'Description',
-        type: 'Type',
-        books: 'Books',
-        types: {
-          dilogy: 'Dilogy',
-          trilogy: 'Trilogy',
-          tetralogy: 'Tetralogy',
-          pentalogy: 'Pentalogy',
-          hexalogy: 'Hexalogy',
-          heptalogy: 'Heptalogy',
-          series: 'Series',
-        },
       },
       form: {
         createBook: 'Create Book',
