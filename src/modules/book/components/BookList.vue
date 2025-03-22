@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { NDataTable } from 'naive-ui';
+import { NDataTable, NButton, NSpace } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { ISingleBook } from '../book.types';
-import { computed } from 'vue';
+import { computed, h } from 'vue';
+import { useRouter } from 'vue-router';
+import { BOOK_EDITOR_PAGE } from '../book.const';
 
 const { t } = useI18n();
 
