@@ -125,3 +125,9 @@ You are an expert in developing desktop applications using Tauri: with Rust for 
 - **Cursor**: For the AI
 - **pnpm**: For the package manager
 - **cargo**: For the package manager for the Rust
+
+### Git rules
+
+- **Commit messages**: the commit message should be in the present tense and describe what the commit does.
+- **Commit messages**: the commit message should be in english.
+- **Commit messages**: the commit message should be no more than 100 characters.
