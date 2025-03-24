@@ -5,7 +5,7 @@ import { PROJECT_TYPE } from './project.const';
 import { PRIVATE_STORE_PREFIX } from '@/store.const';
 // import { invoke } from '@tauri-apps/api/core';
 import { homeDir } from '@tauri-apps/api/path';
-import { createID } from '@/core/id';
+import { createID, BookID } from '@/core/id';
 import { load } from '@tauri-apps/plugin-store';
 
 export const PROJECT_STORE = 'project';
@@ -156,18 +156,60 @@ export const useProjectStore = defineStore(PROJECT_STORE, () => {
     }
   };
 
+  // Установка текущей книги проекта
+  const setCurrentBook = (bookId: BookID) => {
+    if (state.currentProject) {
+      state.currentProject.currentBookId = bookId;
+    }
+  };
+
+  // Получение ID текущей книги проекта
+  const getCurrentBook = computed(() => {
+    return state.currentProject?.currentBookId;
+  });
+
+  // Сохранение изменений текущего проекта
+  const saveCurrentProject = async () => {
+    if (!state.currentProject) {
+      throw new Error('Невозможно сохранить: проект не открыт');
+    }
+
+    try {
+      // Обновляем дату изменения
+      state.currentProject.updated = new Date();
+
+      // В реальном приложении здесь бы происходило сохранение на диск через Tauri API
+      // например, через invoke('save_project', { project: state.currentProject })
+
+      // Добавляем проект в недавние
+      await addToRecent(state.currentProject);
+
+      // Возвращаем проект для возможной дальнейшей обработки
+      return state.currentProject;
+    } catch (error) {
+      console.error('Ошибка сохранения проекта:', error);
+      throw error;
+    }
+  };
+
   return {
+    // computed
     currentProject,
     recentProjects,
     hasOpenProject,
     getLastProject,
-    openNewProject,
-    openProject,
-    closeProject,
+    getCurrentBook,
+
+    // functions
     addToRecent,
-    removeFromRecent,
+    changeProjectType,
+    closeProject,
     getDefaultProjectPath,
     loadRecentProjects,
-    changeProjectType,
+    openNewProject,
+    openProject,
+    removeFromRecent,
+    setCurrentBook,
+    saveCurrentProject,
   };
 });
