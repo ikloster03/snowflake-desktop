@@ -82,6 +82,7 @@ export const bookI18n = {
         removeBook: {
           title: 'Remove Book',
           content: 'Are you sure you want to remove this book from the series? The book itself will not be deleted.',
+          contentCurrentBook: 'Are you sure you want to remove this book from the series? This is the current book of your project and will be unset if removed.',
         },
         noAvailableBooks: 'No available books to add to this series.',
         empty: {
@@ -89,7 +90,13 @@ export const bookI18n = {
         },
         errors: {
           notFound: 'Series not found',
+          cantChangeTitleType: 'Cannot Change Project Type',
+          removeExtraBooks: 'You cannot change project type to SERIES when you have more than one book. Please remove extra books first.',
+          singleBookProject: 'Single Book Project',
+          onlyOneBook: 'This project is set as a single book project. You can have only one book in this series. To add more books, change the project type to SERIES.',
         },
+        currentBook: 'Current Book',
+        setAsCurrent: 'Set as Current',
         deletion: {
           title: 'Delete Series',
           content: 'Are you sure you want to delete this series? This action cannot be undone.',
@@ -175,6 +182,10 @@ export const bookI18n = {
       reset: 'Сбросить',
       required: 'Обязательно',
       optional: 'Необязательно',
+      back: 'Назад',
+      add: 'Добавить',
+      remove: 'Удалить',
+      ok: 'ОК',
     },
     book: {
       tabs: {
@@ -263,6 +274,30 @@ export const bookI18n = {
         description: 'Описание',
         type: 'Тип',
         books: 'Книги',
+        details: 'Детали',
+        addBook: 'Добавить книгу в серию',
+        removeBook: {
+          title: 'Удалить книгу',
+          content: 'Вы уверены, что хотите удалить эту книгу из серии? Сама книга не будет удалена.',
+          contentCurrentBook: 'Вы уверены, что хотите удалить эту книгу из серии? Это текущая книга вашего проекта, и она будет сброшена при удалении.',
+        },
+        noAvailableBooks: 'Нет доступных книг для добавления в эту серию.',
+        empty: {
+          books: 'В этой серии пока нет книг',
+        },
+        errors: {
+          notFound: 'Серия не найдена',
+          cantChangeTitleType: 'Невозможно изменить тип проекта',
+          removeExtraBooks: 'Вы не можете изменить тип проекта на SERIES, когда у вас более одной книги. Пожалуйста, сначала удалите лишние книги.',
+          singleBookProject: 'Проект одной книги',
+          onlyOneBook: 'Этот проект настроен как проект одной книги. В этой серии может быть только одна книга. Чтобы добавить больше книг, измените тип проекта на SERIES.',
+        },
+        currentBook: 'Текущая книга',
+        setAsCurrent: 'Сделать текущей',
+        deletion: {
+          title: 'Удалить серию',
+          content: 'Вы уверены, что хотите удалить эту серию? Это действие нельзя отменить.',
+        },
         types: {
           dilogy: 'Дилогия',
           trilogy: 'Трилогия',
