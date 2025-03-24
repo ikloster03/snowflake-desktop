@@ -23,7 +23,22 @@ const projectI18nEn = {
   "create": "Create",
   "select-project-file": "Select a Snowflake project file (.snflk)",
   "browse": "Browse",
-  "remove-from-recent": "Remove from recent"
+  "remove-from-recent": "Remove from recent",
+  "save": "Save Project",
+  "save-success": {
+    "title": "Project Saved",
+    "content": "Your project has been successfully saved."
+  },
+  "save-error": {
+    "title": "Save Error",
+    "content": "There was an error saving your project. Please try again."
+  },
+  "errors": {
+    "cant-change-type": {
+      "title": "Cannot Change Project Type",
+      "content": "Cannot change project type to Single Book when there are multiple books. Please remove extra books first."
+    }
+  }
 } as const;
 
 const projectI18nRu = {
@@ -51,7 +66,22 @@ const projectI18nRu = {
   "create": "Создать",
   "select-project-file": "Выберите файл проекта Snowflake (.snflk)",
   "browse": "Обзор",
-  "remove-from-recent": "Удалить из недавних"
+  "remove-from-recent": "Удалить из недавних",
+  "save": "Сохранить проект",
+  "save-success": {
+    "title": "Проект сохранен",
+    "content": "Ваш проект был успешно сохранен."
+  },
+  "save-error": {
+    "title": "Ошибка сохранения",
+    "content": "Произошла ошибка при сохранении проекта. Пожалуйста, попробуйте снова."
+  },
+  "errors": {
+    "cant-change-type": {
+      "title": "Невозможно изменить тип проекта",
+      "content": "Невозможно изменить тип проекта на 'Одна книга', когда в проекте несколько книг. Пожалуйста, сначала удалите лишние книги."
+    }
+  }
 } as const;
 
 export const projectI18n = {
