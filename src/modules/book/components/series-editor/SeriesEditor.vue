@@ -29,7 +29,7 @@ const seriesId = computed(() => route.params.id as string);
 
 // Находим серию по ID
 const series = computed(() => {
-  return store.series.find(s => s.id === seriesId.value);
+  return store.series.find((s) => s.id === seriesId.value);
 });
 
 // Получаем книги из этой серии
@@ -85,7 +85,7 @@ const handleBack = () => {
 const handleEditBook = (bookId: string) => {
   router.push({
     name: BOOK_EDITOR_PAGE.name,
-    params: { id: bookId }
+    params: { id: bookId },
   });
 };
 
@@ -102,7 +102,8 @@ const bookColumns = computed(() => [
   {
     title: t('book.status'),
     key: 'status',
-    render: (row: IBookInSeries) => t(`book.status.${row.status.toLowerCase()}`),
+    render: (row: IBookInSeries) =>
+      t(`book.status.${row.status.toLowerCase()}`),
   },
   {
     title: t('common.actions'),
@@ -149,10 +150,10 @@ const handleRemoveBookFromSeries = (bookId: string) => {
     onPositiveClick: () => {
       const updatedSeries = {
         ...series.value!,
-        books: series.value!.books.filter(book => book.id !== bookId)
+        books: series.value!.books.filter((book) => book.id !== bookId),
       };
       store.updateSeries(updatedSeries);
-    }
+    },
   });
 };
 
@@ -164,8 +165,8 @@ const handleAddBookToSeries = () => {
 // Получаем книги, которые не входят в серию
 const availableBooks = computed(() => {
   if (!series.value) return [];
-  const seriesBookIds = series.value.books.map(book => book.id);
-  return store.books.filter(book => !seriesBookIds.includes(book.id));
+  const seriesBookIds = series.value.books.map((book) => book.id);
+  return store.books.filter((book) => !seriesBookIds.includes(book.id));
 });
 
 // Добавление выбранной книги в серию
@@ -177,7 +178,9 @@ const confirmAddBook = () => {
     return;
   }
 
-  const bookToAdd = store.books.find(book => book.id === selectedBookId.value);
+  const bookToAdd = store.books.find(
+    (book) => book.id === selectedBookId.value
+  );
   if (!bookToAdd) {
     showAddBookModal.value = false;
     return;
@@ -188,12 +191,11 @@ const confirmAddBook = () => {
     books: [
       ...series.value.books,
       {
-        id: bookToAdd.id,
-        title: bookToAdd.title,
-        order: series.value.books.length + 1,
-        status: bookToAdd.status
-      }
-    ]
+        ...bookToAdd,
+        seriesId: series.value.id,
+        orderInSeries: series.value.books.length + 1,
+      },
+    ],
   };
 
   store.updateSeries(updatedSeries);
@@ -252,8 +254,12 @@ const confirmAddBook = () => {
             <NCard v-if="!isEditing">
               <div class="series-info">
                 <div class="series-field">
-                  <div class="series-label">{{ t('book.series.description') }}:</div>
-                  <div class="series-value">{{ series.description || t('book.empty.description') }}</div>
+                  <div class="series-label">
+                    {{ t('book.series.description') }}:
+                  </div>
+                  <div class="series-value">
+                    {{ series.description || t('book.empty.description') }}
+                  </div>
                 </div>
 
                 <div class="series-field">
@@ -266,9 +272,13 @@ const confirmAddBook = () => {
                 <div class="series-field">
                   <div class="series-label">{{ t('book.authors') }}:</div>
                   <div class="series-value">
-                    {{ series.authors.length
-                      ? series.authors.map(author => author.titleName).join(', ')
-                      : t('book.empty.authors') }}
+                    {{
+                      series.authors.length
+                        ? series.authors
+                            .map((author) => author.titleName)
+                            .join(', ')
+                        : t('book.empty.authors')
+                    }}
                   </div>
                 </div>
               </div>
@@ -341,16 +351,18 @@ const confirmAddBook = () => {
           :columns="[
             {
               type: 'selection',
-              multiple: false
+              multiple: false,
             },
             {
               title: t('book.title'),
-              key: 'title'
-            }
+              key: 'title',
+            },
           ]"
           :data="availableBooks"
           :row-key="(row) => row.id"
-          @update:checked-row-keys="(keys) => selectedBookId = keys[0]"
+          @update:checked-row-keys="
+            (keys) => (selectedBookId = String(keys[0]))
+          "
         />
       </div>
 
