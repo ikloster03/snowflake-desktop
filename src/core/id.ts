@@ -31,3 +31,13 @@ export function isValidID(id: string): boolean {
 
   return typeof id === 'string' && uuidRegex.test(id);
 }
+
+// Функция для сравнения двух брендированных ID
+export function compareIDs<Brand extends string>(
+  idA: ID<Brand>,
+  idB: ID<Brand>
+): boolean {
+  // Сравниваем строковые представления ID
+  return String(idA) === String(idB);
+}
+
