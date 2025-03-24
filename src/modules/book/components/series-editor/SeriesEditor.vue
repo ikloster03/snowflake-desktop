@@ -16,13 +16,17 @@ import { useI18n } from 'vue-i18n';
 import SeriesForm from '../SeriesForm.vue';
 import { IBookSeries, ISingleBook, IBookInSeries } from '../../book.types';
 import { useRoute, useRouter } from 'vue-router';
-import { BOOK_PAGE, BOOK_EDITOR_PAGE } from '../../book.const';
+import { BOOK_PAGE, BOOK_EDITOR_PAGE, SERIES_TYPES } from '../../book.const';
+import { BookID, compareIDs, createID } from '@/core/id';
+import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_TYPE } from '@/modules/project/project.const';
 
 const { t } = useI18n();
 const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const store = useBookPrivateStore();
+const projectStore = useProjectStore();
 
 // Получаем ID серии из маршрута
 const seriesId = computed(() => route.params.id as string);
@@ -44,6 +48,44 @@ const showAddBookModal = ref(false);
 // Активная вкладка
 const activeTab = ref('details');
 
+// Проверка типа проекта
+const isSeriesType = computed(() => {
+  return projectStore.currentProject?.type === PROJECT_TYPE.SERIES;
+});
+
+// Функция проверки, является ли книга текущей
+const isCurrentBook = (bookId: BookID): boolean => {
+  const project = projectStore.currentProject;
+  if (!project || !project.currentBookId) return false;
+
+  return compareIDs(bookId, project.currentBookId);
+};
+
+// Состояние сохранения проекта
+const isSaving = ref(false);
+
+// Обработчик сохранения проекта
+const handleSaveProject = async () => {
+  try {
+    isSaving.value = true;
+    await projectStore.saveCurrentProject();
+    dialog.success({
+      title: t('project.saveSuccess.title'),
+      content: t('project.saveSuccess.content'),
+      positiveText: t('common.ok'),
+    });
+  } catch (error) {
+    dialog.error({
+      title: t('project.saveError.title'),
+      content: t('project.saveError.content'),
+      positiveText: t('common.ok'),
+    });
+    console.error('Ошибка сохранения проекта:', error);
+  } finally {
+    isSaving.value = false;
+  }
+};
+
 // Обработчики событий
 const handleEdit = () => {
   isEditing.value = true;
@@ -58,8 +100,34 @@ const handleSave = () => {
 };
 
 const handleUpdate = (updatedSeries: IBookSeries) => {
+  // Проверка, можно ли изменить тип проекта на SERIES, если тип изменился
+  const currentType = projectStore.currentProject?.type;
+  const hasManyBooks = updatedSeries.books && updatedSeries.books.length > 1;
+
+  if (currentType === PROJECT_TYPE.SINGLE_BOOK && hasManyBooks) {
+    dialog.warning({
+      title: t('book.series.errors.cantChangeTitleType'),
+      content: t('book.series.errors.removeExtraBooks'),
+      positiveText: t('common.ok'),
+    });
+    return;
+  }
+
   store.updateSeries(updatedSeries);
   isEditing.value = false;
+
+  // Если у нас проект типа SINGLE_BOOK и в серии ровно одна книга,
+  // автоматически устанавливаем её как текущую
+  if (
+    projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK &&
+    updatedSeries.books &&
+    updatedSeries.books.length === 1
+  ) {
+    projectStore.setCurrentBook(createID<'Book'>(updatedSeries.books[0].id));
+  }
+
+  // Автоматически сохраняем проект после обновления серии
+  handleSaveProject();
 };
 
 const handleDelete = () => {
@@ -76,11 +144,6 @@ const cancelDelete = () => {
   showDeleteConfirm.value = false;
 };
 
-// Обработчик обратно к списку
-const handleBack = () => {
-  router.push({ name: BOOK_PAGE.name });
-};
-
 // Переход к редактированию книги
 const handleEditBook = (bookId: string) => {
   router.push({
@@ -94,10 +157,35 @@ const bookColumns = computed(() => [
   {
     title: t('book.title'),
     key: 'title',
+    render: (row: IBookInSeries) => {
+      if (isCurrentBook(row.id)) {
+        // Отмечаем текущую книгу в серии
+        return h(
+          'div',
+          { style: 'display: flex; align-items: center; gap: 8px' },
+          [
+            h(
+              'span',
+              { style: 'font-weight: bold; color: var(--primary-color)' },
+              row.title
+            ),
+            h(
+              'span',
+              {
+                style:
+                  'font-size: 0.8em; color: var(--primary-color); background-color: var(--primary-color-hover); padding: 2px 6px; border-radius: 4px;',
+              },
+              t('book.series.currentBook')
+            ),
+          ]
+        );
+      }
+      return row.title;
+    },
   },
   {
     title: t('book.order'),
-    key: 'order',
+    key: 'orderInSeries',
   },
   {
     title: t('book.status'),
@@ -109,31 +197,42 @@ const bookColumns = computed(() => [
     title: t('common.actions'),
     key: 'actions',
     render: (row: IBookInSeries) => {
-      return h(
-        NSpace,
-        {},
-        {
-          default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                onClick: () => handleEditBook(row.id),
-              },
-              { default: () => t('common.edit') }
-            ),
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'error',
-                onClick: () => handleRemoveBookFromSeries(row.id),
-              },
-              { default: () => t('common.remove') }
-            ),
-          ],
-        }
-      );
+      const buttons = [
+        h(
+          NButton,
+          {
+            size: 'small',
+            onClick: () => handleEditBook(row.id),
+          },
+          { default: () => t('common.edit') }
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'error',
+            onClick: () => handleRemoveBookFromSeries(row.id),
+          },
+          { default: () => t('common.remove') }
+        ),
+      ];
+
+      // Добавление кнопки "Выбрать как текущую" только для SERIES
+      if (isSeriesType.value && !isCurrentBook(row.id)) {
+        buttons.push(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'info',
+              onClick: () => handleSetCurrentBook(row.id),
+            },
+            { default: () => t('book.series.setAsCurrent') }
+          )
+        );
+      }
+
+      return h(NSpace, {}, { default: () => buttons });
     },
   },
 ]);
@@ -142,9 +241,14 @@ const bookColumns = computed(() => [
 const handleRemoveBookFromSeries = (bookId: string) => {
   if (!series.value) return;
 
+  // Проверяем, является ли эта книга текущей книгой проекта
+  const isBookCurrent = isCurrentBook(createID<'Book'>(bookId));
+
   dialog.warning({
     title: t('book.series.removeBook.title'),
-    content: t('book.series.removeBook.content'),
+    content: isBookCurrent
+      ? t('book.series.removeBook.contentCurrentBook')
+      : t('book.series.removeBook.content'),
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
     onPositiveClick: () => {
@@ -152,13 +256,50 @@ const handleRemoveBookFromSeries = (bookId: string) => {
         ...series.value!,
         books: series.value!.books.filter((book) => book.id !== bookId),
       };
+
+      // Если это была текущая книга, сбрасываем текущую книгу проекта
+      if (isBookCurrent) {
+        // Создаем пустой ID для сброса
+        const emptyBookId = createID<'Book'>();
+        projectStore.setCurrentBook(emptyBookId);
+
+        // Если после удаления в серии осталась только одна книга и это проект SINGLE_BOOK,
+        // автоматически делаем её текущей
+        if (
+          projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK &&
+          updatedSeries.books &&
+          updatedSeries.books.length === 1
+        ) {
+          projectStore.setCurrentBook(
+            createID<'Book'>(updatedSeries.books[0].id)
+          );
+        }
+      }
+
       store.updateSeries(updatedSeries);
+
+      // Автоматически сохраняем проект после удаления книги
+      handleSaveProject();
     },
   });
 };
 
 // Добавление книги в серию
 const handleAddBookToSeries = () => {
+  // Если проект типа SINGLE_BOOK и уже есть книга, выводим предупреждение
+  if (
+    projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK &&
+    series.value?.books &&
+    series.value.books.length > 0
+  ) {
+    dialog.warning({
+      title: t('book.series.errors.singleBookProject'),
+      content: t('book.series.errors.onlyOneBook'),
+      positiveText: t('common.ok'),
+    });
+    return;
+  }
+
   showAddBookModal.value = true;
 };
 
@@ -199,8 +340,33 @@ const confirmAddBook = () => {
   };
 
   store.updateSeries(updatedSeries);
+
+  // Если это первая книга в проекте типа SINGLE_BOOK, автоматически устанавливаем её как текущую
+  if (
+    projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK &&
+    updatedSeries.books.length === 1
+  ) {
+    projectStore.setCurrentBook(createID<'Book'>(bookToAdd.id));
+  }
+
   selectedBookId.value = null;
   showAddBookModal.value = false;
+
+  // Автоматически сохраняем проект после добавления книги
+  handleSaveProject();
+};
+
+// Установка текущей книги в проекте
+const handleSetCurrentBook = (bookId: string) => {
+  projectStore.setCurrentBook(createID<'Book'>(bookId));
+
+  // Автоматически сохраняем проект после изменения текущей книги
+  handleSaveProject();
+};
+
+// Обработчик обратно к списку
+const handleBack = () => {
+  router.push({ name: BOOK_PAGE.name });
 };
 </script>
 
@@ -211,6 +377,20 @@ const confirmAddBook = () => {
         <NButton @click="handleBack">
           {{ t('common.back') }}
         </NButton>
+
+        <NSpace>
+          <NButton
+            type="primary"
+            @click="handleSaveProject"
+            :loading="isSaving"
+            :disabled="!projectStore.currentProject"
+          >
+            {{ t('project.save') }}
+          </NButton>
+        </NSpace>
+      </NSpace>
+
+      <NSpace justify="space-between">
         <NSpace v-if="!isEditing">
           <NButton type="primary" @click="handleEdit">
             {{ t('common.edit') }}
