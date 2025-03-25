@@ -1,24 +1,25 @@
 <script lang="ts" setup>
+import { createID } from '@/core/id';
+import type { Character } from '@/modules/lore/character/character.types';
+import { EVENT_TYPE_MAP } from '@/modules/lore/event/event.const';
+import type { IEvent } from '@/modules/lore/event/event.types';
+import { Add12Regular as Add } from '@vicons/fluent';
 import {
-  NCard,
-  NTimeline,
-  NTimelineItem,
   NButton,
-  NIcon,
-  NModal,
+  NCard,
+  NDatePicker,
   NForm,
   NFormItem,
+  NIcon,
   NInput,
-  NDatePicker,
+  NModal,
   NSelect,
+  NTimeline,
+  NTimelineItem,
 } from 'naive-ui';
-import type { IEvent } from '@/modules/lore/event/event.types';
-import { ref, computed } from 'vue';
-import { Add12Regular as Add } from '@vicons/fluent';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
-import type { Character } from '@/modules/lore/character/character.types';
+import { computed, ref } from 'vue';
 import { useStageStore } from '../stage/stage.store';
-import { EVENT_TYPE_MAP } from '@/modules/lore/event/event.const';
 
 const chapters = [
   {
@@ -43,21 +44,21 @@ const stageOptions = computed(() =>
 
 const events = ref<IEvent[]>([
   {
-    id: 'event1',
+    id: createID<'Event'>('event1'),
     title: 'Событие 1',
     description: 'Описание первого события',
     time: '2024-03-20 12:00',
     type: 'battle',
   },
   {
-    id: 'event2',
+    id: createID<'Event'>('event2'),
     title: 'Событие 2',
     description: 'Описание второго события',
     time: '2024-03-21 15:30',
     type: 'meeting',
   },
   {
-    id: 'event3',
+    id: createID<'Event'>('event3'),
     title: 'Событие 3',
     description: 'Описание третьего события',
     time: '2024-03-22 09:45',
@@ -69,14 +70,14 @@ const showModal = ref(false);
 
 const characters: Character[] = [
   {
-    id: 'char1',
+    id: createID<'Character'>('char1'),
     name: 'Анна Каренина',
     description: 'Главная героиня',
     level: 'primary',
     type: 'protagonist',
   },
   {
-    id: 'char2',
+    id: createID<'Character'>('char2'),
     name: 'Алексей Вронский',
     description: 'Возлюбленный Анны',
     level: 'secondary',
@@ -85,7 +86,7 @@ const characters: Character[] = [
 ];
 
 const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
-  id: '',
+  id: createID<'Event'>(),
   title: '',
   description: '',
   time: null,
@@ -105,9 +106,13 @@ const typeOptions = [
 const handleStageSelect = (stageId: string) => {
   const selectedStage = stageStore.getStageById(stageId);
   if (selectedStage) {
-    newEvent.value.stageId = stageId;
-    newEvent.value.chapterId = selectedStage.chapterId;
-    newEvent.value.characterIds = selectedStage.characterIds;
+    newEvent.value.stageId = createID<'Stage'>(stageId);
+    newEvent.value.chapterId = selectedStage.chapterId
+      ? createID<'Chapter'>(selectedStage.chapterId)
+      : undefined;
+    newEvent.value.characterIds = selectedStage.characterIds.map((id) =>
+      createID<'Character'>(id)
+    );
   }
 };
 
@@ -116,13 +121,13 @@ const handleAddEvent = () => {
 
   events.value.push({
     ...newEvent.value,
-    id: crypto.randomUUID(),
+    id: createID<'Event'>(),
     time: new Date(newEvent.value.time as number).toISOString(),
   });
 
   showModal.value = false;
   newEvent.value = {
-    id: '',
+    id: createID<'Event'>(),
     title: '',
     description: '',
     time: null,
@@ -189,9 +194,13 @@ const handleEditStageSelect = (stageId: string) => {
 
   const selectedStage = stageStore.getStageById(stageId);
   if (selectedStage) {
-    editingEvent.value.stageId = stageId;
-    editingEvent.value.chapterId = selectedStage.chapterId;
-    editingEvent.value.characterIds = selectedStage.characterIds;
+    editingEvent.value.stageId = createID<'Stage'>(stageId);
+    editingEvent.value.chapterId = selectedStage.chapterId
+      ? createID<'Chapter'>(selectedStage.chapterId)
+      : undefined;
+    editingEvent.value.characterIds = selectedStage.characterIds.map((id) =>
+      createID<'Character'>(id)
+    );
   }
 };
 </script>

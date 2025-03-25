@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import {
-  NCard,
   NCollapse,
   NCollapseItem,
   NList,
@@ -20,11 +19,11 @@ import {
   NDropdown,
   NSelect,
 } from 'naive-ui';
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import { useBookPrivateStore } from '@/modules/book/book.store';
 import { useProjectStore } from '@/modules/project/project.store';
 import { PROJECT_TYPE } from '@/modules/project/project.const';
-import { Chapter, Stage, ChapterText } from '@/modules/book/book.types';
+import { Chapter, Stage } from '@/modules/book/book.types';
 import { useI18n } from 'vue-i18n';
 import { ChapterID, StageID, BookID } from '@/core/id';
 
@@ -321,16 +320,9 @@ watch(
   { immediate: true }
 );
 
-// Обработчик выбора книги (можно добавить в верхней части страницы)
+// Обработчик выбора книги
 const handleBookSelect = (bookId: string) => {
-  console.log(`PlanPage: выбрана книга ${bookId}`);
-
-  // Сбрасываем выбранные элементы
-  selectedChapterId.value = null;
-  selectedStageId.value = null;
-  chapterTextContent.value = '';
-
-  // Устанавливаем новую текущую книгу
+  console.log(`Выбрана книга с ID: ${bookId}`);
   bookStore.setCurrentBook(bookId);
 };
 
@@ -383,8 +375,8 @@ onMounted(async () => {
   }
 });
 
-// Очистка при уничтожении компонента
-const onBeforeUnmount = () => {
+// Обработчик при размонтировании компонента
+onBeforeUnmount(() => {
   if (autoSaveInterval) {
     clearInterval(autoSaveInterval);
   }
@@ -393,7 +385,7 @@ const onBeforeUnmount = () => {
   if (isChapterTextDirty.value && selectedChapterId.value) {
     saveChapterText();
   }
-};
+});
 </script>
 
 <template>
@@ -406,31 +398,25 @@ const onBeforeUnmount = () => {
       {{ t('book.errors.noCurrentBook') }}
     </NAlert>
 
-    <!-- Выбор книги -->
-    <!-- <div class="book-selector" v-if="bookStore.books.length > 0"> -->
-    <!-- <NSpace justify="space-between" align="center">
-        <NSpace>
-          <NText strong>{{ t('book.title') }}:</NText>
-          <NSelect
-            v-model:value="bookStore.currentBookId"
-            :options="
-              bookStore.books.map((book) => ({
-                label: book.title,
-                value: book.id,
-              }))
-            "
-            @update:value="handleBookSelect"
-            style="min-width: 200px"
-          />
-        </NSpace> -->
-    <!--
-        <NSpace v-if="selectedChapterId && isChapterTextDirty">
-          <NButton type="primary" @click="saveChapterText">
-            {{ t('common.save') }}
-          </NButton>
-        </NSpace>
-      </NSpace> -->
-    <!-- </div> -->
+    <!-- Книжный селектор -->
+    <div class="book-selector" v-if="bookStore.books.length > 0">
+      <NSelect
+        v-model:value="bookStore.currentBookId"
+        @update:value="handleBookSelect"
+        :options="
+          bookStore.books.map((book) => ({ label: book.title, value: book.id }))
+        "
+        placeholder="Выберите книгу"
+      />
+      <NButton
+        v-if="selectedChapterId && isChapterTextDirty"
+        type="primary"
+        size="small"
+        @click="saveChapterText"
+      >
+        {{ t('common.save') }}
+      </NButton>
+    </div>
 
     <NSpin :show="loading">
       <NLayout has-sider>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { createID } from '@/core/id';
 import {
   Character,
   Edge,
@@ -30,49 +31,49 @@ import Legend from './Legend.vue';
 // Константы
 const INITIAL_CHARACTERS: Character[] = [
   {
-    id: 'char1',
+    id: createID<'Character'>('char1'),
     name: 'Анна Каренина',
     description: 'Главная героиня',
     level: 'primary',
     type: 'protagonist',
   },
   {
-    id: 'char2',
+    id: createID<'Character'>('char2'),
     name: 'Алексей Вронский',
     description: 'Возлюбленный Анны',
     level: 'secondary',
     type: 'love interest',
   },
   {
-    id: 'char3',
+    id: createID<'Character'>('char3'),
     name: 'Алексей Каренин',
     description: 'Муж Анны',
     level: 'secondary',
     type: 'foil',
   },
   {
-    id: 'char4',
+    id: createID<'Character'>('char4'),
     name: 'Стива Облонская',
     description: 'Брат Анны',
     level: 'secondary',
     type: 'plot mover',
   },
   {
-    id: 'char5',
+    id: createID<'Character'>('char5'),
     name: 'Долли Облонская',
     description: 'Жена Стивы',
     level: 'tertiary',
     type: 'confidante',
   },
   {
-    id: 'char6',
+    id: createID<'Character'>('char6'),
     name: 'Константин Левин',
     description: 'Друг Стивы',
     level: 'secondary',
     type: 'plot mover',
   },
   {
-    id: 'char7',
+    id: createID<'Character'>('char7'),
     name: 'Кити Щербацкая',
     description: 'Жена Левина',
     level: 'tertiary',
