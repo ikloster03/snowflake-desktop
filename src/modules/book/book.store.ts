@@ -14,9 +14,10 @@ const BOOK_DATA = {
   BOOKS: 'books.json',
   SERIES: 'series.json',
   AUTHORS: 'authors.json',
-  CHAPTERS: 'chapters.json',
   STAGES: 'stages.json',
-  CHAPTERS_TEXT: 'chapters_text/', // Директория для текстов глав
+  BOOKS_DIR: 'books/', // Директория для книг
+  CHAPTERS_JSON: 'chapters.json', // Внутри директории книги
+  CHAPTER_TEXT_DIR: 'text/', // Директория для текста глав внутри директории книги
 } as const;
 
 export const useBookPrivateStore = defineStore(
@@ -101,19 +102,90 @@ export const useBookPrivateStore = defineStore(
     // Загрузка глав
     const loadChapters = async () => {
       if (!projectStore.currentProject?.path) return;
+      console.log('BookStore: Загрузка всех глав');
 
       try {
-        const chaptersPath = `${projectStore.currentProject.path}/${BOOK_DATA.CHAPTERS}`;
-        const exists = await fs.exists(chaptersPath);
+        // Очищаем существующие главы
+        chapters.value = [];
 
-        if (!exists) {
+        // Базовый путь к директории с книгами
+        const booksDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}`;
+        const booksExists = await fs.exists(booksDir);
+
+        if (!booksExists) {
+          await fs.mkdir(booksDir, { recursive: true });
+          return;
+        }
+
+        // Загружаем главы для каждой книги в массиве books
+        for (const book of books.value) {
+          const bookDir = `${booksDir}${book.id}/`;
+          const bookDirExists = await fs.exists(bookDir);
+
+          if (!bookDirExists) {
+            await fs.mkdir(bookDir, { recursive: true });
+            continue;
+          }
+
+          const chaptersPath = `${bookDir}${BOOK_DATA.CHAPTERS_JSON}`;
+          const chaptersExists = await fs.exists(chaptersPath);
+
+          if (!chaptersExists) {
+            // Создаем пустой массив глав для книги
+            await fs.writeTextFile(chaptersPath, JSON.stringify([], null, 2));
+            continue;
+          }
+
+          try {
+            const chaptersJson = await fs.readTextFile(chaptersPath);
+            const bookChapters: Chapter[] = JSON.parse(chaptersJson);
+            console.log(`BookStore: Загружено ${bookChapters.length} глав для книги ${book.id}`);
+            chapters.value.push(...bookChapters);
+          } catch (e) {
+            console.error(`Ошибка загрузки глав из ${chaptersPath}:`, e);
+          }
+        }
+
+        console.log(`BookStore: Всего загружено ${chapters.value.length} глав`);
+      } catch (error) {
+        console.error('Ошибка загрузки глав:', error);
+      }
+    };
+
+    // Загрузка глав конкретной книги
+    const loadBookChapters = async (bookId: string) => {
+      if (!projectStore.currentProject?.path) return [];
+      console.log(`BookStore: Загрузка глав для книги ${bookId}`);
+
+      try {
+        const bookDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}${bookId}/`;
+        const bookDirExists = await fs.exists(bookDir);
+
+        if (!bookDirExists) {
+          await fs.mkdir(bookDir, { recursive: true });
+          return [];
+        }
+
+        const chaptersPath = `${bookDir}${BOOK_DATA.CHAPTERS_JSON}`;
+        const chaptersExists = await fs.exists(chaptersPath);
+
+        if (!chaptersExists) {
           await fs.writeTextFile(chaptersPath, JSON.stringify([], null, 2));
+          return [];
         }
 
         const chaptersJson = await fs.readTextFile(chaptersPath);
-        chapters.value = JSON.parse(chaptersJson);
+        const bookChapters: Chapter[] = JSON.parse(chaptersJson);
+
+        // Обновляем главы этой книги в общем массиве
+        chapters.value = chapters.value.filter(c => c.bookId !== bookId);
+        chapters.value.push(...bookChapters);
+
+        console.log(`BookStore: Загружено ${bookChapters.length} глав для книги ${bookId}`);
+        return bookChapters;
       } catch (error) {
-        console.error('Error loading chapters:', error);
+        console.error(`Ошибка загрузки глав для книги ${bookId}:`, error);
+        return [];
       }
     };
 
@@ -141,19 +213,28 @@ export const useBookPrivateStore = defineStore(
       if (!projectStore.currentProject?.path) return null;
 
       try {
-        // Создаем директорию для текстов глав, если она не существует
-        const chapterTextDir = `${projectStore.currentProject.path}/${BOOK_DATA.CHAPTERS_TEXT}`;
-        const dirExists = await fs.exists(chapterTextDir);
-
-        if (!dirExists) {
-          // Создаем директорию с помощью mkdir, так как create не поддерживает опцию dir
-          await fs.mkdir(chapterTextDir);
+        // Сначала находим главу, чтобы узнать её bookId
+        const chapter = chapters.value.find(c => c.id === chapterId);
+        if (!chapter) {
+          console.error(`Ошибка загрузки текста главы: глава ${chapterId} не найдена`);
+          return null;
         }
 
-        const chapterTextPath = `${chapterTextDir}/${chapterId}.txt`;
+        const bookId = chapter.bookId;
+        const bookDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}${bookId}/`;
+        const textDir = `${bookDir}${BOOK_DATA.CHAPTER_TEXT_DIR}`;
+
+        // Создаем директорию для текстов глав, если её нет
+        const textDirExists = await fs.exists(textDir);
+        if (!textDirExists) {
+          await fs.mkdir(textDir, { recursive: true });
+        }
+
+        const chapterTextPath = `${textDir}${chapterId}.txt`;
         const exists = await fs.exists(chapterTextPath);
 
         if (!exists) {
+          // Если файла нет, создаем пустой
           await fs.writeTextFile(chapterTextPath, '');
           currentChapterText.value = {
             id: chapterId,
@@ -172,7 +253,7 @@ export const useBookPrivateStore = defineStore(
 
         return currentChapterText.value;
       } catch (error) {
-        console.error('Error loading chapter text:', error);
+        console.error('Ошибка загрузки текста главы:', error);
         return null;
       }
     };
@@ -217,16 +298,45 @@ export const useBookPrivateStore = defineStore(
       }
     };
 
+    // Сохранение глав
     const saveChapters = async () => {
       if (!projectStore.currentProject?.path) return;
+      console.log('BookStore: Сохранение глав');
 
       try {
-        await fs.writeTextFile(
-          `${projectStore.currentProject.path}/${BOOK_DATA.CHAPTERS}`,
-          JSON.stringify(chapters.value, null, 2)
-        );
+        // Базовый путь к директории с книгами
+        const booksDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}`;
+        const booksExists = await fs.exists(booksDir);
+
+        if (!booksExists) {
+          await fs.mkdir(booksDir, { recursive: true });
+        }
+
+        // Группируем главы по книгам
+        const chaptersByBook = new Map<string, Chapter[]>();
+
+        for (const chapter of chapters.value) {
+          if (!chaptersByBook.has(chapter.bookId)) {
+            chaptersByBook.set(chapter.bookId, []);
+          }
+          chaptersByBook.get(chapter.bookId)!.push(chapter);
+        }
+
+        // Сохраняем главы для каждой книги в отдельный файл
+        for (const [bookId, bookChapters] of chaptersByBook.entries()) {
+          const bookDir = `${booksDir}${bookId}/`;
+          const bookDirExists = await fs.exists(bookDir);
+
+          if (!bookDirExists) {
+            await fs.mkdir(bookDir, { recursive: true });
+          }
+
+          const chaptersPath = `${bookDir}${BOOK_DATA.CHAPTERS_JSON}`;
+          await fs.writeTextFile(chaptersPath, JSON.stringify(bookChapters, null, 2));
+          console.log(`BookStore: Сохранено ${bookChapters.length} глав для книги ${bookId}`);
+        }
       } catch (error) {
-        console.error('Error saving chapters:', error);
+        console.error('Ошибка сохранения глав:', error);
       }
     };
 
@@ -243,21 +353,37 @@ export const useBookPrivateStore = defineStore(
       }
     };
 
+    // Сохранение текста главы
     const saveChapterText = async (chapterText: ChapterText) => {
       if (!projectStore.currentProject?.path) return;
 
       try {
-        // Создаем директорию для текстов глав, если она не существует
-        const chapterTextDir = `${projectStore.currentProject.path}/${BOOK_DATA.CHAPTERS_TEXT}`;
-        const dirExists = await fs.exists(chapterTextDir);
-
-        if (!dirExists) {
-          // Создаем директорию с помощью mkdir, так как create не поддерживает опцию dir
-          await fs.mkdir(chapterTextDir);
+        // Находим главу, чтобы узнать её bookId
+        const chapter = chapters.value.find(c => c.id === chapterText.id);
+        if (!chapter) {
+          console.error(`Ошибка сохранения текста главы: глава ${chapterText.id} не найдена`);
+          return;
         }
 
+        const bookId = chapter.bookId;
+        const bookDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}${bookId}/`;
+
+        // Проверяем существование директории книги
+        const bookDirExists = await fs.exists(bookDir);
+        if (!bookDirExists) {
+          await fs.mkdir(bookDir, { recursive: true });
+        }
+
+        // Директория для текстов глав
+        const textDir = `${bookDir}${BOOK_DATA.CHAPTER_TEXT_DIR}`;
+        const textDirExists = await fs.exists(textDir);
+        if (!textDirExists) {
+          await fs.mkdir(textDir, { recursive: true });
+        }
+
+        // Сохраняем текст главы
         await fs.writeTextFile(
-          `${chapterTextDir}/${chapterText.id}.txt`,
+          `${textDir}${chapterText.id}.txt`,
           chapterText.content
         );
 
@@ -266,7 +392,7 @@ export const useBookPrivateStore = defineStore(
           lastModified: new Date()
         };
       } catch (error) {
-        console.error('Error saving chapter text:', error);
+        console.error('Ошибка сохранения текста главы:', error);
       }
     };
 
@@ -476,6 +602,7 @@ export const useBookPrivateStore = defineStore(
 
     // Функции для работы с текущей книгой
     const setCurrentBook = (bookId: string) => {
+      console.log(`BookStore: установка currentBookId с ${currentBookId.value} на ${bookId}`);
       currentBookId.value = bookId;
     };
 
@@ -486,10 +613,19 @@ export const useBookPrivateStore = defineStore(
 
     // Получение глав для текущей книги
     const getBookChapters = computed(() => {
-      if (!currentBookId.value) return [];
-      return chapters.value
-        .filter(chapter => chapter.bookId === currentBookId.value)
+      const bookId = currentBookId.value;
+      console.log(`BookStore: вычисление getBookChapters для книги ${bookId || 'не выбрана'}`);
+
+      if (!bookId) {
+        return [];
+      }
+
+      const bookChapters = chapters.value
+        .filter(chapter => chapter.bookId === bookId)
         .sort((a, b) => a.order - b.order);
+
+      console.log(`BookStore: найдено ${bookChapters.length} глав для книги ${bookId}`);
+      return bookChapters;
     });
 
     // Получение сцен для главы
@@ -501,6 +637,15 @@ export const useBookPrivateStore = defineStore(
         .filter(stage => stage.chapterId === chapterId)
         .sort((a, b) => (a.order || 0) - (b.order || 0));
     };
+
+    // Наблюдение за изменением текущей книги
+    watch(currentBookId, async (newBookId, oldBookId) => {
+      console.log(`BookStore: currentBookId изменился с '${oldBookId}' на '${newBookId}'`);
+      if (newBookId && newBookId !== oldBookId) {
+        // Загружаем главы для новой книги
+        await loadBookChapters(newBookId);
+      }
+    });
 
     // Отслеживание изменений проекта
     watch(() => projectStore.currentProject?.path, () => {
@@ -596,6 +741,7 @@ export const useBookPrivateStore = defineStore(
       updateChapter,
       updateSeries,
       updateStage,
+      loadBookChapters,
     };
   }
 );
@@ -663,5 +809,6 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     updateChapter: privateStore.updateChapter,
     updateSeries: privateStore.updateSeries,
     updateStage: privateStore.updateStage,
+    loadBookChapters: privateStore.loadBookChapters,
   };
 });
