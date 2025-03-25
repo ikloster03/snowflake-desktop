@@ -1,69 +1,664 @@
 <script lang="ts" setup>
-import { NCard, NCollapse, NCollapseItem, NList, NListItem } from 'naive-ui';
+import {
+  NCard,
+  NCollapse,
+  NCollapseItem,
+  NList,
+  NListItem,
+  NSpin,
+  NSpace,
+  NButton,
+  NInput,
+  NAlert,
+  NModal,
+  NForm,
+  NFormItem,
+  NLayout,
+  NLayoutSider,
+  NLayoutContent,
+  NText,
+  NDropdown,
+} from 'naive-ui';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useBookPrivateStore } from '@/modules/book/book.store';
+import { useProjectStore } from '@/modules/project/project.store';
+import { PROJECT_TYPE } from '@/modules/project/project.const';
+import { Chapter, Stage, ChapterText } from '@/modules/book/book.types';
+import { useI18n } from 'vue-i18n';
+import { ChapterID, StageID, BookID } from '@/core/id';
 
-const chapters = [
-  {
-    id: 1,
-    title: 'Глава 1: Начало пути',
-    scenes: [
-      { id: 1, title: 'Сцена 1: Пробуждение героя' },
-      { id: 2, title: 'Сцена 2: Встреча с наставником' },
-      { id: 3, title: 'Сцена 3: Первое испытание' },
-    ]
-  },
-  {
-    id: 2,
-    title: 'Глава 2: Путешествие начинается',
-    scenes: [
-      { id: 1, title: 'Сцена 1: Выход из дома' },
-      { id: 2, title: 'Сцена 2: Первые трудности' },
-      { id: 3, title: 'Сцена 3: Неожиданная помощь' },
-    ]
-  },
-  {
-    id: 3,
-    title: 'Глава 3: Первые препятствия',
-    scenes: [
-      { id: 1, title: 'Сцена 1: Встреча с антагонистом' },
-      { id: 2, title: 'Сцена 2: Потеря важного артефакта' },
-      { id: 3, title: 'Сцена 3: Поиски решения' },
-    ]
+const { t } = useI18n();
+const bookStore = useBookPrivateStore();
+const projectStore = useProjectStore();
+
+// Состояние загрузки
+const loading = ref(true);
+const loadingChaptersText = ref(false);
+
+// Выбранные элементы
+const selectedChapterId = ref<ChapterID | null>(null);
+const selectedStageId = ref<StageID | null>(null);
+
+// Модальные окна для добавления/редактирования
+const showAddChapterModal = ref(false);
+const showEditChapterModal = ref(false);
+const showAddStageModal = ref(false);
+const showEditStageModal = ref(false);
+
+// Формы добавления/редактирования
+const newChapter = ref({
+  title: '',
+  description: '',
+});
+
+const editingChapter = ref<Chapter | null>(null);
+
+const newStage = ref({
+  title: '',
+  description: '',
+  characterIds: [] as string[],
+});
+
+const editingStage = ref<Stage | null>(null);
+
+// Текст главы
+const chapterTextContent = ref('');
+const isChapterTextDirty = ref(false);
+
+// Методы для работы с главами
+const handleAddChapter = () => {
+  if (!bookStore.currentBookId) return;
+
+  const chapter = bookStore.addChapter({
+    title: newChapter.value.title,
+    description: newChapter.value.description || '',
+    bookId: bookStore.currentBookId as BookID,
+    stageIds: [],
+  });
+
+  showAddChapterModal.value = false;
+  newChapter.value = { title: '', description: '' };
+
+  // Выбираем созданную главу
+  selectedChapterId.value = chapter.id;
+};
+
+const handleEditChapter = () => {
+  if (!editingChapter.value || !selectedChapterId.value) return;
+
+  bookStore.updateChapter(selectedChapterId.value, {
+    title: editingChapter.value.title,
+    description: editingChapter.value.description,
+  });
+
+  showEditChapterModal.value = false;
+  editingChapter.value = null;
+};
+
+const startEditChapter = (chapter: Chapter) => {
+  editingChapter.value = { ...chapter };
+  showEditChapterModal.value = true;
+};
+
+const handleDeleteChapter = (chapterId: ChapterID) => {
+  if (confirm(t('book.chapter.confirmDelete'))) {
+    bookStore.deleteChapter(chapterId);
+
+    if (selectedChapterId.value === chapterId) {
+      selectedChapterId.value = null;
+      selectedStageId.value = null;
+    }
   }
-];
+};
+
+// Методы для работы со сценами
+const handleAddStage = () => {
+  if (!selectedChapterId.value) return;
+
+  const stage = bookStore.addStage({
+    title: newStage.value.title,
+    description: newStage.value.description || '',
+    chapterId: selectedChapterId.value,
+    characterIds: newStage.value.characterIds,
+  });
+
+  showAddStageModal.value = false;
+  newStage.value = { title: '', description: '', characterIds: [] };
+
+  // Выбираем созданную сцену
+  selectedStageId.value = stage.id;
+};
+
+const handleEditStage = () => {
+  if (!editingStage.value || !selectedStageId.value) return;
+
+  bookStore.updateStage(selectedStageId.value, {
+    title: editingStage.value.title,
+    description: editingStage.value.description,
+    characterIds: editingStage.value.characterIds,
+  });
+
+  showEditStageModal.value = false;
+  editingStage.value = null;
+};
+
+const startEditStage = (stage: Stage) => {
+  editingStage.value = { ...stage };
+  showEditStageModal.value = true;
+};
+
+const handleDeleteStage = (stageId: StageID) => {
+  if (confirm(t('book.stage.confirmDelete'))) {
+    bookStore.deleteStage(stageId);
+
+    if (selectedStageId.value === stageId) {
+      selectedStageId.value = null;
+    }
+  }
+};
+
+// Методы для работы с текстом главы
+const loadChapterText = async (chapterId: ChapterID) => {
+  loadingChaptersText.value = true;
+  try {
+    const chapterText = await bookStore.loadChapterText(chapterId);
+    if (chapterText) {
+      chapterTextContent.value = chapterText.content;
+      isChapterTextDirty.value = false;
+    }
+  } catch (error) {
+    console.error('Error loading chapter text:', error);
+  } finally {
+    loadingChaptersText.value = false;
+  }
+};
+
+const saveChapterText = async () => {
+  if (!selectedChapterId.value) return;
+
+  try {
+    await bookStore.saveChapterText({
+      id: selectedChapterId.value,
+      content: chapterTextContent.value,
+      lastModified: new Date(),
+    });
+    isChapterTextDirty.value = false;
+  } catch (error) {
+    console.error('Error saving chapter text:', error);
+  }
+};
+
+// Вычисляемые свойства для работы с данными
+const chapters = computed(() => bookStore.getBookChapters);
+
+const chapterStages = computed(() => {
+  if (!selectedChapterId.value) return [];
+  return bookStore.getChapterStages(selectedChapterId.value);
+});
+
+const selectedChapter = computed(() => {
+  if (!selectedChapterId.value) return null;
+  return (
+    chapters.value.find((c: Chapter) => c.id === selectedChapterId.value) ||
+    null
+  );
+});
+
+const selectedStage = computed(() => {
+  if (!selectedStageId.value) return null;
+  return (
+    chapterStages.value.find((s) => s.id === selectedStageId.value) || null
+  );
+});
+
+// Обработчики выбора
+const handleChapterSelect = (chapter: Chapter) => {
+  selectedChapterId.value = chapter.id;
+
+  // Загружаем текст главы
+  loadChapterText(chapter.id);
+
+  // Сбрасываем выбранную сцену
+  selectedStageId.value = null;
+};
+
+const handleStageSelect = (stage: Stage) => {
+  selectedStageId.value = stage.id;
+};
+
+// Отслеживаем изменения текста
+watch(chapterTextContent, () => {
+  isChapterTextDirty.value = true;
+});
+
+// Обработчик автосохранения
+const autoSaveIntervalMs = 30000; // 30 секунд
+let autoSaveInterval: number | null = null;
+
+const setupAutoSave = () => {
+  if (autoSaveInterval) {
+    clearInterval(autoSaveInterval);
+  }
+
+  autoSaveInterval = window.setInterval(() => {
+    if (isChapterTextDirty.value && selectedChapterId.value) {
+      saveChapterText();
+    }
+  }, autoSaveIntervalMs);
+};
+
+// Инициализация страницы
+onMounted(async () => {
+  try {
+    loading.value = true;
+
+    // Загружаем данные если необходимо
+    await bookStore.loadBooks();
+    await bookStore.loadChapters();
+    await bookStore.loadStages();
+
+    // Проверяем, что текущая книга выбрана
+    // Если книга не выбрана, но есть книги в проекте, можно выбрать первую
+    // Это не перенаправление, а только инициализация данных для текущей страницы
+    if (!bookStore.currentBookId) {
+      const currentProject = projectStore.currentProject;
+
+      if (
+        currentProject &&
+        currentProject.type === PROJECT_TYPE.SINGLE_BOOK &&
+        bookStore.books.length > 0
+      ) {
+        // Для одиночной книги, устанавливаем первую книгу как текущую
+        bookStore.setCurrentBook(bookStore.books[0].id);
+      } else if (
+        currentProject &&
+        currentProject.type === PROJECT_TYPE.SERIES &&
+        bookStore.series.length > 0
+      ) {
+        // Для серии, проверяем первую серию на наличие книг
+        const firstSeries = bookStore.series[0];
+        if (firstSeries.books.length > 0) {
+          // Устанавливаем первую книгу серии как текущую
+          bookStore.setCurrentBook(firstSeries.books[0].id);
+        }
+      }
+    }
+
+    // Если есть главы и текущая книга выбрана, выбираем первую главу для отображения
+    if (bookStore.currentBookId && chapters.value.length > 0) {
+      selectedChapterId.value = chapters.value[0].id;
+      loadChapterText(chapters.value[0].id);
+    }
+
+    // Настраиваем автосохранение
+    setupAutoSave();
+  } catch (error) {
+    console.error('Error initializing plan page:', error);
+  } finally {
+    loading.value = false;
+  }
+});
+
+// Очистка при уничтожении компонента
+const onBeforeUnmount = () => {
+  if (autoSaveInterval) {
+    clearInterval(autoSaveInterval);
+  }
+
+  // Сохраняем несохраненные изменения
+  if (isChapterTextDirty.value && selectedChapterId.value) {
+    saveChapterText();
+  }
+};
 </script>
 
 <template>
-  <NCard>
-    <NCollapse>
-      <NCollapseItem
-        v-for="chapter in chapters"
-        :key="chapter.id"
-        :title="chapter.title"
-      >
-        <NList>
-          <NListItem
-            v-for="scene in chapter.scenes"
-            :key="scene.id"
-          >
-            {{ scene.title }}
-          </NListItem>
-        </NList>
-      </NCollapseItem>
-    </NCollapse>
-  </NCard>
+  <div class="plan-container">
+    <NAlert
+      v-if="!bookStore.currentBookId"
+      type="error"
+      style="margin-bottom: 16px"
+    >
+      {{ t('book.errors.noCurrentBook') }}
+    </NAlert>
+
+    <NSpin :show="loading">
+      <NLayout has-sider>
+        <!-- Боковая панель с главами и сценами -->
+        <NLayoutSider
+          collapse-mode="width"
+          :collapsed-width="64"
+          :width="280"
+          show-trigger
+          bordered
+        >
+          <div class="sidebar-content">
+            <div class="sidebar-header">
+              <NSpace justify="space-between">
+                <NText strong>{{ t('book.chapters') }}</NText>
+                <NButton
+                  size="small"
+                  @click="showAddChapterModal = true"
+                  :disabled="!bookStore.currentBookId"
+                >
+                  {{ t('common.add') }}
+                </NButton>
+              </NSpace>
+            </div>
+
+            <div class="chapters-list">
+              <NCollapse>
+                <NCollapseItem
+                  v-for="chapter in chapters"
+                  :key="chapter.id"
+                  :title="chapter.title"
+                  :class="{
+                    'selected-chapter': selectedChapterId === chapter.id,
+                  }"
+                  @click="handleChapterSelect(chapter)"
+                >
+                  <!-- Инструменты управления главой -->
+                  <template #header-extra>
+                    <NDropdown
+                      trigger="click"
+                      :options="[
+                        {
+                          label: t('common.edit'),
+                          key: 'edit',
+                          onClick: () => startEditChapter(chapter),
+                        },
+                        {
+                          label: t('common.delete'),
+                          key: 'delete',
+                          onClick: () => handleDeleteChapter(chapter.id),
+                        },
+                      ]"
+                      @click.stop
+                    >
+                      <div class="chapter-tools">
+                        <span class="tool-icon">⋮</span>
+                      </div>
+                    </NDropdown>
+                  </template>
+
+                  <!-- Список сцен -->
+                  <div class="stages-header">
+                    <NSpace justify="space-between">
+                      <NText>{{ t('book.stages') }}</NText>
+                      <NButton
+                        size="small"
+                        @click.stop="showAddStageModal = true"
+                        :disabled="selectedChapterId !== chapter.id"
+                      >
+                        {{ t('common.add') }}
+                      </NButton>
+                    </NSpace>
+                  </div>
+
+                  <NList hoverable clickable>
+                    <NListItem
+                      v-for="stage in bookStore.getChapterStages(chapter.id)"
+                      :key="stage.id"
+                      @click.stop="handleStageSelect(stage)"
+                      :class="{
+                        'selected-stage': selectedStageId === stage.id,
+                      }"
+                    >
+                      <NSpace justify="space-between" align="center">
+                        <span>{{ stage.title }}</span>
+                        <NSpace>
+                          <NButton
+                            size="small"
+                            @click.stop="startEditStage(stage)"
+                          >
+                            {{ t('common.edit') }}
+                          </NButton>
+                          <NButton
+                            size="small"
+                            @click.stop="handleDeleteStage(stage.id)"
+                          >
+                            {{ t('common.delete') }}
+                          </NButton>
+                        </NSpace>
+                      </NSpace>
+                    </NListItem>
+
+                    <NListItem
+                      v-if="bookStore.getChapterStages(chapter.id).length === 0"
+                    >
+                      <em>{{ t('book.empty.stages') }}</em>
+                    </NListItem>
+                  </NList>
+                </NCollapseItem>
+              </NCollapse>
+
+              <div v-if="chapters.length === 0" class="empty-message">
+                <NText depth="3">{{ t('book.empty.chapters') }}</NText>
+              </div>
+            </div>
+          </div>
+        </NLayoutSider>
+
+        <!-- Основное содержимое - детали сцены или редактор текста главы -->
+        <NLayoutContent class="main-content">
+          <NSpin :show="loadingChaptersText">
+            <div v-if="selectedChapterId" class="chapter-editor">
+              <div class="chapter-editor-header">
+                <NSpace justify="space-between" align="center">
+                  <h3>{{ selectedChapter?.title }}</h3>
+                  <NSpace>
+                    <NButton
+                      :disabled="!isChapterTextDirty"
+                      type="primary"
+                      @click="saveChapterText"
+                    >
+                      {{ t('common.save') }}
+                    </NButton>
+                  </NSpace>
+                </NSpace>
+
+                <!-- Описание главы и сцены, если выбрана -->
+                <div v-if="selectedChapter?.description" class="description">
+                  <NText depth="3">{{ selectedChapter.description }}</NText>
+                </div>
+
+                <div v-if="selectedStage" class="stage-details">
+                  <h4>{{ selectedStage.title }}</h4>
+                  <div v-if="selectedStage.description" class="description">
+                    <NText depth="3">{{ selectedStage.description }}</NText>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Редактор текста главы -->
+              <div class="chapter-text-editor">
+                <NInput
+                  v-model:value="chapterTextContent"
+                  type="textarea"
+                  :autosize="{ minRows: 20 }"
+                  :placeholder="t('book.writeHere')"
+                />
+              </div>
+            </div>
+
+            <div v-else class="empty-editor">
+              <NText depth="3">{{ t('book.selectChapter') }}</NText>
+            </div>
+          </NSpin>
+        </NLayoutContent>
+      </NLayout>
+    </NSpin>
+
+    <!-- Модальные окна -->
+    <!-- Добавление главы -->
+    <NModal
+      v-model:show="showAddChapterModal"
+      :title="t('book.chapter.add')"
+      preset="dialog"
+      positive-text="Добавить"
+      negative-text="Отмена"
+      @positive-click="handleAddChapter"
+    >
+      <NForm>
+        <NFormItem :label="t('book.title')" required>
+          <NInput v-model:value="newChapter.title" />
+        </NFormItem>
+        <NFormItem :label="t('book.description')">
+          <NInput v-model:value="newChapter.description" type="textarea" />
+        </NFormItem>
+      </NForm>
+    </NModal>
+
+    <!-- Редактирование главы -->
+    <NModal
+      v-model:show="showEditChapterModal"
+      :title="t('book.chapter.edit')"
+      preset="dialog"
+      positive-text="Сохранить"
+      negative-text="Отмена"
+      @positive-click="handleEditChapter"
+    >
+      <NForm v-if="editingChapter">
+        <NFormItem :label="t('book.title')" required>
+          <NInput v-model:value="editingChapter.title" />
+        </NFormItem>
+        <NFormItem :label="t('book.description')">
+          <NInput v-model:value="editingChapter.description" type="textarea" />
+        </NFormItem>
+      </NForm>
+    </NModal>
+
+    <!-- Добавление сцены -->
+    <NModal
+      v-model:show="showAddStageModal"
+      :title="t('book.stage.add')"
+      preset="dialog"
+      positive-text="Добавить"
+      negative-text="Отмена"
+      @positive-click="handleAddStage"
+    >
+      <NForm>
+        <NFormItem :label="t('book.title')" required>
+          <NInput v-model:value="newStage.title" />
+        </NFormItem>
+        <NFormItem :label="t('book.description')">
+          <NInput v-model:value="newStage.description" type="textarea" />
+        </NFormItem>
+        <!-- Тут можно добавить выбор персонажей, когда они будут реализованы -->
+      </NForm>
+    </NModal>
+
+    <!-- Редактирование сцены -->
+    <NModal
+      v-model:show="showEditStageModal"
+      :title="t('book.stage.edit')"
+      preset="dialog"
+      positive-text="Сохранить"
+      negative-text="Отмена"
+      @positive-click="handleEditStage"
+    >
+      <NForm v-if="editingStage">
+        <NFormItem :label="t('book.title')" required>
+          <NInput v-model:value="editingStage.title" />
+        </NFormItem>
+        <NFormItem :label="t('book.description')">
+          <NInput v-model:value="editingStage.description" type="textarea" />
+        </NFormItem>
+        <!-- Тут можно добавить выбор персонажей, когда они будут реализованы -->
+      </NForm>
+    </NModal>
+  </div>
 </template>
 
 <style scoped>
-.n-collapse-item {
-  margin-bottom: 8px;
+.plan-container {
+  height: 100%;
+  width: 100%;
 }
 
-.n-list-item {
-  padding: 8px 16px;
+.sidebar-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.chapters-list {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+}
+
+.selected-chapter {
+  background-color: rgba(0, 128, 255, 0.1);
+}
+
+.selected-stage {
+  background-color: rgba(0, 128, 255, 0.05);
+}
+
+.chapter-tools {
   cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
-.n-list-item:hover {
+.chapter-tools:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tool-icon {
+  font-weight: bold;
+}
+
+.stages-header {
+  margin: 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.main-content {
+  padding: 16px;
+  height: 100%;
+  overflow: auto;
+}
+
+.chapter-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chapter-editor-header {
+  margin-bottom: 16px;
+}
+
+.chapter-text-editor {
+  flex: 1;
+}
+
+.description {
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.stage-details {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.empty-message,
+.empty-editor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
 }
 </style>
