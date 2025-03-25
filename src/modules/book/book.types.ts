@@ -61,6 +61,7 @@ export interface Stage {
   characterIds: string[];
   status?: string;
   order?: number;
+  seriesId?: SeriesID; // ID серии, к которой относится сцена
 }
 
 export interface Chapter {
