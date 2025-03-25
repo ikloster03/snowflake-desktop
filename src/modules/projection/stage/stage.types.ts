@@ -7,7 +7,7 @@ export interface Stage {
   id: string;
   title: string;
   description?: string;
-  chapterId: string;
+  chapterId?: string;
   characterIds: string[];
   status?: StageStatus;
   order?: number;
