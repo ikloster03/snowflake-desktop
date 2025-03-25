@@ -18,6 +18,7 @@ import {
   NLayoutContent,
   NText,
   NDropdown,
+  NSelect,
 } from 'naive-ui';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useBookPrivateStore } from '@/modules/book/book.store';
@@ -189,7 +190,13 @@ const saveChapterText = async () => {
 };
 
 // Вычисляемые свойства для работы с данными
-const chapters = computed(() => bookStore.getBookChapters);
+const chapters = computed(() => {
+  const currentId = bookStore.currentBookId;
+  console.log(
+    `PlanPage: вычисление глав для книги ${currentId || 'не выбрана'}`
+  );
+  return bookStore.getBookChapters;
+});
 
 const chapterStages = computed(() => {
   if (!selectedChapterId.value) return [];
@@ -247,6 +254,86 @@ const setupAutoSave = () => {
   }, autoSaveIntervalMs);
 };
 
+// Отслеживаем изменение выбранной главы
+watch(selectedChapterId, (newChapterId, oldChapterId) => {
+  console.log(
+    `PlanPage: selectedChapterId изменился с '${oldChapterId}' на '${newChapterId}'`
+  );
+
+  if (newChapterId) {
+    // Загружаем текст для новой главы
+    loadChapterText(newChapterId);
+
+    // Сбрасываем выбранную сцену
+    selectedStageId.value = null;
+
+    // Проверяем сцены для этой главы
+    const stages = chapterStages.value;
+    console.log(
+      `PlanPage: найдено ${stages.length} сцен для главы ${newChapterId}`
+    );
+
+    // Автоматически выбираем первую сцену, если она есть
+    if (stages.length > 0) {
+      selectedStageId.value = stages[0].id;
+      console.log(
+        `PlanPage: автоматически выбрана первая сцена: ${stages[0].id}`
+      );
+    }
+  }
+});
+
+// Наблюдение за изменением текущей книги
+watch(
+  () => bookStore.currentBookId,
+  async (newBookId, oldBookId) => {
+    console.log(
+      `PlanPage: currentBookId изменился с '${oldBookId}' на '${newBookId}'`
+    );
+
+    if (newBookId && newBookId !== oldBookId) {
+      // Сбрасываем выбранные элементы
+      selectedChapterId.value = null;
+      selectedStageId.value = null;
+      chapterTextContent.value = '';
+
+      // Принудительно загружаем главы для новой книги
+      console.log(
+        `PlanPage: принудительная загрузка глав для новой книги: ${newBookId}`
+      );
+
+      // Даем время реактивной системе обновить компьютед-свойства
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const currentChapters = chapters.value;
+      console.log(
+        `PlanPage: после смены книги найдено ${currentChapters.length} глав`
+      );
+
+      if (currentChapters.length > 0) {
+        selectedChapterId.value = currentChapters[0].id;
+        console.log(`PlanPage: выбрана первая глава: ${currentChapters[0].id}`);
+        // Загружаем текст этой главы
+        loadChapterText(currentChapters[0].id);
+      }
+    }
+  },
+  { immediate: true }
+);
+
+// Обработчик выбора книги (можно добавить в верхней части страницы)
+const handleBookSelect = (bookId: string) => {
+  console.log(`PlanPage: выбрана книга ${bookId}`);
+
+  // Сбрасываем выбранные элементы
+  selectedChapterId.value = null;
+  selectedStageId.value = null;
+  chapterTextContent.value = '';
+
+  // Устанавливаем новую текущую книгу
+  bookStore.setCurrentBook(bookId);
+};
+
 // Инициализация страницы
 onMounted(async () => {
   try {
@@ -257,24 +344,21 @@ onMounted(async () => {
     await bookStore.loadChapters();
     await bookStore.loadStages();
 
-    // Проверяем, что текущая книга выбрана
-    // Если книга не выбрана, но есть книги в проекте, можно выбрать первую
-    // Это не перенаправление, а только инициализация данных для текущей страницы
-    if (!bookStore.currentBookId) {
-      const currentProject = projectStore.currentProject;
+    const currentProject = projectStore.currentProject;
 
-      if (
-        currentProject &&
-        currentProject.type === PROJECT_TYPE.SINGLE_BOOK &&
-        bookStore.books.length > 0
-      ) {
-        // Для одиночной книги, устанавливаем первую книгу как текущую
-        bookStore.setCurrentBook(bookStore.books[0].id);
-      } else if (
-        currentProject &&
-        currentProject.type === PROJECT_TYPE.SERIES &&
-        bookStore.series.length > 0
-      ) {
+    if (
+      currentProject &&
+      currentProject.type === PROJECT_TYPE.SINGLE_BOOK &&
+      bookStore.books.length > 0
+    ) {
+      // Для одиночной книги, устанавливаем первую книгу как текущую
+      bookStore.setCurrentBook(bookStore.books[0].id);
+    } else if (currentProject && currentProject.type === PROJECT_TYPE.SERIES) {
+      console.log('currentProject.currentBookId', currentProject.currentBookId);
+
+      if (currentProject.currentBookId) {
+        bookStore.setCurrentBook(currentProject.currentBookId);
+      } else {
         // Для серии, проверяем первую серию на наличие книг
         const firstSeries = bookStore.series[0];
         if (firstSeries.books.length > 0) {
@@ -321,6 +405,32 @@ const onBeforeUnmount = () => {
     >
       {{ t('book.errors.noCurrentBook') }}
     </NAlert>
+
+    <!-- Выбор книги -->
+    <!-- <div class="book-selector" v-if="bookStore.books.length > 0"> -->
+    <!-- <NSpace justify="space-between" align="center">
+        <NSpace>
+          <NText strong>{{ t('book.title') }}:</NText>
+          <NSelect
+            v-model:value="bookStore.currentBookId"
+            :options="
+              bookStore.books.map((book) => ({
+                label: book.title,
+                value: book.id,
+              }))
+            "
+            @update:value="handleBookSelect"
+            style="min-width: 200px"
+          />
+        </NSpace> -->
+    <!--
+        <NSpace v-if="selectedChapterId && isChapterTextDirty">
+          <NButton type="primary" @click="saveChapterText">
+            {{ t('common.save') }}
+          </NButton>
+        </NSpace>
+      </NSpace> -->
+    <!-- </div> -->
 
     <NSpin :show="loading">
       <NLayout has-sider>
@@ -574,6 +684,14 @@ const onBeforeUnmount = () => {
 .plan-container {
   height: 100%;
   width: 100%;
+}
+
+.book-selector {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #eee;
 }
 
 .sidebar-content {
