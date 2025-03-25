@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import i18n from '@/i18n';
-import { dateEnUS, dateRuRU, enUS, NCard, NSelect, ruRU } from 'naive-ui';
+import { NCard, NSelect } from 'naive-ui';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from './settings.store';
-import { DATE_LOCALE_OPTIONS, DICT_LANG, THEME_OPTIONS } from './settings.const';
+import {
+  DATE_LOCALE_OPTIONS,
+  DICT_LANG,
+  THEME_OPTIONS,
+} from './settings.const';
 
 const { t } = useI18n();
 const appStore = useSettingsStore();
