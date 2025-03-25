@@ -1,7 +1,8 @@
 import { ValueOf } from "@/core";
 import { ISBN } from "@/core/isbn";
 import { BOOK_STATUS, BOOK_GENRES, SERIES_TYPES, BOOK_RELATION_TYPES } from './book.const';
-import { AuthorID, BookID, SeriesID } from "@/core/id";
+import { AuthorID, BookID, SeriesID, ChapterID, StageID } from "@/core/id";
+
 export interface IAuthor {
   id: AuthorID;
   firstName: string;
@@ -31,6 +32,7 @@ export interface ISingleBook {
   genres: BookGenre[];
   status: BookStatus;
   relations?: IBookRelation[];
+  chapters?: Chapter[]; // Добавляем главы к книге
 }
 
 export interface IBookInSeries extends ISingleBook {
@@ -48,3 +50,30 @@ export interface IBookSeries {
 }
 
 export type Book = ISingleBook | IBookInSeries;
+
+// Новые интерфейсы для плана книги
+
+export interface Stage {
+  id: StageID;
+  title: string;
+  description?: string;
+  chapterId?: ChapterID;
+  characterIds: string[];
+  status?: string;
+  order?: number;
+}
+
+export interface Chapter {
+  id: ChapterID;
+  title: string;
+  description?: string;
+  bookId: BookID;  // Связь с книгой
+  stageIds: StageID[];  // Связь со сценами
+  order: number;  // Порядок главы в книге
+}
+
+export interface ChapterText {
+  id: ChapterID;  // Совпадает с id главы
+  content: string;  // Текст главы
+  lastModified: Date;  // Дата последнего редактирования
+}
