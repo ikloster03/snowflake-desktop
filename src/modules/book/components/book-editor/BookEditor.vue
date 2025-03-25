@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NCard, NSpace, NButton, NModal, useDialog, NAlert } from 'naive-ui';
+import { NCard, NSpace, NButton, NModal, NAlert } from 'naive-ui';
 import { ref, computed } from 'vue';
 import { useBookPrivateStore } from '../../book.store';
 import { useI18n } from 'vue-i18n';
@@ -9,7 +9,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../../book.const';
 
 const { t } = useI18n();
-const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const store = useBookPrivateStore();
@@ -26,7 +25,6 @@ const book = computed(() => {
 const formRef = ref<{ submitForm: () => void } | null>(null);
 const isEditing = ref(false);
 const showDeleteConfirm = ref(false);
-const loading = ref(false);
 
 // Обработчики событий
 const handleEdit = () => {

@@ -9,7 +9,7 @@ import { SERIES_EDITOR_PAGE } from '../book.const';
 const { t } = useI18n();
 const router = useRouter();
 
-const props = defineProps<{
+defineProps<{
   series: IBookSeries[];
 }>();
 
@@ -34,7 +34,8 @@ const columns = computed(() => [
   {
     title: t('book.series.type'),
     key: 'type',
-    render: (row: IBookSeries) => t(`book.series.types.${row.type.toLowerCase()}`),
+    render: (row: IBookSeries) =>
+      t(`book.series.types.${row.type.toLowerCase()}`),
   },
   {
     title: t('book.series.books'),
@@ -44,7 +45,8 @@ const columns = computed(() => [
   {
     title: t('book.authors'),
     key: 'authors',
-    render: (row: IBookSeries) => row.authors.map(a => a.titleName).join(', '),
+    render: (row: IBookSeries) =>
+      row.authors.map((a) => a.titleName).join(', '),
   },
   {
     title: t('common.actions'),

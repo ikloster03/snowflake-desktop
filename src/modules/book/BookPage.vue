@@ -16,7 +16,7 @@ import { ISingleBook, IBookSeries, IAuthor } from './book.types';
 import { useProjectStore } from '../project/project.store';
 import { PROJECT_TYPE } from '../project/project.const';
 import { useRouter } from 'vue-router';
-import { BOOK_EDITOR_PAGE, SERIES_EDITOR_PAGE, PLAN_PAGE } from './book.const';
+import { BOOK_EDITOR_PAGE, SERIES_EDITOR_PAGE } from './book.const';
 import BookForm from './components/BookForm.vue';
 import SeriesForm from './components/SeriesForm.vue';
 import AuthorForm from './components/AuthorForm.vue';

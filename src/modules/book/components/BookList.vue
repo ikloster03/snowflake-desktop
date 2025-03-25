@@ -2,12 +2,12 @@
 import { useI18n } from 'vue-i18n';
 import { ISingleBook } from '../book.types';
 import { NTag, NDataTable, NButton, NSpace } from 'naive-ui';
-import { computed, h } from 'vue';
+import { h } from 'vue';
 import { useRouter } from 'vue-router';
-import { BOOK_EDITOR_PAGE, PLAN_PAGE } from '../book.const';
+import { BOOK_EDITOR_PAGE } from '../book.const';
 import { useBookStore } from '../book.store';
 
-const props = defineProps<{
+defineProps<{
   books: ISingleBook[];
 }>();
 

@@ -7,7 +7,7 @@ import { useBookStore } from '../book.store';
 
 const { t } = useI18n();
 
-const props = defineProps<{
+defineProps<{
   authors: IAuthor[];
 }>();
 
@@ -33,6 +33,14 @@ const columns = computed(() => [
     render: (row: IAuthor) => bookStore.findSeriesByAuthor(row.id).length,
   },
 ]);
+
+// Раскомментируйте этот код, если события действительно используются в компоненте
+/*
+const emit = defineEmits<{
+  (e: 'delete', authorId: string): void;
+  (e: 'edit', author: IAuthor): void;
+}>();
+*/
 </script>
 
 <template>
