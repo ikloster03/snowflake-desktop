@@ -5,6 +5,7 @@ import * as fs from '@tauri-apps/plugin-fs';
 import { IEvent } from './event.types';
 import { useProjectStore } from '@/modules/project/project.store';
 import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+import { createID } from '@/core/id';
 // import { useMessage } from 'naive-ui';
 
 export const EVENT_STORE = 'event';
@@ -72,7 +73,7 @@ export const usePrivateEventStore = defineStore(
 
       events.value.push({
         ...event,
-        id: crypto.randomUUID()
+        id: createID<'Event'>()
       });
       return true;
     };

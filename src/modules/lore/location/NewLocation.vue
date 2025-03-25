@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import {
   NCard,
-  NForm,
-  NFormItem,
   NInput,
   NSelect,
   NInputNumber,
@@ -11,11 +9,12 @@ import {
 } from 'naive-ui';
 import { ref } from 'vue';
 import { ILocation } from './location.types';
+import { createID } from '@/core/id';
 
 const showForm = ref(false);
 
 const locationData = ref<Required<ILocation>>({
-  id: crypto.randomUUID(),
+  id: createID('Location'),
   name: '',
   description: '',
   type: 'other',
@@ -41,7 +40,7 @@ const handleQuickCreate = () => {
   if (locationData.value.name) {
     emit('create', locationData.value);
     locationData.value = {
-      id: crypto.randomUUID(),
+      id: createID('Location'),
       name: '',
       description: '',
       type: 'other',
@@ -56,7 +55,12 @@ const handleQuickCreate = () => {
 </script>
 
 <template>
-  <NCard hoverable class="new-location-card" v-if="!showForm" @click="showForm = true">
+  <NCard
+    hoverable
+    class="new-location-card"
+    v-if="!showForm"
+    @click="showForm = true"
+  >
     <div class="add-location-placeholder">
       <div class="plus-icon">+</div>
       <div>Добавить локацию</div>

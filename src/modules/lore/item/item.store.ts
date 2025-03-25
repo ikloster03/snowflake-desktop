@@ -5,6 +5,7 @@ import * as fs from '@tauri-apps/plugin-fs';
 import type { IItem } from './item.types';
 import { useProjectStore } from '@/modules/project/project.store';
 import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+import { createID } from '@/core/id';
 // import { useMessage } from 'naive-ui';
 
 export const ITEM_STORE = 'item';
@@ -72,7 +73,7 @@ export const usePrivateItemStore = defineStore(
 
       items.value.push({
         ...item,
-        id: crypto.randomUUID()
+        id: createID<'Item'>()
       });
       return true;
     };

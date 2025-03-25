@@ -2,14 +2,23 @@
 import { NCard, NInput, NSelect, NSpace, NButton } from 'naive-ui';
 import { ref } from 'vue';
 import { usePrivateCharacterStore } from './character.store';
-import { CHARACTER_LEVEL, MAIN_CHARACTER_TYPE, SECONDARY_CHARACTER_TYPE } from './character.const';
-import type { Character, CharacterLevel, CharacterTypeOption } from './character.types';
+import {
+  CHARACTER_LEVEL,
+  MAIN_CHARACTER_TYPE,
+  SECONDARY_CHARACTER_TYPE,
+} from './character.const';
+import type {
+  Character,
+  CharacterLevel,
+  CharacterTypeOption,
+} from './character.types';
+import { createID } from '@/core/id';
 
 const store = usePrivateCharacterStore();
 const showForm = ref(false);
 
 const character = ref<Character>({
-  id: crypto.randomUUID(),
+  id: createID<'Character'>(),
   name: '',
   level: CHARACTER_LEVEL.PRIMARY,
   type: MAIN_CHARACTER_TYPE.PROTAGONIST,
@@ -25,16 +34,20 @@ const typeOptions = ref<CharacterTypeOption[]>(
 const handleLevelChange = (value: CharacterLevel) => {
   character.value.level = value;
   if (value === CHARACTER_LEVEL.PRIMARY) {
-    typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(([key, value]) => ({
-      label: key,
-      value: value,
-    }));
+    typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(
+      ([key, value]) => ({
+        label: key,
+        value: value,
+      })
+    );
     character.value.type = MAIN_CHARACTER_TYPE.PROTAGONIST;
   } else {
-    typeOptions.value = Object.entries(SECONDARY_CHARACTER_TYPE).map(([key, value]) => ({
-      label: key,
-      value: value,
-    }));
+    typeOptions.value = Object.entries(SECONDARY_CHARACTER_TYPE).map(
+      ([key, value]) => ({
+        label: key,
+        value: value,
+      })
+    );
     character.value.type = SECONDARY_CHARACTER_TYPE.MENTOR;
   }
 };
@@ -43,7 +56,7 @@ const handleQuickCreate = () => {
   if (character.value.name) {
     store.addCharacter(character.value);
     character.value = {
-      id: crypto.randomUUID(),
+      id: createID<'Character'>(),
       name: '',
       level: CHARACTER_LEVEL.PRIMARY,
       type: MAIN_CHARACTER_TYPE.PROTAGONIST,
@@ -54,7 +67,12 @@ const handleQuickCreate = () => {
 </script>
 
 <template>
-  <NCard hoverable class="new-character-card" v-if="!showForm" @click="showForm = true">
+  <NCard
+    hoverable
+    class="new-character-card"
+    v-if="!showForm"
+    @click="showForm = true"
+  >
     <div class="add-character-placeholder">
       <div class="plus-icon">+</div>
       <div>Добавить персонажа</div>
@@ -72,14 +90,11 @@ const handleQuickCreate = () => {
         v-model:value="character.level"
         :options="[
           { label: 'Главный', value: CHARACTER_LEVEL.PRIMARY },
-          { label: 'Второстепенный', value: CHARACTER_LEVEL.SECONDARY }
+          { label: 'Второстепенный', value: CHARACTER_LEVEL.SECONDARY },
         ]"
         @update:value="handleLevelChange"
       />
-      <NSelect
-        v-model:value="character.type"
-        :options="typeOptions"
-      />
+      <NSelect v-model:value="character.type" :options="typeOptions" />
       <NSpace justify="end">
         <NButton @click="showForm = false">Отмена</NButton>
         <NButton type="primary" @click="handleQuickCreate">Создать</NButton>

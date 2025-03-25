@@ -2,38 +2,52 @@
 import { NCard, NForm, NFormItem, NInput, NSelect, NButton } from 'naive-ui';
 import { ref } from 'vue';
 import { usePrivateCharacterStore } from './character.store';
-import { CHARACTER_LEVEL, MAIN_CHARACTER_TYPE, SECONDARY_CHARACTER_TYPE } from './character.const';
-import type { Character, CharacterLevel, CharacterTypeOption } from './character.types';
-
+import {
+  CHARACTER_LEVEL,
+  MAIN_CHARACTER_TYPE,
+  SECONDARY_CHARACTER_TYPE,
+} from './character.const';
+import type {
+  Character,
+  CharacterLevel,
+  CharacterTypeOption,
+} from './character.types';
+import { createID } from '@/core/id';
 const store = usePrivateCharacterStore();
 
 const character = ref<Character>({
-  id: crypto.randomUUID(),
+  id: createID<'Character'>(),
   name: '',
   level: CHARACTER_LEVEL.PRIMARY,
   type: MAIN_CHARACTER_TYPE.PROTAGONIST,
 });
 
-const characterLevelOptions = Object.entries(CHARACTER_LEVEL).map(([key, value]) => ({
-  label: key,
-  value: value,
-}));
+const characterLevelOptions = Object.entries(CHARACTER_LEVEL).map(
+  ([key, value]) => ({
+    label: key,
+    value: value,
+  })
+);
 
 const typeOptions = ref<CharacterTypeOption[]>([]);
 
 // Обновляем опции типа персонажа при изменении уровня
 const updateTypeOptions = (level: CharacterLevel) => {
   if (level === CHARACTER_LEVEL.PRIMARY) {
-    typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(([key, value]) => ({
-      label: key,
-      value: value,
-    }));
+    typeOptions.value = Object.entries(MAIN_CHARACTER_TYPE).map(
+      ([key, value]) => ({
+        label: key,
+        value: value,
+      })
+    );
     character.value.type = MAIN_CHARACTER_TYPE.PROTAGONIST;
   } else if (level === CHARACTER_LEVEL.SECONDARY) {
-    typeOptions.value = Object.entries(SECONDARY_CHARACTER_TYPE).map(([key, value]) => ({
-      label: key,
-      value: value,
-    }));
+    typeOptions.value = Object.entries(SECONDARY_CHARACTER_TYPE).map(
+      ([key, value]) => ({
+        label: key,
+        value: value,
+      })
+    );
     character.value.type = SECONDARY_CHARACTER_TYPE.MENTOR;
   }
 };
@@ -51,7 +65,7 @@ const handleSubmit = () => {
     store.addCharacter(character.value);
     // Сброс формы
     character.value = {
-      id: crypto.randomUUID(),
+      id: createID<'Character'>(),
       name: '',
       level: CHARACTER_LEVEL.PRIMARY,
       type: MAIN_CHARACTER_TYPE.PROTAGONIST,
@@ -64,7 +78,10 @@ const handleSubmit = () => {
   <NCard title="Создание персонажа">
     <NForm>
       <NFormItem label="Имя персонажа">
-        <NInput v-model:value="character.name" placeholder="Введите имя персонажа" />
+        <NInput
+          v-model:value="character.name"
+          placeholder="Введите имя персонажа"
+        />
       </NFormItem>
 
       <NFormItem label="Уровень персонажа">
@@ -76,10 +93,7 @@ const handleSubmit = () => {
       </NFormItem>
 
       <NFormItem label="Тип персонажа">
-        <NSelect
-          v-model:value="character.type"
-          :options="typeOptions"
-        />
+        <NSelect v-model:value="character.type" :options="typeOptions" />
       </NFormItem>
 
       <NButton type="primary" @click="handleSubmit">
@@ -90,7 +104,11 @@ const handleSubmit = () => {
     <!-- Список существующих персонажей -->
     <div class="characters-list" v-if="store.characters.length">
       <h3>Существующие персонажи:</h3>
-      <NCard v-for="char in store.characters" :key="char.id" class="character-card">
+      <NCard
+        v-for="char in store.characters"
+        :key="char.id"
+        class="character-card"
+      >
         <h4>{{ char.name }}</h4>
         <p>Уровень: {{ char.level }}</p>
         <p>Тип: {{ char.type }}</p>

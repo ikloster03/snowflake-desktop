@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NCard, NGrid, NGridItem, NButton, NSpace, NProgress } from 'naive-ui';
+import { NCard, NGrid, NGridItem, NProgress } from 'naive-ui';
 import { usePrivateLocationStore } from './location.store';
 import Location from './Location.vue';
 import NewLocation from './NewLocation.vue';
@@ -10,9 +10,12 @@ import { computed } from 'vue';
 const locationStore = usePrivateLocationStore();
 
 const locationsProgress = computed(() => ({
-  percentage: (locationStore.locations.length / PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT) * 100,
+  percentage:
+    (locationStore.locations.length /
+      PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT) *
+    100,
   current: locationStore.locations.length,
-  max: PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT
+  max: PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT,
 }));
 
 const handleLocationUpdate = (updatedLocation: ILocation, index: number) => {
@@ -33,7 +36,9 @@ const handleDelete = (locationId: string) => {
     <div class="locations-header">
       <h2>Локации</h2>
       <div class="locations-limit">
-        <span class="limit-text">{{ locationsProgress.current }} / {{ locationsProgress.max }}</span>
+        <span class="limit-text"
+          >{{ locationsProgress.current }} / {{ locationsProgress.max }}</span
+        >
         <NProgress
           type="line"
           :percentage="locationsProgress.percentage"
@@ -65,10 +70,15 @@ const handleDelete = (locationId: string) => {
       </NGridItem>
 
       <NGridItem>
-        <NewLocation v-if="locationStore.canAddLocation" @create="handleLocationCreate" />
+        <NewLocation
+          v-if="locationStore.canAddLocation"
+          @create="handleLocationCreate"
+        />
         <NCard v-else class="limit-card">
           <div class="limit-message">
-            Достигнут лимит локаций ({{ PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT }})
+            Достигнут лимит локаций ({{
+              PROJECT_LIMITS.LOCATIONS.MAX_LOCATIONS_PER_PROJECT
+            }})
           </div>
         </NCard>
       </NGridItem>

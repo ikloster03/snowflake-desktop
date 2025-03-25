@@ -10,12 +10,13 @@ import {
 import { ref } from 'vue';
 import { usePrivateItemStore } from './item.store';
 import type { IItem } from './item.types';
+import { createID } from '@/core/id';
 
 const store = usePrivateItemStore();
 const showForm = ref(false);
 
 const itemData = ref<IItem>({
-  id: crypto.randomUUID(),
+  id: createID<'Item'>(),
   name: '',
   description: '',
   type: 'other',
@@ -43,7 +44,7 @@ const handleCreate = () => {
   if (itemData.value.name) {
     store.addItem(itemData.value);
     itemData.value = {
-      id: crypto.randomUUID(),
+      id: createID<'Item'>(),
       name: '',
       description: '',
       type: 'other',

@@ -1,16 +1,8 @@
 <script lang="ts" setup>
-import {
-  NCard,
-  NForm,
-  NFormItem,
-  NInput,
-  NDatePicker,
-  NSelect,
-  NButton,
-  NSpace,
-} from 'naive-ui';
+import { NCard, NInput, NDatePicker, NSelect, NButton, NSpace } from 'naive-ui';
 import { ref } from 'vue';
 import type { IEvent } from './event.types';
+import { createID } from '@/core/id';
 
 const showForm = ref(false);
 
@@ -36,7 +28,7 @@ const handleQuickCreate = () => {
   if (eventData.value.title) {
     emit('create', {
       ...eventData.value,
-      id: crypto.randomUUID(),
+      id: createID('Event'),
       time: new Date(eventData.value.time).toString(),
     });
 
@@ -52,7 +44,12 @@ const handleQuickCreate = () => {
 </script>
 
 <template>
-  <NCard hoverable class="new-event-card" v-if="!showForm" @click="showForm = true">
+  <NCard
+    hoverable
+    class="new-event-card"
+    v-if="!showForm"
+    @click="showForm = true"
+  >
     <div class="add-event-placeholder">
       <div class="plus-icon">+</div>
       <div>Добавить событие</div>

@@ -5,6 +5,7 @@ import * as fs from '@tauri-apps/plugin-fs';
 import type { ILocation } from './location.types';
 import { useProjectStore } from '@/modules/project/project.store';
 import { PROJECT_LIMITS } from '@/modules/settings/settings.limits';
+import { createID } from '@/core/id';
 // import { useMessage } from 'naive-ui';
 
 export const LOCATION_STORE = 'location';
@@ -72,7 +73,7 @@ export const usePrivateLocationStore = defineStore(
 
       locations.value.push({
         ...location,
-        id: crypto.randomUUID()
+        id: createID<'Location'>()
       });
       return true;
     };
