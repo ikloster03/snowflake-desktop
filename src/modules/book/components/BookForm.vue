@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 import {
   NForm,
   NFormItem,
   NInput,
   NSelect,
-  NInputNumber,
   FormInst,
   FormRules,
 } from 'naive-ui';

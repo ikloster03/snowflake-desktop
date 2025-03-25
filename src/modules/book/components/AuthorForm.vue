@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 import { NForm, NFormItem, NInput, FormInst } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { IAuthor } from '../book.types';
