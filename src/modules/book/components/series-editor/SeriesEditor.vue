@@ -385,7 +385,7 @@ const handleBack = () => {
             :loading="isSaving"
             :disabled="!projectStore.currentProject"
           >
-            {{ t('project.project.save') }}
+            {{ t('save') }}
           </NButton>
         </NSpace>
       </NSpace>
