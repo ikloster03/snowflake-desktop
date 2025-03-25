@@ -1,17 +1,9 @@
 <script lang="ts" setup>
 import { open } from '@tauri-apps/plugin-dialog';
-import {
-  NButton,
-  NCard,
-  NFlex,
-  NSelect,
-  enUS,
-  ruRU,
-  useDialog,
-} from 'naive-ui';
+import { NButton, NCard, NFlex, NSelect, useDialog } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useProjectStore } from './project.store';
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../book/book.const';
 import i18n from '@/i18n';
@@ -92,11 +84,6 @@ const projectTypes = [
   { label: 'Single Book', value: PROJECT_TYPE.SINGLE_BOOK },
   { label: 'Series', value: PROJECT_TYPE.SERIES },
 ];
-
-// Получаем все серии книг в проекте
-const allSeries = computed(() => {
-  return bookStore.series;
-});
 
 // Получаем книги текущего проекта
 const getBooksInCurrentProject = () => {
