@@ -89,6 +89,19 @@ classDiagram
       +BookInSeries[] books
       +SeriesType type
     }
+    class Chapter {
+      +string id
+      +string title
+      +string description
+      +string bookId
+      +string[] stageIds
+      +number order
+    }
+    class ChapterText {
+      +string id
+      +string content
+      +Date lastModified
+    }
     class Stage {
       +string id
       +string title
@@ -111,6 +124,35 @@ classDiagram
     Book --> Author
     BookSeries --> Author
     BookSeries --> Book
-    Stage --> Book
+    Book --> Chapter
+    Chapter --> ChapterText
+    Chapter --> Stage
     Event --> Stage
+```
+
+## Структура директорий проекта
+
+```
+project/
+├── books.json - Список всех книг проекта
+├── series.json - Список серий
+├── authors.json - Список авторов
+├── stages.json - Список сцен (общие для проекта)
+├── books/ - Директория для хранения данных книг
+│   ├── [book-id-1]/ - Директория конкретной книги
+│   │   ├── chapters.json - Главы книги
+│   │   └── text/ - Директория для текстов глав
+│   │       ├── [chapter-id-1].txt - Текст главы 1
+│   │       ├── [chapter-id-2].txt - Текст главы 2
+│   │       └── ...
+│   ├── [book-id-2]/
+│   │   ├── chapters.json
+│   │   └── text/
+│   │       └── ...
+│   └── ...
+├── characters.json - Персонажи
+├── locations.json - Локации
+├── items.json - Предметы
+├── events.json - События
+└── settings.json - Настройки проекта
 ```
