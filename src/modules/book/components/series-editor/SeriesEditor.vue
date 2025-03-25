@@ -70,14 +70,14 @@ const handleSaveProject = async () => {
     isSaving.value = true;
     await projectStore.saveCurrentProject();
     dialog.success({
-      title: t('project.saveSuccess.title'),
-      content: t('project.saveSuccess.content'),
+      title: t('project.save-success.title'),
+      content: t('project.save-success.content'),
       positiveText: t('common.ok'),
     });
   } catch (error) {
     dialog.error({
-      title: t('project.saveError.title'),
-      content: t('project.saveError.content'),
+      title: t('project.save-error.title'),
+      content: t('project.save-error.content'),
       positiveText: t('common.ok'),
     });
     console.error('Ошибка сохранения проекта:', error);
@@ -188,7 +188,7 @@ const bookColumns = computed(() => [
     key: 'orderInSeries',
   },
   {
-    title: t('book.status'),
+    title: t('book.statusLabel'),
     key: 'status',
     render: (row: IBookInSeries) =>
       t(`book.status.${row.status.toLowerCase()}`),
@@ -385,7 +385,7 @@ const handleBack = () => {
             :loading="isSaving"
             :disabled="!projectStore.currentProject"
           >
-            {{ t('project.save') }}
+            {{ t('project.project.save') }}
           </NButton>
         </NSpace>
       </NSpace>
