@@ -1,4 +1,8 @@
 import { Page } from '@/router.type';
+import { PLAN_PAGE } from '@/modules/projection/projection.const';
+
+// Реэкспортируем PLAN_PAGE, чтобы он был доступен из этого модуля
+export { PLAN_PAGE };
 
 export const BOOK_PAGE: Page = {
   path: '/book',
