@@ -109,7 +109,7 @@ defineExpose({
       />
     </NFormItem>
 
-    <NFormItem :label="t('book.statusTitle')" path="status">
+    <NFormItem :label="t('book.statusLabel')" path="status">
       <NSelect
         v-model:value="formData.status"
         :options="
