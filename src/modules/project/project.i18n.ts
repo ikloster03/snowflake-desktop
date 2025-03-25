@@ -25,6 +25,9 @@ const projectI18nEn = {
   "browse": "Browse",
   "remove-from-recent": "Remove from recent",
   "save": "Save Project",
+  "project": {
+    "save": "Save Project"
+  },
   "save-success": {
     "title": "Project Saved",
     "content": "Your project has been successfully saved."
@@ -68,6 +71,9 @@ const projectI18nRu = {
   "browse": "Обзор",
   "remove-from-recent": "Удалить из недавних",
   "save": "Сохранить проект",
+  "project": {
+    "save": "Сохранить проект"
+  },
   "save-success": {
     "title": "Проект сохранен",
     "content": "Ваш проект был успешно сохранен."
