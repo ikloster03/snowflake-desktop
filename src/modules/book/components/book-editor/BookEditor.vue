@@ -1,12 +1,5 @@
 <script lang="ts" setup>
-import {
-  NCard,
-  NSpace,
-  NButton,
-  NModal,
-  useDialog,
-  NAlert,
-} from 'naive-ui';
+import { NCard, NSpace, NButton, NModal, useDialog, NAlert } from 'naive-ui';
 import { ref, computed } from 'vue';
 import { useBookPrivateStore } from '../../book.store';
 import { useI18n } from 'vue-i18n';
@@ -26,7 +19,7 @@ const bookId = computed(() => route.params.id as string);
 
 // Находим книгу по ID
 const book = computed(() => {
-  return store.books.find(book => book.id === bookId.value);
+  return store.books.find((book) => book.id === bookId.value);
 });
 
 // Состояние формы
@@ -114,20 +107,26 @@ const handleBack = () => {
           <div class="book-info">
             <div class="book-field">
               <div class="book-label">{{ t('book.description') }}:</div>
-              <div class="book-value">{{ book.description || t('book.empty.description') }}</div>
+              <div class="book-value">
+                {{ book.description || t('book.empty.description') }}
+              </div>
             </div>
 
             <div class="book-field">
               <div class="book-label">{{ t('book.genresTitle') }}:</div>
               <div class="book-value">
-                {{ book.genres.length
-                  ? book.genres.map(genre => t(`book.genres.${genre.toLowerCase()}`)).join(', ')
-                  : t('book.empty.genres') }}
+                {{
+                  book.genres.length
+                    ? book.genres
+                        .map((genre) => t(`book.genres.${genre.toLowerCase()}`))
+                        .join(', ')
+                    : t('book.empty.genres')
+                }}
               </div>
             </div>
 
             <div class="book-field">
-              <div class="book-label">{{ t('book.statusTitle') }}:</div>
+              <div class="book-label">{{ t('book.statusLabel') }}:</div>
               <div class="book-value">
                 {{ t(`book.status.${book.status.toLowerCase()}`) }}
               </div>
@@ -136,9 +135,11 @@ const handleBack = () => {
             <div class="book-field">
               <div class="book-label">{{ t('book.authors') }}:</div>
               <div class="book-value">
-                {{ book.authors.length
-                  ? book.authors.map(author => author.titleName).join(', ')
-                  : t('book.empty.authors') }}
+                {{
+                  book.authors.length
+                    ? book.authors.map((author) => author.titleName).join(', ')
+                    : t('book.empty.authors')
+                }}
               </div>
             </div>
 
@@ -151,11 +152,7 @@ const handleBack = () => {
 
         <!-- Режим редактирования -->
         <NCard v-else>
-          <BookForm
-            ref="formRef"
-            :initialData="book"
-            @submit="handleUpdate"
-          />
+          <BookForm ref="formRef" :initialData="book" @submit="handleUpdate" />
         </NCard>
       </div>
     </NSpace>
