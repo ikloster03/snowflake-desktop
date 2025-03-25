@@ -11,7 +11,7 @@ export const routes: RouteRecordRaw[] = [
     path: HOME_PAGE.path,
     name: HOME_PAGE.name,
     component: defineComponent({}),
-    async beforeEnter(to, from, next) {
+    async beforeEnter(_, __, next) {
       const projectStore = useProjectStore();
       await projectStore.loadRecentProjects();
 
