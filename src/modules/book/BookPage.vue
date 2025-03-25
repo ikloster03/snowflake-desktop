@@ -16,7 +16,7 @@ import { ISingleBook, IBookSeries, IAuthor } from './book.types';
 import { useProjectStore } from '../project/project.store';
 import { PROJECT_TYPE } from '../project/project.const';
 import { useRouter } from 'vue-router';
-import { BOOK_EDITOR_PAGE, SERIES_EDITOR_PAGE } from './book.const';
+import { BOOK_EDITOR_PAGE, SERIES_EDITOR_PAGE, PLAN_PAGE } from './book.const';
 import BookForm from './components/BookForm.vue';
 import SeriesForm from './components/SeriesForm.vue';
 import AuthorForm from './components/AuthorForm.vue';
@@ -64,9 +64,14 @@ const redirectBasedOnProjectType = () => {
       // Для одиночной книги, проверяем есть ли хотя бы одна книга
       if (bookStore.books.length > 0) {
         const firstBook = bookStore.books[0];
+
+        // Устанавливаем эту книгу как текущую (для плана)
+        bookStore.setCurrentBook(firstBook.id);
+
+        // Перенаправляем на редактор книги
         router.push({
           name: BOOK_EDITOR_PAGE.name,
-          params: { id: firstBook.id }
+          params: { id: firstBook.id },
         });
         redirected.value = true;
       }
@@ -74,16 +79,24 @@ const redirectBasedOnProjectType = () => {
       // Для серии, проверяем есть ли хотя бы одна серия
       if (bookStore.series.length > 0) {
         const firstSeries = bookStore.series[0];
+
+        // Если в серии есть книги, устанавливаем первую как текущую (для плана)
+        if (firstSeries.books.length > 0) {
+          bookStore.setCurrentBook(firstSeries.books[0].id);
+        }
+
+        // Перенаправляем на редактор серии
         router.push({
           name: SERIES_EDITOR_PAGE.name,
-          params: { id: firstSeries.id }
+          params: { id: firstSeries.id },
         });
         redirected.value = true;
       }
     }
   } catch (error) {
     console.error('Ошибка при перенаправлении:', error);
-    redirectionError.value = error instanceof Error ? error.message : 'Неизвестная ошибка';
+    redirectionError.value =
+      error instanceof Error ? error.message : 'Неизвестная ошибка';
   }
 };
 
@@ -127,10 +140,13 @@ const handleAddBook = (book: ISingleBook): void => {
       showAddBookModal.value = false;
 
       // Если это проект с одиночной книгой и это первая книга, перенаправляем на редактирование
-      if (projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK && bookStore.books.length === 1) {
+      if (
+        projectStore.currentProject?.type === PROJECT_TYPE.SINGLE_BOOK &&
+        bookStore.books.length === 1
+      ) {
         router.push({
           name: BOOK_EDITOR_PAGE.name,
-          params: { id: book.id }
+          params: { id: book.id },
         });
       }
     }
@@ -145,10 +161,13 @@ const handleAddSeries = (series: IBookSeries): void => {
       showAddSeriesModal.value = false;
 
       // Если это проект с серией и это первая серия, перенаправляем на редактирование
-      if (projectStore.currentProject?.type === PROJECT_TYPE.SERIES && bookStore.series.length === 1) {
+      if (
+        projectStore.currentProject?.type === PROJECT_TYPE.SERIES &&
+        bookStore.series.length === 1
+      ) {
         router.push({
           name: SERIES_EDITOR_PAGE.name,
-          params: { id: series.id }
+          params: { id: series.id },
         });
       }
     }
@@ -219,7 +238,7 @@ const handleAuthorSave = (): void => {
     <h1>{{ t('book-editor') }}</h1>
 
     <!-- Сообщение об ошибке перенаправления, если есть -->
-    <NAlert v-if="redirectionError" type="error" style="margin-bottom: 16px;">
+    <NAlert v-if="redirectionError" type="error" style="margin-bottom: 16px">
       {{ redirectionError }}
     </NAlert>
 
