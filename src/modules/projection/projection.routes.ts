@@ -6,8 +6,10 @@ import {
   PLAN_PAGE,
   PROJECTION_PAGE,
   TIMELINE_PAGE,
+  STAGE_PAGE,
 } from './projection.const';
 import TimelinePage from './timeline/TimelinePage.vue';
+import StagePage from './stage/StagePage.vue';
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -28,6 +30,11 @@ export const routes: RouteRecordRaw[] = [
         path: TIMELINE_PAGE.path,
         name: TIMELINE_PAGE.name,
         component: TimelinePage,
+      },
+      {
+        path: STAGE_PAGE.path,
+        name: STAGE_PAGE.name,
+        component: StagePage,
       },
     ],
   },

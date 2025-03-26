@@ -23,3 +23,9 @@ export const TIMELINE_PAGE: Page = {
   name: 'timeline-page',
   title: 'Timeline',
 } as const;
+
+export const STAGE_PAGE: Page = {
+  path: '/stage',
+  name: 'stage-page',
+  title: 'Stage',
+} as const;
