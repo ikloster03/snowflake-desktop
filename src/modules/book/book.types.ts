@@ -59,6 +59,9 @@ export interface Stage {
   description?: string;
   chapterId?: ChapterID;
   characterIds: string[];
+  eventIds: string[]; // События, происходящие в сцене
+  locationIds: string[]; // Локации, где происходит сцена
+  itemIds?: string[]; // Предметы, которые используются в сцене
   status?: string;
   order?: number;
   seriesId?: SeriesID; // ID серии, к которой относится сцена
