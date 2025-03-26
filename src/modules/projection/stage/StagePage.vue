@@ -25,9 +25,18 @@ import {
   Edit20Filled as EditIcon,
   Delete20Filled as DeleteIcon,
 } from '@vicons/fluent';
+import { usePrivateEventStore } from '@/modules/lore/event/event.store';
+import { usePrivateLocationStore } from '@/modules/lore/location/location.store';
+import { usePrivateItemStore } from '@/modules/lore/item/item.store';
+import type { IEvent } from '@/modules/lore/event/event.types';
+import type { ILocation } from '@/modules/lore/location/location.types';
+import type { IItem } from '@/modules/lore/item/item.types';
 
 const bookStore = useBookStore();
 const message = useMessage();
+const eventStore = usePrivateEventStore();
+const locationStore = usePrivateLocationStore();
+const itemStore = usePrivateItemStore();
 
 // Состояние
 const isCreateModalOpen = ref(false);
@@ -43,6 +52,9 @@ const newStage = ref({
   description: '',
   chapterId: undefined,
   characterIds: [] as string[],
+  eventIds: [] as string[],
+  locationIds: [] as string[],
+  itemIds: [] as string[],
   status: STAGE_STATUS.DRAFT,
   seriesId: undefined,
 });
@@ -93,6 +105,27 @@ const statusOptions = computed(() => {
             ? 'Завершено'
             : value,
     value: value,
+  }));
+});
+
+const eventOptions = computed(() => {
+  return eventStore.events.map((event: IEvent) => ({
+    label: event.title,
+    value: String(event.id),
+  }));
+});
+
+const locationOptions = computed(() => {
+  return locationStore.locations.map((location: ILocation) => ({
+    label: location.name,
+    value: String(location.id),
+  }));
+});
+
+const itemOptions = computed(() => {
+  return itemStore.items.map((item: IItem) => ({
+    label: item.name,
+    value: String(item.id),
   }));
 });
 
@@ -194,6 +227,9 @@ const resetNewStage = () => {
     description: '',
     chapterId: undefined,
     characterIds: [],
+    eventIds: [],
+    locationIds: [],
+    itemIds: [],
     status: STAGE_STATUS.DRAFT,
     seriesId: undefined,
   };
@@ -210,23 +246,33 @@ const handleCreateStage = () => {
     if (isSharedMode.value && newStage.value.seriesId) {
       bookStore.addStage({
         ...newStage.value,
-        seriesId: createID('Series')(newStage.value.seriesId),
+        seriesId: createID<'Series'>(newStage.value.seriesId),
         chapterId: newStage.value.chapterId
-          ? createID('Chapter')(newStage.value.chapterId)
+          ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
         characterIds: newStage.value.characterIds.map((id) =>
-          createID('Character')(id)
+          createID<'Character'>(id)
         ),
+        eventIds: newStage.value.eventIds.map((id) => createID<'Event'>(id)),
+        locationIds: newStage.value.locationIds.map((id) =>
+          createID<'Location'>(id)
+        ),
+        itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
       });
     } else {
       bookStore.addStage({
         ...newStage.value,
         chapterId: newStage.value.chapterId
-          ? createID('Chapter')(newStage.value.chapterId)
+          ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
         characterIds: newStage.value.characterIds.map((id) =>
-          createID('Character')(id)
+          createID<'Character'>(id)
         ),
+        eventIds: newStage.value.eventIds.map((id) => createID<'Event'>(id)),
+        locationIds: newStage.value.locationIds.map((id) =>
+          createID<'Location'>(id)
+        ),
+        itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
       });
     }
 
@@ -245,12 +291,23 @@ const handleEditStage = (stageId: string) => {
 
   selectedStageId.value = stageId;
 
+  // Преобразуем статус в правильный тип из STAGE_STATUS
+  let status = STAGE_STATUS.DRAFT;
+  if (stage.status === STAGE_STATUS.IN_PROGRESS) {
+    status = STAGE_STATUS.IN_PROGRESS;
+  } else if (stage.status === STAGE_STATUS.COMPLETED) {
+    status = STAGE_STATUS.COMPLETED;
+  }
+
   newStage.value = {
     title: stage.title,
     description: stage.description || '',
     chapterId: stage.chapterId ? String(stage.chapterId) : undefined,
     characterIds: stage.characterIds?.map((id) => String(id)) || [],
-    status: stage.status || STAGE_STATUS.DRAFT,
+    eventIds: stage.eventIds?.map((id) => String(id)) || [],
+    locationIds: stage.locationIds?.map((id) => String(id)) || [],
+    itemIds: stage.itemIds?.map((id) => String(id)) || [],
+    status: status,
     seriesId: stage.seriesId ? String(stage.seriesId) : undefined,
   };
 
@@ -265,31 +322,51 @@ const handleUpdateStage = () => {
     return;
   }
 
+  // Преобразуем статус в правильный тип из STAGE_STATUS
+  let status = STAGE_STATUS.DRAFT;
+  if (newStage.value.status === STAGE_STATUS.IN_PROGRESS) {
+    status = STAGE_STATUS.IN_PROGRESS;
+  } else if (newStage.value.status === STAGE_STATUS.COMPLETED) {
+    status = STAGE_STATUS.COMPLETED;
+  }
+
   try {
     if (isSharedMode.value && newStage.value.seriesId) {
-      bookStore.updateStage(createID('Stage')(selectedStageId.value), {
+      bookStore.updateStage(createID<'Stage'>(selectedStageId.value), {
         title: newStage.value.title,
         description: newStage.value.description,
         chapterId: newStage.value.chapterId
-          ? createID('Chapter')(newStage.value.chapterId)
+          ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
         characterIds: newStage.value.characterIds.map((id) =>
-          createID('Character')(id)
+          createID<'Character'>(id)
         ),
-        status: newStage.value.status,
-        seriesId: createID('Series')(newStage.value.seriesId),
+        eventIds: newStage.value.eventIds.map((id) => createID<'Event'>(id)),
+        locationIds: newStage.value.locationIds.map((id) =>
+          createID<'Location'>(id)
+        ),
+        itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
+        status: status,
+        seriesId: newStage.value.seriesId
+          ? createID<'Series'>(newStage.value.seriesId)
+          : undefined,
       });
     } else {
-      bookStore.updateStage(createID('Stage')(selectedStageId.value), {
+      bookStore.updateStage(createID<'Stage'>(selectedStageId.value), {
         title: newStage.value.title,
         description: newStage.value.description,
         chapterId: newStage.value.chapterId
-          ? createID('Chapter')(newStage.value.chapterId)
+          ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
         characterIds: newStage.value.characterIds.map((id) =>
-          createID('Character')(id)
+          createID<'Character'>(id)
         ),
-        status: newStage.value.status,
+        eventIds: newStage.value.eventIds.map((id) => createID<'Event'>(id)),
+        locationIds: newStage.value.locationIds.map((id) =>
+          createID<'Location'>(id)
+        ),
+        itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
+        status: status,
         seriesId: undefined,
       });
     }
@@ -305,7 +382,7 @@ const handleUpdateStage = () => {
 
 const handleDeleteStage = (stageId: string) => {
   try {
-    bookStore.deleteStage(createID('Stage')(stageId));
+    bookStore.deleteStage(createID<'Stage'>(stageId));
     message.success('Сцена успешно удалена');
   } catch (error) {
     console.error('Ошибка при удалении сцены:', error);
@@ -442,6 +519,36 @@ onMounted(async () => {
             />
           </NFormItem>
 
+          <NFormItem label="События">
+            <NSelect
+              v-model:value="newStage.eventIds"
+              :options="eventOptions"
+              placeholder="Выберите события"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
+          <NFormItem label="Локации">
+            <NSelect
+              v-model:value="newStage.locationIds"
+              :options="locationOptions"
+              placeholder="Выберите локации"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
+          <NFormItem label="Предметы">
+            <NSelect
+              v-model:value="newStage.itemIds"
+              :options="itemOptions"
+              placeholder="Выберите предметы"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
           <NSpace justify="end">
             <NButton @click="isCreateModalOpen = false">Отмена</NButton>
             <NButton type="primary" @click="handleCreateStage">Создать</NButton>
@@ -518,6 +625,36 @@ onMounted(async () => {
               v-model:value="newStage.characterIds"
               :options="characterOptions"
               placeholder="Выберите персонажей"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
+          <NFormItem label="События">
+            <NSelect
+              v-model:value="newStage.eventIds"
+              :options="eventOptions"
+              placeholder="Выберите события"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
+          <NFormItem label="Локации">
+            <NSelect
+              v-model:value="newStage.locationIds"
+              :options="locationOptions"
+              placeholder="Выберите локации"
+              multiple
+              clearable
+            />
+          </NFormItem>
+
+          <NFormItem label="Предметы">
+            <NSelect
+              v-model:value="newStage.itemIds"
+              :options="itemOptions"
+              placeholder="Выберите предметы"
               multiple
               clearable
             />
