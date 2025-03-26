@@ -44,21 +44,21 @@ const stageOptions = computed(() =>
 
 const events = ref<IEvent[]>([
   {
-    id: createID<'Event'>('event1'),
+    id: createID<'Event'>(),
     title: 'Событие 1',
     description: 'Описание первого события',
     time: '2024-03-20 12:00',
     type: 'battle',
   },
   {
-    id: createID<'Event'>('event2'),
+    id: createID<'Event'>(),
     title: 'Событие 2',
     description: 'Описание второго события',
     time: '2024-03-21 15:30',
     type: 'meeting',
   },
   {
-    id: createID<'Event'>('event3'),
+    id: createID<'Event'>(),
     title: 'Событие 3',
     description: 'Описание третьего события',
     time: '2024-03-22 09:45',
@@ -70,14 +70,14 @@ const showModal = ref(false);
 
 const characters: Character[] = [
   {
-    id: createID<'Character'>('char1'),
+    id: createID<'Character'>(),
     name: 'Анна Каренина',
     description: 'Главная героиня',
     level: 'primary',
     type: 'protagonist',
   },
   {
-    id: createID<'Character'>('char2'),
+    id: createID<'Character'>(),
     name: 'Алексей Вронский',
     description: 'Возлюбленный Анны',
     level: 'secondary',
