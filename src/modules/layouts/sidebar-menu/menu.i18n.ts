@@ -5,6 +5,7 @@ export const menuI18n = {
     Lore: 'Lore',
     Timeline: 'Timeline',
     CharacterMap: 'Character Map',
+    Stage: 'Scenes',
   },
   'ru-RU': {
     Book: 'Книга',
@@ -12,6 +13,7 @@ export const menuI18n = {
     Lore: 'Лор мира',
     Timeline: 'Временная линия',
     CharacterMap: 'Карта персонажей',
+    Stage: 'Сцены',
   },
 } as const;
 
