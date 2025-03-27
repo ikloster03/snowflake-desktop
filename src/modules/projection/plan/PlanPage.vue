@@ -398,26 +398,6 @@ onBeforeUnmount(() => {
       {{ t('book.errors.noCurrentBook') }}
     </NAlert>
 
-    <!-- Книжный селектор -->
-    <div class="book-selector" v-if="bookStore.books.length > 0">
-      <NSelect
-        v-model:value="bookStore.currentBookId"
-        @update:value="handleBookSelect"
-        :options="
-          bookStore.books.map((book) => ({ label: book.title, value: book.id }))
-        "
-        placeholder="Выберите книгу"
-      />
-      <NButton
-        v-if="selectedChapterId && isChapterTextDirty"
-        type="primary"
-        size="small"
-        @click="saveChapterText"
-      >
-        {{ t('common.save') }}
-      </NButton>
-    </div>
-
     <NSpin :show="loading">
       <NLayout has-sider>
         <!-- Боковая панель с главами и сценами -->
