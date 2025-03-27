@@ -57,6 +57,8 @@ const newStage = ref({
   title: '',
   description: '',
   characterIds: [] as string[],
+  eventIds: [] as string[],
+  locationIds: [] as string[],
 });
 
 const editingStage = ref<Stage | null>(null);
@@ -120,10 +122,18 @@ const handleAddStage = () => {
     description: newStage.value.description || '',
     chapterId: selectedChapterId.value,
     characterIds: newStage.value.characterIds,
+    eventIds: newStage.value.eventIds,
+    locationIds: newStage.value.locationIds,
   });
 
   showAddStageModal.value = false;
-  newStage.value = { title: '', description: '', characterIds: [] };
+  newStage.value = {
+    title: '',
+    description: '',
+    characterIds: [],
+    eventIds: [],
+    locationIds: [],
+  };
 
   // Выбираем созданную сцену
   selectedStageId.value = stage.id;
