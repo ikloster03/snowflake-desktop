@@ -28,7 +28,7 @@ const handleQuickCreate = () => {
   if (eventData.value.title) {
     emit('create', {
       ...eventData.value,
-      id: createID('Event'),
+      id: createID<'Event'>(),
       time: new Date(eventData.value.time).toString(),
     });
 
