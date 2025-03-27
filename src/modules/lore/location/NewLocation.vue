@@ -14,7 +14,7 @@ import { createID } from '@/core/id';
 const showForm = ref(false);
 
 const locationData = ref<Required<ILocation>>({
-  id: createID('Location'),
+  id: createID<'Location'>(),
   name: '',
   description: '',
   type: 'other',
@@ -40,7 +40,7 @@ const handleQuickCreate = () => {
   if (locationData.value.name) {
     emit('create', locationData.value);
     locationData.value = {
-      id: createID('Location'),
+      id: createID<'Location'>(),
       name: '',
       description: '',
       type: 'other',
