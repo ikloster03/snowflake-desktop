@@ -12,7 +12,6 @@ import {
   NForm,
   NFormItem,
   NDivider,
-  NEmpty,
   NPopconfirm,
   useMessage,
 } from 'naive-ui';
@@ -50,13 +49,13 @@ const searchQuery = ref('');
 const newStage = ref({
   title: '',
   description: '',
-  chapterId: undefined,
+  chapterId: undefined as string | undefined,
   characterIds: [] as string[],
   eventIds: [] as string[],
   locationIds: [] as string[],
   itemIds: [] as string[],
-  status: STAGE_STATUS.DRAFT,
-  seriesId: undefined,
+  status: STAGE_STATUS.DRAFT as string,
+  seriesId: undefined as string | undefined,
 });
 
 // Вычисляемые свойства
@@ -245,8 +244,8 @@ const handleCreateStage = () => {
     // Если включен режим общих сцен для серии и выбрана серия
     if (isSharedMode.value && newStage.value.seriesId) {
       bookStore.addStage({
-        ...newStage.value,
-        seriesId: createID<'Series'>(newStage.value.seriesId),
+        title: newStage.value.title,
+        description: newStage.value.description,
         chapterId: newStage.value.chapterId
           ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
@@ -258,10 +257,13 @@ const handleCreateStage = () => {
           createID<'Location'>(id)
         ),
         itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
+        status: newStage.value.status,
+        seriesId: createID<'Series'>(newStage.value.seriesId),
       });
     } else {
       bookStore.addStage({
-        ...newStage.value,
+        title: newStage.value.title,
+        description: newStage.value.description,
         chapterId: newStage.value.chapterId
           ? createID<'Chapter'>(newStage.value.chapterId)
           : undefined,
@@ -273,6 +275,7 @@ const handleCreateStage = () => {
           createID<'Location'>(id)
         ),
         itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
+        status: newStage.value.status,
       });
     }
 
@@ -291,14 +294,6 @@ const handleEditStage = (stageId: string) => {
 
   selectedStageId.value = stageId;
 
-  // Преобразуем статус в правильный тип из STAGE_STATUS
-  let status = STAGE_STATUS.DRAFT;
-  if (stage.status === STAGE_STATUS.IN_PROGRESS) {
-    status = STAGE_STATUS.IN_PROGRESS;
-  } else if (stage.status === STAGE_STATUS.COMPLETED) {
-    status = STAGE_STATUS.COMPLETED;
-  }
-
   newStage.value = {
     title: stage.title,
     description: stage.description || '',
@@ -307,7 +302,7 @@ const handleEditStage = (stageId: string) => {
     eventIds: stage.eventIds?.map((id) => String(id)) || [],
     locationIds: stage.locationIds?.map((id) => String(id)) || [],
     itemIds: stage.itemIds?.map((id) => String(id)) || [],
-    status: status,
+    status: stage.status || STAGE_STATUS.DRAFT,
     seriesId: stage.seriesId ? String(stage.seriesId) : undefined,
   };
 
@@ -320,14 +315,6 @@ const handleUpdateStage = () => {
   if (!newStage.value.title.trim()) {
     message.error('Название сцены не может быть пустым');
     return;
-  }
-
-  // Преобразуем статус в правильный тип из STAGE_STATUS
-  let status = STAGE_STATUS.DRAFT;
-  if (newStage.value.status === STAGE_STATUS.IN_PROGRESS) {
-    status = STAGE_STATUS.IN_PROGRESS;
-  } else if (newStage.value.status === STAGE_STATUS.COMPLETED) {
-    status = STAGE_STATUS.COMPLETED;
   }
 
   try {
@@ -346,10 +333,8 @@ const handleUpdateStage = () => {
           createID<'Location'>(id)
         ),
         itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
-        status: status,
-        seriesId: newStage.value.seriesId
-          ? createID<'Series'>(newStage.value.seriesId)
-          : undefined,
+        status: newStage.value.status,
+        seriesId: createID<'Series'>(newStage.value.seriesId),
       });
     } else {
       bookStore.updateStage(createID<'Stage'>(selectedStageId.value), {
@@ -366,7 +351,7 @@ const handleUpdateStage = () => {
           createID<'Location'>(id)
         ),
         itemIds: newStage.value.itemIds.map((id) => createID<'Item'>(id)),
-        status: status,
+        status: newStage.value.status,
         seriesId: undefined,
       });
     }
