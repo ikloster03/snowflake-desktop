@@ -4,7 +4,8 @@ import { defineStore } from 'pinia';
 import { usePrivateItemStore } from './item/item.store';
 import { usePrivateLocationStore } from './location/location.store';
 import { usePrivateCharacterStore } from './character/character.store';
-import { LORE_STORE } from './lore.strore';
+
+export const LORE_STORE = 'lore';
 
 export const useLoreStore = defineStore(LORE_STORE, () => {
   const characterState = usePrivateCharacterStore();
