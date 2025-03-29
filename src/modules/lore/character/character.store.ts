@@ -25,7 +25,7 @@ export const usePrivateCharacterStore = defineStore(
       if (!projectStore.currentProject?.path) return;
 
       try {
-        const charactersPath = `${projectStore.currentProject.path}/characters.json`;
+        const charactersPath = `${projectStore.currentProject.path}/lore/characters.json`;
         const exists = await fs.exists(charactersPath);
 
         if (!exists) {
@@ -45,7 +45,7 @@ export const usePrivateCharacterStore = defineStore(
 
       try {
         await fs.writeTextFile(
-          `${projectStore.currentProject.path}/characters.json`,
+          `${projectStore.currentProject.path}/lore/characters.json`,
           JSON.stringify(characters.value, null, 2)
         );
       } catch (error) {

@@ -26,7 +26,7 @@ export const usePrivateItemStore = defineStore(
       if (!projectStore.currentProject?.path) return;
 
       try {
-        const itemsPath = `${projectStore.currentProject.path}/items.json`;
+        const itemsPath = `${projectStore.currentProject.path}/lore/items.json`;
         const exists = await fs.exists(itemsPath);
 
         if (!exists) {
@@ -46,7 +46,7 @@ export const usePrivateItemStore = defineStore(
 
       try {
         await fs.writeTextFile(
-          `${projectStore.currentProject.path}/items.json`,
+          `${projectStore.currentProject.path}/lore/items.json`,
           JSON.stringify(items.value, null, 2)
         );
       } catch (error) {

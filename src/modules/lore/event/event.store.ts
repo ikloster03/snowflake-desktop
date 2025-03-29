@@ -26,7 +26,7 @@ export const usePrivateEventStore = defineStore(
       if (!projectStore.currentProject?.path) return;
 
       try {
-        const eventsPath = `${projectStore.currentProject.path}/events.json`;
+        const eventsPath = `${projectStore.currentProject.path}/lore/events.json`;
         const exists = await fs.exists(eventsPath);
 
         if (!exists) {
@@ -46,7 +46,7 @@ export const usePrivateEventStore = defineStore(
 
       try {
         await fs.writeTextFile(
-          `${projectStore.currentProject.path}/events.json`,
+          `${projectStore.currentProject.path}/lore/events.json`,
           JSON.stringify(events.value, null, 2)
         );
       } catch (error) {
