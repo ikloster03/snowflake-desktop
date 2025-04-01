@@ -10,7 +10,7 @@ import {
   Book20Filled as BookIcon,
   PeopleCommunity20Filled as CharactersIcon,
   Timeline20Filled as TimelineIcon,
-  VideoClip20Filled as StageIcon
+  VideoClip20Filled as StageIcon,
 } from '@vicons/fluent';
 import { Notes as NotesIcon, World as WorldIcon } from '@vicons/tabler';
 import { MenuMixedOption } from 'naive-ui/es/menu/src/interface';
