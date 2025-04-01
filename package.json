@@ -5,8 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite --mode web",
+    "dev:desktop": "tauri dev",
     "build": "vue-tsc --noEmit && vite build",
+    "build:web": "vue-tsc --noEmit && vite build --mode web",
+    "build:desktop": "vue-tsc --noEmit && vite build --mode desktop && tauri build",
     "preview": "vite preview",
+    "preview:web": "vite preview --outDir web-dist",
     "tauri": "tauri",
     "test": "vitest",
     "docs:dev": "vitepress dev docs",

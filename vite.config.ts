@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
+const isTauri = process.env.TAURI_PLATFORM || process.env.MODE === 'desktop';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -46,5 +47,17 @@ export default defineConfig(async () => ({
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ['**/src-tauri/**'],
     },
+  },
+  // Define environment variables based on mode
+  define: {
+    __IS_TAURI__: isTauri,
+    __IS_WEB__: !isTauri,
+  },
+  // Conditionally modify build for web deployment
+  build: {
+    // For web builds, we can customize target
+    target: isTauri ? 'esnext' : 'es2015',
+    // When building for web, we might want to adjust output directory
+    outDir: isTauri ? 'dist' : 'web-dist',
   },
 }));
