@@ -52,3 +52,4 @@ Snowflake - это десктопное приложение для писате
 - [Карта влияния](impact-mapping.md)
 - [Навигация](navigation.md)
 - [Процесс контрибьюции](contributing.md)
+- [Документация API](api-documentation.md)
