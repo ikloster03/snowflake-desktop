@@ -1,4 +1,3 @@
-import { aboutRoutes } from '@/modules/about';
 import { bookRoutes } from '@/modules/book';
 import { homeRoutes } from '@/modules/home';
 import { loreRoutes } from '@/modules/lore';
@@ -10,7 +9,6 @@ import { createMemoryHistory, createRouter, RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   ...homeRoutes,
-  ...aboutRoutes,
   ...bookRoutes,
   ...loreRoutes,
   ...projectionRoutes,
