@@ -519,13 +519,6 @@ onBeforeUnmount(() => {
                       <NSpace>
                         <NButton
                           size="small"
-                          @click.stop="showAddStageModal = true"
-                          :disabled="selectedChapterId !== chapter.id"
-                        >
-                          {{ t('common.add') }}
-                        </NButton>
-                        <NButton
-                          size="small"
                           @click.stop="
                             showSelectStageModal = true;
                             selectedChapterId = chapter.id;
@@ -550,12 +543,6 @@ onBeforeUnmount(() => {
                       <NSpace justify="space-between" align="center">
                         <span>{{ stage.title }}</span>
                         <NSpace>
-                          <NButton
-                            size="small"
-                            @click.stop="startEditStage(stage)"
-                          >
-                            {{ t('common.edit') }}
-                          </NButton>
                           <NButton
                             size="small"
                             @click.stop="handleDeleteStage(stage.id)"
@@ -671,26 +658,6 @@ onBeforeUnmount(() => {
       </NForm>
     </NModal>
 
-    <!-- Добавление сцены -->
-    <NModal
-      v-model:show="showAddStageModal"
-      :title="t('book.stage.add')"
-      preset="dialog"
-      positive-text="Добавить"
-      negative-text="Отмена"
-      @positive-click="handleAddStage"
-    >
-      <NForm>
-        <NFormItem :label="t('book.title')" required>
-          <NInput v-model:value="newStage.title" />
-        </NFormItem>
-        <NFormItem :label="t('book.description')">
-          <NInput v-model:value="newStage.description" type="textarea" />
-        </NFormItem>
-        <!-- Тут можно добавить выбор персонажей, когда они будут реализованы -->
-      </NForm>
-    </NModal>
-
     <!-- Модальное окно выбора существующих сцен -->
     <NModal
       v-model:show="showSelectStageModal"
@@ -710,26 +677,6 @@ onBeforeUnmount(() => {
             :placeholder="t('book.stage.searchPlaceholder')"
           />
         </NFormItem>
-      </NForm>
-    </NModal>
-
-    <!-- Редактирование сцены -->
-    <NModal
-      v-model:show="showEditStageModal"
-      :title="t('book.stage.edit')"
-      preset="dialog"
-      positive-text="Сохранить"
-      negative-text="Отмена"
-      @positive-click="handleEditStage"
-    >
-      <NForm v-if="editingStage">
-        <NFormItem :label="t('book.title')" required>
-          <NInput v-model:value="editingStage.title" />
-        </NFormItem>
-        <NFormItem :label="t('book.description')">
-          <NInput v-model:value="editingStage.description" type="textarea" />
-        </NFormItem>
-        <!-- Тут можно добавить выбор персонажей, когда они будут реализованы -->
       </NForm>
     </NModal>
   </div>
