@@ -214,12 +214,6 @@ const columns = computed<DataTableColumns<Stage>>(() => [
 ]);
 
 // Методы
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const loadData = async () => {
-  isLoading.value = true;
-  await bookStore.loadStages();
-  isLoading.value = false;
-};
 
 const resetNewStage = () => {
   newStage.value = {

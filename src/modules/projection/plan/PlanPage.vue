@@ -381,13 +381,6 @@ watch(
   { immediate: true }
 );
 
-// Обработчик выбора книги (используется в компоненте)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const handleBookSelect = (bookId: string) => {
-  console.log(`Выбрана книга с ID: ${bookId}`);
-  bookStore.setCurrentBook(bookId);
-};
-
 // Инициализация страницы
 onMounted(async () => {
   try {
