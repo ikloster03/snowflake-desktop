@@ -42,8 +42,6 @@ const selectedStageId = ref<StageID | null>(null);
 // Модальные окна для добавления/редактирования
 const showAddChapterModal = ref(false);
 const showEditChapterModal = ref(false);
-const showAddStageModal = ref(false);
-const showEditStageModal = ref(false);
 const showSelectStageModal = ref(false);
 
 // Формы добавления/редактирования
@@ -54,15 +52,6 @@ const newChapter = ref({
 
 const editingChapter = ref<Chapter | null>(null);
 
-const newStage = ref({
-  title: '',
-  description: '',
-  characterIds: [] as string[],
-  eventIds: [] as string[],
-  locationIds: [] as string[],
-});
-
-const editingStage = ref<Stage | null>(null);
 const selectedStageIds = ref<StageID[]>([]);
 
 // Текст главы
@@ -113,45 +102,6 @@ const handleDeleteChapter = (chapterId: ChapterID) => {
       selectedStageId.value = null;
     }
   }
-};
-
-// Методы для работы со сценами
-const handleAddStage = () => {
-  if (!selectedChapterId.value) return;
-
-  const stage = bookStore.addStage({
-    title: newStage.value.title,
-    description: newStage.value.description || '',
-    chapterId: selectedChapterId.value,
-    characterIds: newStage.value.characterIds,
-    eventIds: newStage.value.eventIds,
-    locationIds: newStage.value.locationIds,
-  });
-
-  showAddStageModal.value = false;
-  newStage.value = {
-    title: '',
-    description: '',
-    characterIds: [],
-    eventIds: [],
-    locationIds: [],
-  };
-
-  // Выбираем созданную сцену
-  selectedStageId.value = stage.id;
-};
-
-const handleEditStage = () => {
-  if (!editingStage.value || !selectedStageId.value) return;
-
-  bookStore.updateStage(selectedStageId.value, {
-    title: editingStage.value.title,
-    description: editingStage.value.description,
-    characterIds: editingStage.value.characterIds,
-  });
-
-  showEditStageModal.value = false;
-  editingStage.value = null;
 };
 
 const handleDeleteStage = (stageId: StageID) => {
