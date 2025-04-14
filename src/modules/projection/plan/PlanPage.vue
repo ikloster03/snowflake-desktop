@@ -154,11 +154,6 @@ const handleEditStage = () => {
   editingStage.value = null;
 };
 
-const startEditStage = (stage: Stage) => {
-  editingStage.value = { ...stage };
-  showEditStageModal.value = true;
-};
-
 const handleDeleteStage = (stageId: StageID) => {
   if (confirm(t('book.stage.confirmDelete'))) {
     bookStore.deleteStage(stageId);
