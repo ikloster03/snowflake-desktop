@@ -44,6 +44,7 @@ const showAddChapterModal = ref(false);
 const showEditChapterModal = ref(false);
 const showAddStageModal = ref(false);
 const showEditStageModal = ref(false);
+const showSelectStageModal = ref(false);
 
 // Формы добавления/редактирования
 const newChapter = ref({
@@ -62,6 +63,7 @@ const newStage = ref({
 });
 
 const editingStage = ref<Stage | null>(null);
+const selectedStageIds = ref<StageID[]>([]);
 
 // Текст главы
 const chapterTextContent = ref('');
@@ -167,6 +169,32 @@ const handleDeleteStage = (stageId: StageID) => {
   }
 };
 
+// Новый метод для добавления выбранных сцен в главу
+const handleSelectExistingStages = () => {
+  if (!selectedChapterId.value) return;
+
+  // Добавляем выбранные сцены в текущую главу
+  selectedStageIds.value.forEach((stageId) => {
+    const stage = bookStore.stages.find((s) => s.id === stageId);
+    if (stage && selectedChapterId.value) {
+      // Если сцена уже привязана к главе, обновляем её
+      if (stage.chapterId) {
+        bookStore.updateStage(stageId, {
+          chapterId: selectedChapterId.value,
+        });
+      } else {
+        // Иначе привязываем сцену к главе
+        bookStore.updateStage(stageId, {
+          chapterId: selectedChapterId.value,
+        });
+      }
+    }
+  });
+
+  selectedStageIds.value = [];
+  showSelectStageModal.value = false;
+};
+
 // Методы для работы с текстом главы
 const loadChapterText = async (chapterId: ChapterID) => {
   loadingChaptersText.value = true;
@@ -225,6 +253,29 @@ const selectedStage = computed(() => {
   return (
     chapterStages.value.find((s) => s.id === selectedStageId.value) || null
   );
+});
+
+// Получаем все сцены без привязки к главе или из других глав
+const availableStages = computed(() => {
+  if (!bookStore.currentBookId) return [];
+
+  // Фильтруем сцены, которые не принадлежат текущей главе
+  return bookStore.stages
+    .filter((stage) => {
+      // Включаем сцены, которые не принадлежат никакой главе или принадлежат другим главам
+      return (
+        !stage.chapterId ||
+        (selectedChapterId.value && stage.chapterId !== selectedChapterId.value)
+      );
+    })
+    .map((stage) => ({
+      label: stage.title,
+      value: stage.id,
+      // Добавляем информацию о том, к какой главе принадлежит сцена
+      description: stage.chapterId
+        ? `Из главы: ${chapters.value.find((c) => c.id === stage.chapterId)?.title || 'Неизвестно'}`
+        : 'Без главы',
+    }));
 });
 
 // Обработчики выбора
@@ -330,7 +381,8 @@ watch(
   { immediate: true }
 );
 
-// Обработчик выбора книги
+// Обработчик выбора книги (используется в компоненте)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handleBookSelect = (bookId: string) => {
   console.log(`Выбрана книга с ID: ${bookId}`);
   bookStore.setCurrentBook(bookId);
@@ -471,13 +523,25 @@ onBeforeUnmount(() => {
                   <div class="stages-header">
                     <NSpace justify="space-between">
                       <NText>{{ t('book.stages') }}</NText>
-                      <NButton
-                        size="small"
-                        @click.stop="showAddStageModal = true"
-                        :disabled="selectedChapterId !== chapter.id"
-                      >
-                        {{ t('common.add') }}
-                      </NButton>
+                      <NSpace>
+                        <NButton
+                          size="small"
+                          @click.stop="showAddStageModal = true"
+                          :disabled="selectedChapterId !== chapter.id"
+                        >
+                          {{ t('common.add') }}
+                        </NButton>
+                        <NButton
+                          size="small"
+                          @click.stop="
+                            showSelectStageModal = true;
+                            selectedChapterId = chapter.id;
+                          "
+                          :disabled="!bookStore.currentBookId"
+                        >
+                          {{ t('book.stage.select') }}
+                        </NButton>
+                      </NSpace>
                     </NSpace>
                   </div>
 
@@ -631,6 +695,28 @@ onBeforeUnmount(() => {
           <NInput v-model:value="newStage.description" type="textarea" />
         </NFormItem>
         <!-- Тут можно добавить выбор персонажей, когда они будут реализованы -->
+      </NForm>
+    </NModal>
+
+    <!-- Модальное окно выбора существующих сцен -->
+    <NModal
+      v-model:show="showSelectStageModal"
+      :title="t('book.stage.select')"
+      preset="dialog"
+      positive-text="Добавить выбранные"
+      negative-text="Отмена"
+      @positive-click="handleSelectExistingStages"
+    >
+      <NForm>
+        <NFormItem :label="t('book.stage.selectExisting')">
+          <NSelect
+            v-model:value="selectedStageIds"
+            filterable
+            multiple
+            :options="availableStages"
+            :placeholder="t('book.stage.searchPlaceholder')"
+          />
+        </NFormItem>
       </NForm>
     </NModal>
 

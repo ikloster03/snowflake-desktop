@@ -1,5 +1,5 @@
 import { FileSystemService } from '../types';
-import { open, save } from '@tauri-apps/api/dialog';
+import { open, save } from '@tauri-apps/plugin-dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 
 /**
