@@ -18,7 +18,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "pre-push": "pnpm type-check && pnpm test",
+    "pre-push": "pnpm type-check && pnpm test run",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",

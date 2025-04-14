@@ -39,7 +39,7 @@ MVP десктоп приложения для проектирования кн
 Действие хука pre-push:
 
 ```bash
-pnpm type-check && pnpm test
+pnpm type-check && pnpm test run
 ```
 
 ## Запуск проекта
