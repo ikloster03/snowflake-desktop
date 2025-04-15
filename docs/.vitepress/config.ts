@@ -5,7 +5,59 @@ export default withMermaid(
   defineConfig({
     title: 'Snowflake Docs',
     description: 'Документация проекта Snowflake',
-    lang: 'ru-RU',
+    locales: {
+      root: {
+        label: 'Русский',
+        lang: 'ru',
+        title: 'Snowflake Docs',
+        description: 'Документация проекта Snowflake',
+      },
+      en: {
+        label: 'English',
+        lang: 'en',
+        title: 'Snowflake Docs',
+        description: 'Snowflake Documentation',
+        themeConfig: {
+          search: {
+            provider: 'local',
+          },
+
+          nav: [
+            { text: 'Home', link: '/en/' },
+            { text: 'Architecture', link: '/en/architecture' },
+          ],
+
+          sidebar: [
+            {
+              text: 'Introduction',
+              items: [
+                { text: 'About the project', link: '/en/readme' },
+                { text: 'Navigation', link: '/en/navigation' },
+                { text: 'Structure', link: '/en/structure' },
+                { text: 'SWOT-analysis', link: '/en/swot' },
+              ],
+            },
+            {
+              text: 'Development',
+              items: [
+                { text: 'Development plan', link: '/en/plan' },
+                { text: 'Strategy', link: '/en/product-strategy' },
+                { text: 'User stories', link: '/en/user-stories-tasks' },
+                { text: 'Acceptance criteria', link: '/en/acceptance-criteria' },
+                { text: 'Architecture', link: '/en/architecture' },
+              ],
+            },
+          ],
+
+          socialLinks: [
+            {
+              icon: 'github',
+              link: 'https://github.com/ikloster03/snowflake-desktop',
+            },
+          ],
+        },
+      },
+    },
 
     themeConfig: {
       search: {
@@ -14,9 +66,7 @@ export default withMermaid(
 
       nav: [
         { text: 'Главная', link: '/' },
-        { text: 'Руководство', link: '/guide/' },
         { text: 'Архитектура', link: '/architecture' },
-        { text: 'Разработка', link: '/development/' },
       ],
 
       sidebar: [
