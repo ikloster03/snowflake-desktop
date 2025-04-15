@@ -43,11 +43,11 @@ Snowflake is a desktop application for writers, helping to create and manage lit
 
 ## Documentation Navigation
 
-- [Architecture](architecture.md)
-- [Development Plan](plan.md)
-- [User Stories](user-stories-tasks.md)
-- [Acceptance Criteria](acceptance-criteria.md)
-- [SWOT Analysis](swot.md)
-- [Customer Journey Map](customer-journey-map.md)
-- [Impact Mapping](impact-mapping.md)
-- [Navigation](navigation.md)
+- [Architecture](/en/architecture.md)
+- [Development Plan](/en/plan.md)
+- [User Stories](/en/user-stories-tasks.md)
+- [Acceptance Criteria](/en/acceptance-criteria.md)
+- [SWOT Analysis](/en/swot.md)
+- [Customer Journey Map](/en/customer-journey-map.md)
+- [Impact Mapping](/en/impact-mapping.md)
+- [Navigation](/en/navigation.md)

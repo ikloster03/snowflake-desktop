@@ -1,6 +1,6 @@
 # Navigation
 
-[Back to README](readme.md)
+[Back to README](/en/readme.md)
 
 ## Navigation Structure
 
@@ -34,5 +34,5 @@ sequenceDiagram
 
 ## Additional Materials
 
-- [Customer Journey Map](customer-journey-map.md) - visualization of the user's interaction process with the application
-- [Impact Mapping](impact-mapping.md) - strategic planning tool showing the relationship between business goals and application features
+- [Customer Journey Map](/en/customer-journey-map.md) - visualization of the user's interaction process with the application
+- [Impact Mapping](/en/impact-mapping.md) - strategic planning tool showing the relationship between business goals and application features
