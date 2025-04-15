@@ -144,10 +144,6 @@ When making code changes, please update the relevant documentation:
 - For API changes, update the relevant sections of technical documentation
 - For UI changes, update the user guide
 
-## Code of Conduct
-
-All project participants must adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
-
 ## Getting Help
 
 If you have questions:
