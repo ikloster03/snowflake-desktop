@@ -24,6 +24,7 @@ export default withMermaid(
 
           nav: [
             { text: 'Home', link: '/en/' },
+            { text: 'Guide', link: '/en/user-guide' },
             { text: 'Architecture', link: '/en/architecture' },
           ],
 
@@ -66,6 +67,7 @@ export default withMermaid(
 
       nav: [
         { text: 'Главная', link: '/' },
+        { text: 'Гайд', link: '/user-guide' },
         { text: 'Архитектура', link: '/architecture' },
       ],
 
