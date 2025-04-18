@@ -100,12 +100,5 @@ export default withMermaid(
         },
       ],
     },
-
-    // markdown: {
-    //   config: (md) => {
-    //     // Включаем поддержку диаграмм mermaid
-    //     md.use(require('markdown-it-mermaid'))
-    //   }
-    // }
   })
 );
