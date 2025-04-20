@@ -64,6 +64,7 @@
     "vfonts": "^0.0.3",
     "vite": "^6.0.5",
     "vitepress": "^1.6.3",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "^3.0.4",
     "vue-tsc": "^2.1.10"
   },
