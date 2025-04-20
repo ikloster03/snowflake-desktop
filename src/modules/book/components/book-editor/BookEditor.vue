@@ -7,11 +7,13 @@ import BookForm from '../BookForm.vue';
 import { ISingleBook } from '../../book.types';
 import { useRoute, useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../../book.const';
+import { useProjectStore } from '@/modules/project/project.store';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const store = useBookPrivateStore();
+const projectStore = useProjectStore();
 
 // Получаем ID книги из маршрута
 const bookId = computed(() => route.params.id as string);
@@ -68,9 +70,15 @@ const handleBack = () => {
   <div class="book-editor-container">
     <NSpace vertical size="large">
       <NSpace justify="space-between">
-        <NButton @click="handleBack">
+        <NButton
+          v-if="projectStore.currentProject?.type === 'series'"
+          @click="handleBack"
+        >
           {{ t('common.back') }}
         </NButton>
+        <div v-else>
+          Книга {{ book?.title }} без серии
+        </div>
         <NSpace v-if="!isEditing">
           <NButton type="primary" @click="handleEdit">
             {{ t('common.edit') }}
