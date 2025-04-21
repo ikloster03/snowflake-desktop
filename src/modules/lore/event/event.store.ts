@@ -103,7 +103,9 @@ export const usePrivateEventStore = defineStore(
       addEvent,
       updateEvent,
       removeEvent,
-      canAddEvent
+      canAddEvent,
+      loadEvents,
+      saveEvents,
     };
   }
 );
