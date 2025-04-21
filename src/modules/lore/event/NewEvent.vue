@@ -7,6 +7,7 @@ import { createID } from '@/core/id';
 const showForm = ref(false);
 
 const eventData = ref<Omit<IEvent, 'id' | 'time'> & { time: number }>({
+  order: 0,
   title: '',
   description: '',
   time: Date.now(),
@@ -33,6 +34,7 @@ const handleQuickCreate = () => {
     });
 
     eventData.value = {
+      order: 0,
       title: '',
       description: '',
       time: Date.now(),
