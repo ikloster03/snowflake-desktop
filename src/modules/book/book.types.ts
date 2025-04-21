@@ -1,7 +1,7 @@
 import { ValueOf } from "@/core";
 import { ISBN } from "@/core/isbn";
 import { BOOK_STATUS, BOOK_GENRES, SERIES_TYPES, BOOK_RELATION_TYPES } from './book.const';
-import { AuthorID, BookID, SeriesID, ChapterID, StageID } from "@/core/id";
+import { AuthorID, BookID, SeriesID, ChapterID, StageID, CharacterID, EventID, LocationID, ItemID } from "@/core/id";
 
 export interface IAuthor {
   id: AuthorID;
@@ -58,10 +58,10 @@ export interface Stage {
   title: string;
   description?: string;
   chapterId?: ChapterID;
-  characterIds: string[];
-  eventIds: string[]; // События, происходящие в сцене
-  locationIds: string[]; // Локации, где происходит сцена
-  itemIds?: string[]; // Предметы, которые используются в сцене
+  characterIds: CharacterID[];
+  eventIds: EventID[]; // События, происходящие в сцене
+  locationIds: LocationID[]; // Локации, где происходит сцена
+  itemIds?: ItemID[]; // Предметы, которые используются в сцене
   status?: string;
   order?: number;
   seriesId?: SeriesID; // ID серии, к которой относится сцена
