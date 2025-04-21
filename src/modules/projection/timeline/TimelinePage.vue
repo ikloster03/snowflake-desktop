@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { createID } from '@/core/id';
-import type { Character } from '@/modules/lore/character/character.types';
 import { EVENT_TYPE_MAP } from '@/modules/lore/event/event.const';
 import type { IEvent } from '@/modules/lore/event/event.types';
 import { Add12Regular as Add } from '@vicons/fluent';
@@ -20,13 +19,11 @@ import {
 } from 'naive-ui';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
 import { computed, ref, onMounted } from 'vue';
-import { useStageStore } from '../stage/stage.store';
 import { usePrivateEventStore } from '@/modules/lore/event/event.store';
 import { useBookStore } from '@/modules/book/book.store';
 
 const message = useMessage();
 const bookStore = useBookStore();
-const stageStore = useStageStore();
 const eventStore = usePrivateEventStore();
 
 // Загрузка данных при монтировании компонента
