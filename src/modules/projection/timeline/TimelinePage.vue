@@ -16,77 +16,61 @@ import {
   NSelect,
   NTimeline,
   NTimelineItem,
+  useMessage,
 } from 'naive-ui';
 import type { Value as DatePickerValue } from 'naive-ui/es/date-picker/src/interface';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useStageStore } from '../stage/stage.store';
+import { usePrivateEventStore } from '@/modules/lore/event/event.store';
+import { useBookStore } from '@/modules/book/book.store';
 
-const chapters = [
-  {
-    id: '1',
-    title: 'Глава 1: Начало пути',
-  },
-  {
-    id: '2',
-    title: 'Глава 2: Путешествие',
-  },
-];
-
+const message = useMessage();
+const bookStore = useBookStore();
 const stageStore = useStageStore();
+const eventStore = usePrivateEventStore();
+
+// Загрузка данных при монтировании компонента
+onMounted(() => {
+  eventStore.loadEvents();
+  bookStore.loadChapters();
+  bookStore.loadStages();
+});
+
+// Возможность сортировать события по времени
+const sortedEvents = computed(() => {
+  return [...eventStore.events].sort((a, b) => {
+    return a.order - b.order;
+  });
+});
 
 const stageOptions = computed(() =>
-  stageStore.stages.map((stage) => ({
+  bookStore.stages.map((stage) => ({
     label: stage.title,
     value: stage.id,
     chapterId: stage.chapterId,
   }))
 );
 
-const events = ref<IEvent[]>([
-  {
-    id: createID<'Event'>(),
-    title: 'Событие 1',
-    description: 'Описание первого события',
-    time: '2024-03-20 12:00',
-    type: 'battle',
-  },
-  {
-    id: createID<'Event'>(),
-    title: 'Событие 2',
-    description: 'Описание второго события',
-    time: '2024-03-21 15:30',
-    type: 'meeting',
-  },
-  {
-    id: createID<'Event'>(),
-    title: 'Событие 3',
-    description: 'Описание третьего события',
-    time: '2024-03-22 09:45',
-    type: 'journey',
-  },
-]);
+const getStageById = (stageId?: string) => {
+  if (!stageId) return null;
+  return bookStore.stages.find((stage) => stage.id === stageId) || null;
+};
+
+const getChapterById = (chapterId?: string) => {
+  if (!chapterId) return null;
+  return bookStore.chapters.find((chapter) => chapter.id === chapterId) || null;
+};
+
+const getCharacterById = (characterId: string) => {
+  // В будущем можно заменить на реальный источник персонажей
+  return bookStore.authors.find((author) => author.id === characterId) || null;
+};
 
 const showModal = ref(false);
 
-const characters: Character[] = [
-  {
-    id: createID<'Character'>(),
-    name: 'Анна Каренина',
-    description: 'Главная героиня',
-    level: 'primary',
-    type: 'protagonist',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Алексей Вронский',
-    description: 'Возлюбленный Анны',
-    level: 'secondary',
-    type: 'love interest',
-  },
-];
-
 const newEvent = ref<Omit<IEvent, 'time'> & { time: DatePickerValue | null }>({
   id: createID<'Event'>(),
+  order: 0,
   title: '',
   description: '',
   time: null,
@@ -104,30 +88,38 @@ const typeOptions = [
 ];
 
 const handleStageSelect = (stageId: string) => {
-  const selectedStage = stageStore.getStageById(stageId);
+  const selectedStage = getStageById(stageId);
   if (selectedStage) {
-    newEvent.value.stageId = createID<'Stage'>(stageId);
-    newEvent.value.chapterId = selectedStage.chapterId
-      ? createID<'Chapter'>(selectedStage.chapterId)
-      : undefined;
-    newEvent.value.characterIds = selectedStage.characterIds.map((id) =>
-      createID<'Character'>(id)
-    );
+    newEvent.value.stageId = selectedStage.id;
+    newEvent.value.chapterId = selectedStage.chapterId;
+    newEvent.value.characterIds = selectedStage.characterIds || [];
   }
 };
 
 const handleAddEvent = () => {
-  if (!newEvent.value.time) return;
+  if (!newEvent.value.time) {
+    message.warning('Необходимо указать время события');
+    return;
+  }
 
-  events.value.push({
+  if (!newEvent.value.title) {
+    message.warning('Необходимо указать название события');
+    return;
+  }
+
+  const eventToAdd: IEvent = {
     ...newEvent.value,
     id: createID<'Event'>(),
     time: new Date(newEvent.value.time as number).toISOString(),
-  });
+  };
+
+  eventStore.addEvent(eventToAdd);
+  eventStore.saveEvents();
 
   showModal.value = false;
   newEvent.value = {
     id: createID<'Event'>(),
+    order: 0,
     title: '',
     description: '',
     time: null,
@@ -152,8 +144,11 @@ const handleDrop = (event: DragEvent, targetIndex: number) => {
   event.preventDefault();
   const sourceIndex = Number(event.dataTransfer?.getData('text/plain'));
   if (!isNaN(sourceIndex)) {
-    const [movedEvent] = events.value.splice(sourceIndex, 1);
-    events.value.splice(targetIndex, 0, movedEvent);
+    const events = [...sortedEvents.value];
+    const [movedEvent] = events.splice(sourceIndex, 1);
+    events.splice(targetIndex, 0, movedEvent);
+
+    // В будущем можно добавить обработку изменения порядка в сторе
   }
 };
 
@@ -175,15 +170,18 @@ const handleEditClick = (event: IEvent) => {
 };
 
 const handleEditSave = () => {
-  if (!editingEvent.value?.time) return;
-
-  const index = events.value.findIndex((e) => e.id === editingEvent.value?.id);
-  if (index !== -1) {
-    events.value[index] = {
-      ...editingEvent.value,
-      time: new Date(editingEvent.value.time as number).toISOString(),
-    };
+  if (!editingEvent.value?.time) {
+    message.warning('Необходимо указать время события');
+    return;
   }
+
+  const updatedEvent: IEvent = {
+    ...editingEvent.value,
+    time: new Date(editingEvent.value.time as number).toISOString(),
+  };
+
+  eventStore.updateEvent(updatedEvent);
+  eventStore.saveEvents();
 
   showEditModal.value = false;
   editingEvent.value = null;
@@ -192,16 +190,17 @@ const handleEditSave = () => {
 const handleEditStageSelect = (stageId: string) => {
   if (!editingEvent.value) return;
 
-  const selectedStage = stageStore.getStageById(stageId);
+  const selectedStage = getStageById(stageId);
   if (selectedStage) {
-    editingEvent.value.stageId = createID<'Stage'>(stageId);
-    editingEvent.value.chapterId = selectedStage.chapterId
-      ? createID<'Chapter'>(selectedStage.chapterId)
-      : undefined;
-    editingEvent.value.characterIds = selectedStage.characterIds.map((id) =>
-      createID<'Character'>(id)
-    );
+    editingEvent.value.stageId = selectedStage.id;
+    editingEvent.value.chapterId = selectedStage.chapterId;
+    editingEvent.value.characterIds = selectedStage.characterIds || [];
   }
+};
+
+const handleDeleteEvent = (eventId: string) => {
+  eventStore.removeEvent(eventId);
+  eventStore.saveEvents();
 };
 </script>
 
@@ -209,21 +208,21 @@ const handleEditStageSelect = (stageId: string) => {
   <NCard>
     <NTimeline>
       <NTimelineItem
-        v-for="(event, index) in events"
+        v-for="(event, index) in sortedEvents"
         :key="event.id"
         :title="event.title"
         :content="`${event.description}
-          ${event.stageId ? '\n\nЭтап: ' + stageStore.getStageById(event.stageId)?.title : ''}
-          ${event.chapterId ? '\nГлава: ' + chapters.find((c) => c.id === event.chapterId)?.title : ''}
+          ${event.stageId ? '\n\nСцена: ' + (getStageById(event.stageId)?.title || 'Неизвестная сцена') : ''}
+          ${event.chapterId ? '\nГлава: ' + (getChapterById(event.chapterId)?.title || 'Неизвестная глава') : ''}
           ${
             event.characterIds?.length
               ? '\nПерсонажи: ' +
                 event.characterIds
-                  .map((id) => characters.find((c) => c.id === id)?.name)
+                  .map((id) => getCharacterById(id)?.firstName || 'Неизвестный персонаж')
                   .join(', ')
               : ''
           }`"
-        :time="event.time"
+        :time="new Date(event.time).toLocaleString()"
         :type="EVENT_TYPE_MAP[event.type]"
         draggable="true"
         class="timeline-item"
@@ -273,7 +272,7 @@ const handleEditStageSelect = (stageId: string) => {
           />
         </NFormItem>
 
-        <NFormItem label="Этап">
+        <NFormItem label="Сцена">
           <NSelect
             v-model:value="newEvent.stageId"
             :options="stageOptions"
@@ -284,7 +283,7 @@ const handleEditStageSelect = (stageId: string) => {
 
         <NFormItem label="Глава" v-if="newEvent.chapterId">
           <NInput
-            :value="chapters.find((c) => c.id === newEvent.chapterId)?.title"
+            :value="getChapterById(newEvent.chapterId)?.title || 'Неизвестная глава'"
             readonly
             disabled
           />
@@ -294,7 +293,7 @@ const handleEditStageSelect = (stageId: string) => {
           <NInput
             :value="
               newEvent.characterIds
-                .map((id) => characters.find((c) => c.id === id)?.name)
+                .map((id) => getCharacterById(id)?.firstName || 'Неизвестный персонаж')
                 .join(', ')
             "
             readonly
@@ -346,11 +345,11 @@ const handleEditStageSelect = (stageId: string) => {
           />
         </NFormItem>
 
-        <NFormItem label="Этап">
+        <NFormItem label="Сцена">
           <NSelect
             v-model:value="editingEvent.stageId"
             :options="stageOptions"
-            placeholder="Выберите этап"
+            placeholder="Выберите сцену"
             @update:value="handleEditStageSelect"
           />
         </NFormItem>
@@ -358,7 +357,7 @@ const handleEditStageSelect = (stageId: string) => {
         <NFormItem label="Глава" v-if="editingEvent.chapterId">
           <NInput
             :value="
-              chapters.find((c) => c.id === editingEvent?.chapterId)?.title
+              getChapterById(editingEvent.chapterId)?.title || 'Неизвестная глава'
             "
             readonly
             disabled
@@ -369,7 +368,7 @@ const handleEditStageSelect = (stageId: string) => {
           <NInput
             :value="
               editingEvent.characterIds
-                .map((id) => characters.find((c) => c.id === id)?.name)
+                .map((id) => getCharacterById(id)?.firstName || 'Неизвестный персонаж')
                 .join(', ')
             "
             readonly
@@ -380,6 +379,9 @@ const handleEditStageSelect = (stageId: string) => {
         <div class="modal-footer">
           <NButton type="primary" @click="handleEditSave">Сохранить</NButton>
           <NButton @click="showEditModal = false">Отмена</NButton>
+          <NButton type="error" @click="() => { if (editingEvent) { handleDeleteEvent(editingEvent.id); showEditModal = false; } }">
+            Удалить
+          </NButton>
         </div>
       </NForm>
     </NModal>
