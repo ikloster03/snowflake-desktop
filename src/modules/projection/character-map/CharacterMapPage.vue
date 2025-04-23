@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { createID } from '@/core/id';
+import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
 import {
-  Character,
   Edge,
-  RELATION_TYPES,
+  RELATION_TYPES
 } from '@/modules/lore/character/character.types';
 import { Add12Regular as Add } from '@vicons/fluent';
 import {
@@ -25,9 +24,8 @@ import type {
 import * as vNG from 'v-network-graph';
 import { VEdgeLabel, VNetworkGraph } from 'v-network-graph';
 import 'v-network-graph/lib/style.css';
-import { computed, reactive, ref, onMounted } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import Legend from './Legend.vue';
-import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
 
 // Используем стор персонажей
 const characterStore = usePrivateCharacterStore();
