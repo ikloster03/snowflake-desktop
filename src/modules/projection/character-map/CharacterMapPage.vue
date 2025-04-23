@@ -25,107 +25,40 @@ import type {
 import * as vNG from 'v-network-graph';
 import { VEdgeLabel, VNetworkGraph } from 'v-network-graph';
 import 'v-network-graph/lib/style.css';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
 import Legend from './Legend.vue';
+import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
 
-// Константы
-const INITIAL_CHARACTERS: Character[] = [
-  {
-    id: createID<'Character'>(),
-    name: 'Анна Каренина',
-    description: 'Главная героиня',
-    level: 'primary',
-    type: 'protagonist',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Алексей Вронский',
-    description: 'Возлюбленный Анны',
-    level: 'secondary',
-    type: 'love interest',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Алексей Каренин',
-    description: 'Муж Анны',
-    level: 'secondary',
-    type: 'foil',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Стива Облонская',
-    description: 'Брат Анны',
-    level: 'secondary',
-    type: 'plot mover',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Долли Облонская',
-    description: 'Жена Стивы',
-    level: 'tertiary',
-    type: 'confidante',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Константин Левин',
-    description: 'Друг Стивы',
-    level: 'secondary',
-    type: 'plot mover',
-  },
-  {
-    id: createID<'Character'>(),
-    name: 'Кити Щербацкая',
-    description: 'Жена Левина',
-    level: 'tertiary',
-    type: 'confidante',
-  },
-];
-
-// Сохраняем идентификаторы персонажей для использования в edges
-const char1 = INITIAL_CHARACTERS[0].id;
-const char2 = INITIAL_CHARACTERS[1].id;
-const char3 = INITIAL_CHARACTERS[2].id;
-const char4 = INITIAL_CHARACTERS[3].id;
-const char5 = INITIAL_CHARACTERS[4].id;
-const char6 = INITIAL_CHARACTERS[5].id;
-const char7 = INITIAL_CHARACTERS[6].id;
-
-const INITIAL_EDGES: Record<string, Edge> = {
-  edge1: { id: 'edge1', source: char1, target: char2, relation: 'любовь' },
-  edge2: { id: 'edge2', source: char1, target: char3, relation: 'брак' },
-  edge3: {
-    id: 'edge3',
-    source: char1,
-    target: char4,
-    relation: 'родственники',
-  },
-  edge4: { id: 'edge4', source: char4, target: char5, relation: 'брак' },
-  edge5: { id: 'edge5', source: char4, target: char6, relation: 'дружба' },
-  edge6: { id: 'edge6', source: char6, target: char7, relation: 'брак' },
-};
+// Используем стор персонажей
+const characterStore = usePrivateCharacterStore();
 
 // Состояние
 const isCreatingEdge = ref(false);
 const selectedNodes = ref<string[]>([]);
-const edges = ref<Record<string, Edge>>(INITIAL_EDGES);
 const selectedEdge = ref<Edge | null>(null);
 const showEdgeEditor = ref(false);
 const popoverX = ref(0);
 const popoverY = ref(0);
 
-// Преобразование данных
-const nodes = INITIAL_CHARACTERS.reduce(
-  (acc, char) => {
-    acc[char.id] = {
-      name: char.name,
-      description: char.description ?? '',
-    };
-    return acc;
-  },
-  {} as Record<string, { name: string; description: string }>
-);
+// Получаем персонажей из стора
+const characters = computed(() => characterStore.characters);
 
-console.log('nodes', nodes);
+// Получаем связи из стора
+const edges = computed(() => characterStore.characterEdges);
+
+// Преобразование данных для графа
+const nodes = computed(() => {
+  return characters.value.reduce(
+    (acc, char) => {
+      acc[char.id] = {
+        name: char.name,
+        description: char.description ?? '',
+      };
+      return acc;
+    },
+    {} as Record<string, { name: string; description: string }>
+  );
+});
 
 // Добавляем цвета для типов отношений
 const RELATION_COLORS = {
@@ -159,32 +92,6 @@ const isDarkTheme = computed(() =>
   document.body.classList.contains('dark-theme')
 );
 
-// Функция для определения кривизны ребра в зависимости от существующих рёбер
-// const getEdgeCurvature = (edge: Edge) => {
-//   // Проверяем, есть ли встречное ребро
-//   const reverseEdge = Object.values(edges.value).find(
-//     (e) => e.source === edge.target && e.target === edge.source
-//   );
-
-//   // Проверяем, есть ли параллельные рёбра
-//   const parallelEdges = Object.values(edges.value).filter(
-//     (e) =>
-//       (e.source === edge.source && e.target === edge.target) ||
-//       (e.source === edge.target && e.target === edge.source)
-//   );
-
-//   if (reverseEdge) {
-//     // Если есть встречное ребро, изгибаем в противоположные стороны
-//     return edge.source < edge.target ? 0.2 : -0.2;
-//   } else if (parallelEdges.length > 1) {
-//     // Если есть параллельные рёбра, распределяем их по разным кривым
-//     const index = parallelEdges.findIndex((e) => e.id === edge.id);
-//     return -0.2 + index * 0.2;
-//   }
-
-//   return 0; // Прямая линия для одиночных рёбер
-// };
-
 // Функция для создания начальных позиций узлов
 const calculateInitialPositions = () => {
   const positions: Record<string, { x: number; y: number }> = {};
@@ -192,20 +99,20 @@ const calculateInitialPositions = () => {
   const centerY = 0;
 
   // Разделяем персонажей по уровням
-  const primaryChars = INITIAL_CHARACTERS.filter(
+  const primaryChars = characters.value.filter(
     (char) => char.level === 'primary'
   );
-  const secondaryChars = INITIAL_CHARACTERS.filter(
+  const secondaryChars = characters.value.filter(
     (char) => char.level === 'secondary'
   );
-  const tertiaryChars = INITIAL_CHARACTERS.filter(
+  const tertiaryChars = characters.value.filter(
     (char) => char.level === 'tertiary'
   );
 
   // Размещаем primary персонажей в центре
   primaryChars.forEach((char, index) => {
     const radius = 50; // Маленький радиус для центральных персонажей
-    const angle = (2 * Math.PI * index) / primaryChars.length;
+    const angle = (2 * Math.PI * index) / Math.max(primaryChars.length, 1);
     positions[char.id] = {
       x: centerX + radius * Math.cos(angle),
       y: centerY + radius * Math.sin(angle),
@@ -215,7 +122,7 @@ const calculateInitialPositions = () => {
   // Размещаем secondary персонажей по среднему кругу
   secondaryChars.forEach((char, index) => {
     const radius = 200; // Средний радиус
-    const angle = (2 * Math.PI * index) / secondaryChars.length + 0.1;
+    const angle = (2 * Math.PI * index) / Math.max(secondaryChars.length, 1) + 0.1;
     // Добавляем небольшое случайное смещение для избежания прямых линий
     const randomOffset = (Math.random() - 0.5) * 25;
     positions[char.id] = {
@@ -227,7 +134,7 @@ const calculateInitialPositions = () => {
   // Размещаем tertiary персонажей по внешнему кругу
   tertiaryChars.forEach((char, index) => {
     const radius = 350; // Большой радиус
-    const angle = (2 * Math.PI * index) / tertiaryChars.length + 0.2;
+    const angle = (2 * Math.PI * index) / Math.max(tertiaryChars.length, 1) + 0.2;
     // Добавляем небольшое случайное смещение для избежания прямых линий
     const randomOffset = (Math.random() - 0.5) * 50;
     positions[char.id] = {
@@ -236,14 +143,15 @@ const calculateInitialPositions = () => {
     };
   });
 
-  console.log('positions', positions);
-
   return positions;
 };
 
+// Вычисляем позиции узлов при изменении списка персонажей
+const nodePositions = computed(() => calculateInitialPositions());
+
 // Обновляем конфигурацию графа
-const layouts = {
-  nodes: calculateInitialPositions(),
+const layouts = computed(() => ({
+  nodes: nodePositions.value,
   force: {
     enabled: true,
     repulsion: 1200, // Увеличиваем силу отталкивания
@@ -253,7 +161,7 @@ const layouts = {
     gravity: 0.4, // Уменьшаем гравитацию для лучшего распределения
     theta: 0.5,
   },
-};
+}));
 
 // Обновляем конфигурацию графа
 const configs = reactive(
@@ -274,7 +182,6 @@ const configs = reactive(
       normal: {
         width: 2,
         color: (edge: VNetworkEdge) => {
-          console.log('edge', edge);
           const customEdge = edge as unknown as Edge;
           const relation = customEdge.relation as keyof typeof RELATION_COLORS;
           return RELATION_COLORS[relation] || '#808080';
@@ -309,13 +216,10 @@ const handleEdgeClick = (event: EdgeEvent<MouseEvent>) => {
 
 const eventHandlers: EventHandlers = {
   'node:click': (event: NodeEvent<MouseEvent>) => {
-    console.log('node:click', event.node, isCreatingEdge.value);
-
     if (!isCreatingEdge.value) return;
 
     selectedNodes.value.push(event.node);
 
-    console.log('handleNodeClick', selectedNodes.value);
     if (selectedNodes.value.length === 2) {
       createNewEdge();
     }
@@ -324,48 +228,32 @@ const eventHandlers: EventHandlers = {
 };
 
 // Методы
-
 const createNewEdge = () => {
   const newEdgeId = `edge${Object.keys(edges.value).length + 1}`;
-  edges.value = {
-    ...edges.value,
-    [newEdgeId]: {
-      id: newEdgeId,
-      source: selectedNodes.value[0],
-      target: selectedNodes.value[1],
-      relation: 'новая связь',
-    },
+  const newEdge: Edge = {
+    id: newEdgeId,
+    source: selectedNodes.value[0],
+    target: selectedNodes.value[1],
+    relation: 'новая связь',
   };
 
-  console.log('edges', edges.value);
-
+  characterStore.addEdge(newEdge);
   resetEdgeCreation();
 };
 
 const startCreatingEdge = () => {
-  console.log('starting');
-
   isCreatingEdge.value = true;
   selectedNodes.value = [];
 };
 
 const resetEdgeCreation = () => {
-  console.log('reset');
   isCreatingEdge.value = false;
   selectedNodes.value = [];
 };
 
 const updateEdge = () => {
   if (selectedEdge.value) {
-    edges.value = {
-      ...edges.value,
-      [selectedEdge.value.id]: {
-        id: selectedEdge.value.id,
-        source: selectedEdge.value.source,
-        target: selectedEdge.value.target,
-        relation: selectedEdge.value.relation,
-      },
-    };
+    characterStore.updateEdge(selectedEdge.value);
     showEdgeEditor.value = false;
     selectedEdge.value = null;
   }
@@ -373,8 +261,7 @@ const updateEdge = () => {
 
 const deleteEdge = () => {
   if (selectedEdge.value) {
-    const { [selectedEdge.value.id]: removed, ...rest } = edges.value;
-    edges.value = rest;
+    characterStore.removeEdge(selectedEdge.value.id);
     showEdgeEditor.value = false;
     selectedEdge.value = null;
   }
