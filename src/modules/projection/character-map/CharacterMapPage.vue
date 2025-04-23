@@ -31,49 +31,49 @@ import Legend from './Legend.vue';
 // Константы
 const INITIAL_CHARACTERS: Character[] = [
   {
-    id: createID<'Character'>('char1'),
+    id: createID<'Character'>(),
     name: 'Анна Каренина',
     description: 'Главная героиня',
     level: 'primary',
     type: 'protagonist',
   },
   {
-    id: createID<'Character'>('char2'),
+    id: createID<'Character'>(),
     name: 'Алексей Вронский',
     description: 'Возлюбленный Анны',
     level: 'secondary',
     type: 'love interest',
   },
   {
-    id: createID<'Character'>('char3'),
+    id: createID<'Character'>(),
     name: 'Алексей Каренин',
     description: 'Муж Анны',
     level: 'secondary',
     type: 'foil',
   },
   {
-    id: createID<'Character'>('char4'),
+    id: createID<'Character'>(),
     name: 'Стива Облонская',
     description: 'Брат Анны',
     level: 'secondary',
     type: 'plot mover',
   },
   {
-    id: createID<'Character'>('char5'),
+    id: createID<'Character'>(),
     name: 'Долли Облонская',
     description: 'Жена Стивы',
     level: 'tertiary',
     type: 'confidante',
   },
   {
-    id: createID<'Character'>('char6'),
+    id: createID<'Character'>(),
     name: 'Константин Левин',
     description: 'Друг Стивы',
     level: 'secondary',
     type: 'plot mover',
   },
   {
-    id: createID<'Character'>('char7'),
+    id: createID<'Character'>(),
     name: 'Кити Щербацкая',
     description: 'Жена Левина',
     level: 'tertiary',
@@ -81,18 +81,27 @@ const INITIAL_CHARACTERS: Character[] = [
   },
 ];
 
+// Сохраняем идентификаторы персонажей для использования в edges
+const char1 = INITIAL_CHARACTERS[0].id;
+const char2 = INITIAL_CHARACTERS[1].id;
+const char3 = INITIAL_CHARACTERS[2].id;
+const char4 = INITIAL_CHARACTERS[3].id;
+const char5 = INITIAL_CHARACTERS[4].id;
+const char6 = INITIAL_CHARACTERS[5].id;
+const char7 = INITIAL_CHARACTERS[6].id;
+
 const INITIAL_EDGES: Record<string, Edge> = {
-  edge1: { id: 'edge1', source: 'char1', target: 'char2', relation: 'любовь' },
-  edge2: { id: 'edge2', source: 'char1', target: 'char3', relation: 'брак' },
+  edge1: { id: 'edge1', source: char1, target: char2, relation: 'любовь' },
+  edge2: { id: 'edge2', source: char1, target: char3, relation: 'брак' },
   edge3: {
     id: 'edge3',
-    source: 'char1',
-    target: 'char4',
+    source: char1,
+    target: char4,
     relation: 'родственники',
   },
-  edge4: { id: 'edge4', source: 'char4', target: 'char5', relation: 'брак' },
-  edge5: { id: 'edge5', source: 'char4', target: 'char6', relation: 'дружба' },
-  edge6: { id: 'edge6', source: 'char6', target: 'char7', relation: 'брак' },
+  edge4: { id: 'edge4', source: char4, target: char5, relation: 'брак' },
+  edge5: { id: 'edge5', source: char4, target: char6, relation: 'дружба' },
+  edge6: { id: 'edge6', source: char6, target: char7, relation: 'брак' },
 };
 
 // Состояние
