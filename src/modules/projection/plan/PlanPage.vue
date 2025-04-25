@@ -142,11 +142,19 @@ const handleSelectExistingStages = () => {
 
 // Методы для работы с текстом главы
 const loadChapterText = async (chapterId: ChapterID) => {
+  // Пропускаем повторную загрузку того же текста
+  if (selectedChapterId.value === chapterId && !isChapterTextDirty.value) {
+    console.log(`PlanPage: пропускаем повторную загрузку текста главы ${chapterId}`);
+    return;
+  }
+
   loadingChaptersText.value = true;
   try {
+    console.log(`PlanPage: загрузка текста главы ${chapterId}`);
     const chapterText = await bookStore.loadChapterText(chapterId);
     if (chapterText) {
       chapterTextContent.value = chapterText.content;
+      console.log(`PlanPage: текст главы ${chapterId} загружен, длина: ${chapterText.content.length}`);
       isChapterTextDirty.value = false;
     }
   } catch (error) {
@@ -160,12 +168,14 @@ const saveChapterText = async () => {
   if (!selectedChapterId.value) return;
 
   try {
+    console.log(`PlanPage: сохранение текста главы ${selectedChapterId.value}, длина: ${chapterTextContent.value.length}`);
     await bookStore.saveChapterText({
       id: selectedChapterId.value,
       content: chapterTextContent.value,
       lastModified: new Date(),
     });
     isChapterTextDirty.value = false;
+    console.log(`PlanPage: текст главы ${selectedChapterId.value} успешно сохранен`);
   } catch (error) {
     console.error('Error saving chapter text:', error);
   }
@@ -177,7 +187,40 @@ const chapters = computed(() => {
   console.log(
     `PlanPage: вычисление глав для книги ${currentId || 'не выбрана'}`
   );
-  return bookStore.getBookChapters;
+
+  if (!currentId) {
+    return [];
+  }
+
+  // Получаем главы текущей книги и проверяем их на дубликаты по ID
+  const bookChapters = bookStore.getBookChapters;
+
+  // Логирование для отладки
+  const chapterIds = bookChapters.map(c => c.id);
+  const uniqueIds = new Set(chapterIds);
+  if (chapterIds.length !== uniqueIds.size) {
+    console.warn(`PlanPage: обнаружены дубликаты ID глав в списке (${chapterIds.length} vs ${uniqueIds.size})`);
+  }
+
+  // Убеждаемся, что нет дублирования
+  if (bookChapters.length) {
+    const chapterMap = new Map<string, number>();
+    const duplicates: string[] = [];
+
+    bookChapters.forEach((chapter, index) => {
+      if (chapterMap.has(chapter.id)) {
+        duplicates.push(`${chapter.id} (${chapter.title})`);
+      } else {
+        chapterMap.set(chapter.id, index);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      console.warn(`PlanPage: Дублирующиеся главы: ${duplicates.join(', ')}`);
+    }
+  }
+
+  return bookChapters;
 });
 
 const chapterStages = computed(() => {
@@ -225,6 +268,20 @@ const availableStages = computed(() => {
 
 // Обработчики выбора
 const handleChapterSelect = (chapter: Chapter) => {
+  // Проверяем, существует ли еще эта глава
+  const chapterExists = chapters.value.some(c => c.id === chapter.id);
+  if (!chapterExists) {
+    console.error(`PlanPage: попытка выбрать несуществующую главу с ID ${chapter.id}`);
+    return;
+  }
+
+  // Проверяем, не выбрана ли уже эта глава
+  if (selectedChapterId.value === chapter.id) {
+    console.log(`PlanPage: глава ${chapter.id} уже выбрана, пропускаем повторный выбор`);
+    return;
+  }
+
+  console.log(`PlanPage: выбор главы ${chapter.id} (${chapter.title})`);
   selectedChapterId.value = chapter.id;
 
   // Загружаем текст главы
@@ -244,7 +301,7 @@ watch(chapterTextContent, () => {
 });
 
 // Обработчик автосохранения
-const autoSaveIntervalMs = 30000; // 30 секунд
+const autoSaveIntervalMs = 10000; // Снижаем до 10 секунд, чтобы чаще сохранять
 let autoSaveInterval: number | null = null;
 
 const setupAutoSave = () => {
@@ -252,22 +309,56 @@ const setupAutoSave = () => {
     clearInterval(autoSaveInterval);
   }
 
-  autoSaveInterval = window.setInterval(() => {
+  autoSaveInterval = window.setInterval(async () => {
     if (isChapterTextDirty.value && selectedChapterId.value) {
-      saveChapterText();
+      console.log(`PlanPage: автосохранение текста главы ${selectedChapterId.value}`);
+      await saveChapterText();
     }
   }, autoSaveIntervalMs);
 };
 
-// Отслеживаем изменение выбранной главы
-watch(selectedChapterId, (newChapterId, oldChapterId) => {
+// Отслеживаем изменение выбранной главы, но добавляем задержку для предотвращения бесконечного цикла
+watch(selectedChapterId, async (newChapterId, oldChapterId) => {
   console.log(
     `PlanPage: selectedChapterId изменился с '${oldChapterId}' на '${newChapterId}'`
   );
 
+  // Никаких действий, если ID главы не изменился
+  if (newChapterId === oldChapterId) {
+    console.log('PlanPage: ID главы не изменился, пропускаем обработку');
+    return;
+  }
+
+  // Проверяем, существует ли новая глава
+  if (newChapterId && !chapters.value.some(c => c.id === newChapterId)) {
+    console.error(`PlanPage: попытка выбрать несуществующую главу с ID ${newChapterId}`);
+    // Сбрасываем выбор, если глава больше не существует
+    selectedChapterId.value = null;
+    return;
+  }
+
+  // Сохраняем текст текущей главы перед переключением на новую
+  if (oldChapterId && isChapterTextDirty.value) {
+    console.log(`PlanPage: сохраняем текст главы ${oldChapterId} перед переключением`);
+    try {
+      await bookStore.saveChapterText({
+        id: oldChapterId,
+        content: chapterTextContent.value,
+        lastModified: new Date(),
+      });
+      isChapterTextDirty.value = false;
+    } catch (error) {
+      console.error(`PlanPage: ошибка при сохранении текста главы ${oldChapterId}:`, error);
+    }
+  }
+
   if (newChapterId) {
     // Загружаем текст для новой главы
-    loadChapterText(newChapterId);
+    try {
+      await loadChapterText(newChapterId);
+    } catch (error) {
+      console.error(`PlanPage: ошибка при загрузке текста главы ${newChapterId}:`, error);
+    }
 
     // Сбрасываем выбранную сцену
     selectedStageId.value = null;
@@ -296,6 +387,17 @@ watch(
       `PlanPage: currentBookId изменился с '${oldBookId}' на '${newBookId}'`
     );
 
+    // Сохраняем текущий текст главы перед сменой книги
+    if (selectedChapterId.value && isChapterTextDirty.value) {
+      console.log(`PlanPage: сохраняем текст главы ${selectedChapterId.value} перед сменой книги`);
+      await bookStore.saveChapterText({
+        id: selectedChapterId.value,
+        content: chapterTextContent.value,
+        lastModified: new Date(),
+      });
+      isChapterTextDirty.value = false;
+    }
+
     if (newBookId && newBookId !== oldBookId) {
       // Сбрасываем выбранные элементы
       selectedChapterId.value = null;
@@ -319,7 +421,7 @@ watch(
         selectedChapterId.value = currentChapters[0].id;
         console.log(`PlanPage: выбрана первая глава: ${currentChapters[0].id}`);
         // Загружаем текст этой главы
-        loadChapterText(currentChapters[0].id);
+        await loadChapterText(currentChapters[0].id);
       }
     }
   },
@@ -360,10 +462,25 @@ onMounted(async () => {
       }
     }
 
+    // Даем время на обновление вычисляемых свойств после установки текущей книги
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     // Если есть главы и текущая книга выбрана, выбираем первую главу для отображения
     if (bookStore.currentBookId && chapters.value.length > 0) {
+      // Устанавливаем выбранную главу и принудительно загружаем её текст
+      console.log('PlanPage onMounted: Выбираем первую главу и загружаем её текст');
       selectedChapterId.value = chapters.value[0].id;
-      loadChapterText(chapters.value[0].id);
+
+      try {
+        const chapterText = await bookStore.loadChapterText(chapters.value[0].id);
+        if (chapterText) {
+          chapterTextContent.value = chapterText.content;
+          console.log(`PlanPage onMounted: Текст главы загружен, длина: ${chapterText.content.length}`);
+          isChapterTextDirty.value = false;
+        }
+      } catch (error) {
+        console.error('Error loading chapter text on mount:', error);
+      }
     }
 
     // Настраиваем автосохранение
@@ -381,8 +498,9 @@ onBeforeUnmount(() => {
     clearInterval(autoSaveInterval);
   }
 
-  // Сохраняем несохраненные изменения
+  // Сохраняем несохраненные изменения перед закрытием страницы
   if (isChapterTextDirty.value && selectedChapterId.value) {
+    console.log(`PlanPage: сохранение текста главы ${selectedChapterId.value} перед закрытием страницы`);
     saveChapterText();
   }
 });

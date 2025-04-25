@@ -44,6 +44,32 @@ export const useBookPrivateStore = defineStore(
       authors.value.length < PROJECT_LIMITS.BOOKS.MAX_AUTHORS_PER_BOOK
     );
 
+    // Проверка и дедупликация сущностей
+    const checkAndEnsureUniqueIds = <T extends { id: string }>(items: T[]): T[] => {
+      console.log(`Проверка уникальности ID для ${items.length} элементов`);
+
+      // Создаем Map для быстрого поиска дубликатов
+      const uniqueItems = new Map<string, T>();
+      const duplicates: string[] = [];
+
+      // Заполняем map, обнаруживая дубликаты
+      items.forEach(item => {
+        if (uniqueItems.has(item.id)) {
+          duplicates.push(item.id);
+        } else {
+          uniqueItems.set(item.id, item);
+        }
+      });
+
+      // Логируем информацию о найденных дубликатах
+      if (duplicates.length > 0) {
+        console.warn(`Обнаружены дубликаты ID: ${duplicates.join(', ')}`);
+        console.warn(`Всего дубликатов: ${duplicates.length} из ${items.length} элементов`);
+      }
+
+      return Array.from(uniqueItems.values());
+    };
+
     // Загрузка данных
     const loadBooks = async () => {
       if (!projectStore.currentProject?.path) return;
@@ -57,7 +83,18 @@ export const useBookPrivateStore = defineStore(
         }
 
         const booksJson = await fs.readTextFile(booksPath);
-        books.value = JSON.parse(booksJson);
+        let loadedBooks: ISingleBook[] = JSON.parse(booksJson);
+
+        // Проверяем и дедуплицируем книги
+        const originalCount = loadedBooks.length;
+        loadedBooks = checkAndEnsureUniqueIds(loadedBooks);
+        if (originalCount !== loadedBooks.length) {
+          console.warn(`BookStore: Удалено ${originalCount - loadedBooks.length} дубликатов книг`);
+          // Пересохраняем файл без дубликатов
+          await fs.writeTextFile(booksPath, JSON.stringify(loadedBooks, null, 2));
+        }
+
+        books.value = loadedBooks;
       } catch (error) {
         console.error('Error loading books:', error);
       }
@@ -138,12 +175,29 @@ export const useBookPrivateStore = defineStore(
 
           try {
             const chaptersJson = await fs.readTextFile(chaptersPath);
-            const bookChapters: Chapter[] = JSON.parse(chaptersJson);
+            let bookChapters: Chapter[] = JSON.parse(chaptersJson);
+
+            // Проверяем и дедуплицируем главы
+            const originalCount = bookChapters.length;
+            bookChapters = checkAndEnsureUniqueIds(bookChapters);
+            if (originalCount !== bookChapters.length) {
+              console.warn(`BookStore: Удалено ${originalCount - bookChapters.length} дубликатов глав для книги ${book.id}`);
+              // Пересохраняем файл без дубликатов
+              await fs.writeTextFile(chaptersPath, JSON.stringify(bookChapters, null, 2));
+            }
+
             console.log(`BookStore: Загружено ${bookChapters.length} глав для книги ${book.id}`);
             chapters.value.push(...bookChapters);
           } catch (e) {
             console.error(`Ошибка загрузки глав из ${chaptersPath}:`, e);
           }
+        }
+
+        // Проверяем на дублирование ID глав в общем списке
+        const originalCount = chapters.value.length;
+        chapters.value = checkAndEnsureUniqueIds(chapters.value);
+        if (originalCount !== chapters.value.length) {
+          console.warn(`BookStore: Удалено ${originalCount - chapters.value.length} дубликатов глав в общем списке`);
         }
 
         console.log(`BookStore: Всего загружено ${chapters.value.length} глав`);
@@ -175,11 +229,29 @@ export const useBookPrivateStore = defineStore(
         }
 
         const chaptersJson = await fs.readTextFile(chaptersPath);
-        const bookChapters: Chapter[] = JSON.parse(chaptersJson);
+        let bookChapters: Chapter[] = JSON.parse(chaptersJson);
 
-        // Обновляем главы этой книги в общем массиве
-        chapters.value = chapters.value.filter(c => c.bookId !== bookId);
-        chapters.value.push(...bookChapters);
+        // Проверяем и дедуплицируем главы
+        const originalCount = bookChapters.length;
+        bookChapters = checkAndEnsureUniqueIds(bookChapters);
+        if (originalCount !== bookChapters.length) {
+          console.warn(`BookStore: Удалено ${originalCount - bookChapters.length} дубликатов глав для книги ${bookId}`);
+          // Пересохраняем файл без дубликатов
+          await fs.writeTextFile(chaptersPath, JSON.stringify(bookChapters, null, 2));
+        }
+
+        // Фильтруем существующие главы для текущей книги, сохраняя остальные
+        const otherChapters = chapters.value.filter(c => c.bookId !== bookId);
+
+        // Объединяем с главами других книг
+        chapters.value = [...otherChapters, ...bookChapters];
+
+        // Проверяем на дублирование ID глав в общем списке
+        const totalOriginalCount = chapters.value.length;
+        chapters.value = checkAndEnsureUniqueIds(chapters.value);
+        if (totalOriginalCount !== chapters.value.length) {
+          console.warn(`BookStore: Удалено ${totalOriginalCount - chapters.value.length} дубликатов глав в общем списке`);
+        }
 
         console.log(`BookStore: Загружено ${bookChapters.length} глав для книги ${bookId}`);
         return bookChapters;
@@ -202,7 +274,18 @@ export const useBookPrivateStore = defineStore(
         }
 
         const stagesJson = await fs.readTextFile(stagesPath);
-        stages.value = JSON.parse(stagesJson);
+        let loadedStages: Stage[] = JSON.parse(stagesJson);
+
+        // Проверяем и дедуплицируем сцены
+        const originalCount = loadedStages.length;
+        loadedStages = checkAndEnsureUniqueIds(loadedStages);
+        if (originalCount !== loadedStages.length) {
+          console.warn(`BookStore: Удалено ${originalCount - loadedStages.length} дубликатов сцен`);
+          // Пересохраняем файл без дубликатов
+          await fs.writeTextFile(stagesPath, JSON.stringify(loadedStages, null, 2));
+        }
+
+        stages.value = loadedStages;
       } catch (error) {
         console.error('Error loading stages:', error);
       }
@@ -213,10 +296,20 @@ export const useBookPrivateStore = defineStore(
       if (!projectStore.currentProject?.path) return null;
 
       try {
+        console.log(`BookStore: Начало загрузки текста главы ${chapterId}`);
+
+        // Проверяем, не загружен ли уже текст этой главы и не пустой ли он
+        if (currentChapterText.value &&
+            currentChapterText.value.id === chapterId &&
+            currentChapterText.value.content.length > 0) {
+          console.log(`BookStore: Текст главы ${chapterId} уже загружен в памяти, используем кэшированную версию. Длина текста: ${currentChapterText.value.content.length}`);
+          return currentChapterText.value;
+        }
+
         // Сначала находим главу, чтобы узнать её bookId
         const chapter = chapters.value.find(c => c.id === chapterId);
         if (!chapter) {
-          console.error(`Ошибка загрузки текста главы: глава ${chapterId} не найдена`);
+          console.error(`BookStore: Ошибка загрузки текста главы: глава ${chapterId} не найдена`);
           return null;
         }
 
@@ -227,33 +320,69 @@ export const useBookPrivateStore = defineStore(
         // Создаем директорию для текстов глав, если её нет
         const textDirExists = await fs.exists(textDir);
         if (!textDirExists) {
+          console.log(`BookStore: Создаем директорию для текстов глав: ${textDir}`);
           await fs.mkdir(textDir, { recursive: true });
         }
 
         const chapterTextPath = `${textDir}${chapterId}.txt`;
+        console.log(`BookStore: Проверяем существование файла текста главы: ${chapterTextPath}`);
         const exists = await fs.exists(chapterTextPath);
 
+        // Проверяем, есть ли уже текст в памяти перед созданием нового файла
         if (!exists) {
           // Если файла нет, создаем пустой
+          console.log(`BookStore: Файл текста главы не существует, создаем пустой`);
           await fs.writeTextFile(chapterTextPath, '');
+
+          // Только если нет текста в памяти, создаем новый объект
+          if (!currentChapterText.value || currentChapterText.value.id !== chapterId) {
+            currentChapterText.value = {
+              id: chapterId,
+              content: '',
+              lastModified: new Date()
+            };
+          }
+
+          console.log(`BookStore: Создан пустой текст для главы ${chapterId}`);
+          return currentChapterText.value;
+        }
+
+        console.log(`BookStore: Читаем содержимое файла текста главы ${chapterId}`);
+        const content = await fs.readTextFile(chapterTextPath);
+        console.log(`BookStore: Прочитан текст главы ${chapterId}, длина: ${content.length}`);
+
+        // Проверяем - если текущий текст в памяти длиннее, то используем его
+        if (currentChapterText.value &&
+            currentChapterText.value.id === chapterId &&
+            currentChapterText.value.content.length > content.length) {
+          console.warn(`BookStore: Текст главы ${chapterId} в памяти (${currentChapterText.value.content.length} символов) длиннее, чем в файле (${content.length} символов). Используем версию из памяти.`);
+
+          // Сохраняем текст из памяти обратно в файл
+          await fs.writeTextFile(chapterTextPath, currentChapterText.value.content);
+          console.log(`BookStore: Сохранен текст из памяти для главы ${chapterId}`);
+
+          return currentChapterText.value;
+        }
+
+        // Если в файле есть содержимое, используем его
+        if (content.length > 0) {
+          currentChapterText.value = {
+            id: chapterId,
+            content,
+            lastModified: new Date()
+          };
+        } else if (!currentChapterText.value || currentChapterText.value.id !== chapterId) {
+          // Если файл пустой и нет текущего текста в памяти
           currentChapterText.value = {
             id: chapterId,
             content: '',
             lastModified: new Date()
           };
-          return currentChapterText.value;
         }
-
-        const content = await fs.readTextFile(chapterTextPath);
-        currentChapterText.value = {
-          id: chapterId,
-          content,
-          lastModified: new Date()
-        };
 
         return currentChapterText.value;
       } catch (error) {
-        console.error('Ошибка загрузки текста главы:', error);
+        console.error('BookStore: Ошибка загрузки текста главы:', error);
         return null;
       }
     };
@@ -304,6 +433,13 @@ export const useBookPrivateStore = defineStore(
       console.log('BookStore: Сохранение глав');
 
       try {
+        // Дедупликация глав перед сохранением
+        const originalCount = chapters.value.length;
+        chapters.value = checkAndEnsureUniqueIds(chapters.value);
+        if (originalCount !== chapters.value.length) {
+          console.warn(`BookStore: Удалено ${originalCount - chapters.value.length} дубликатов глав перед сохранением`);
+        }
+
         // Базовый путь к директории с книгами
         const booksDir = `${projectStore.currentProject.path}/${BOOK_DATA.BOOKS_DIR}`;
         const booksExists = await fs.exists(booksDir);
@@ -331,9 +467,12 @@ export const useBookPrivateStore = defineStore(
             await fs.mkdir(bookDir, { recursive: true });
           }
 
+          // Дедупликация глав для конкретной книги
+          const uniqueBookChapters = checkAndEnsureUniqueIds(bookChapters);
+
           const chaptersPath = `${bookDir}${BOOK_DATA.CHAPTERS_JSON}`;
-          await fs.writeTextFile(chaptersPath, JSON.stringify(bookChapters, null, 2));
-          console.log(`BookStore: Сохранено ${bookChapters.length} глав для книги ${bookId}`);
+          await fs.writeTextFile(chaptersPath, JSON.stringify(uniqueBookChapters, null, 2));
+          console.log(`BookStore: Сохранено ${uniqueBookChapters.length} глав для книги ${bookId}`);
         }
       } catch (error) {
         console.error('Ошибка сохранения глав:', error);
@@ -353,11 +492,24 @@ export const useBookPrivateStore = defineStore(
       }
     };
 
-    // Сохранение текста главы
+    // Сохранение текста главы с дополнительной защитой от потери данных
     const saveChapterText = async (chapterText: ChapterText) => {
       if (!projectStore.currentProject?.path) return;
 
       try {
+        // Сначала проверяем, не пустое ли содержимое главы
+        if (chapterText.content.length === 0) {
+          console.warn(`BookStore: Попытка сохранить пустой текст для главы ${chapterText.id}`);
+
+          // Проверяем, есть ли текст в памяти
+          if (currentChapterText.value &&
+              currentChapterText.value.id === chapterText.id &&
+              currentChapterText.value.content.length > 0) {
+            console.warn(`BookStore: Предотвращено сохранение пустого текста для главы ${chapterText.id}, используем существующий текст длиной ${currentChapterText.value.content.length}`);
+            return;
+          }
+        }
+
         // Находим главу, чтобы узнать её bookId
         const chapter = chapters.value.find(c => c.id === chapterText.id);
         if (!chapter) {
@@ -381,16 +533,57 @@ export const useBookPrivateStore = defineStore(
           await fs.mkdir(textDir, { recursive: true });
         }
 
-        // Сохраняем текст главы
-        await fs.writeTextFile(
-          `${textDir}${chapterText.id}.txt`,
-          chapterText.content
-        );
+        const chapterTextPath = `${textDir}${chapterText.id}.txt`;
 
+        // Дополнительная проверка - проверяем существующий файл
+        const fileExists = await fs.exists(chapterTextPath);
+        if (fileExists) {
+          const existingContent = await fs.readTextFile(chapterTextPath);
+
+          // Если существующий файл имеет контент, а новый - пустой, предотвращаем затирание
+          if (existingContent.length > 0 && chapterText.content.length === 0) {
+            console.warn(`BookStore: Предотвращена перезапись файла с контентом (${existingContent.length} символов) пустым текстом для главы ${chapterText.id}`);
+
+            // Обновляем текст в памяти существующим из файла
+            currentChapterText.value = {
+              id: chapterText.id,
+              content: existingContent,
+              lastModified: new Date()
+            };
+
+            return;
+          }
+
+          // Вывод отладочной информации
+          console.log(`Сохранение текста главы ${chapterText.id}:`, {
+            content: chapterText.content.substring(0, 50) + (chapterText.content.length > 50 ? '...' : ''),
+            path: chapterTextPath,
+            length: chapterText.content.length
+          });
+
+          // Создаем резервную копию перед сохранением
+          const backupPath = `${textDir}${chapterText.id}.backup.txt`;
+          await fs.writeTextFile(backupPath, existingContent);
+          console.log(`BookStore: Создана резервная копия текста главы ${chapterText.id}`);
+        } else {
+          // Вывод отладочной информации
+          console.log(`Сохранение текста главы ${chapterText.id}:`, {
+            content: chapterText.content.substring(0, 50) + (chapterText.content.length > 50 ? '...' : ''),
+            path: chapterTextPath,
+            length: chapterText.content.length
+          });
+        }
+
+        // Сохраняем текст главы
+        await fs.writeTextFile(chapterTextPath, chapterText.content);
+
+        // Обновляем данные в памяти
         currentChapterText.value = {
           ...chapterText,
           lastModified: new Date()
         };
+
+        console.log(`BookStore: Текст главы ${chapterText.id} успешно сохранен, длина: ${chapterText.content.length}`);
       } catch (error) {
         console.error('Ошибка сохранения текста главы:', error);
       }
@@ -648,12 +841,13 @@ export const useBookPrivateStore = defineStore(
     });
 
     // Отслеживание изменений проекта
-    watch(() => projectStore.currentProject?.path, () => {
-      loadBooks();
-      loadSeries();
-      loadAuthors();
-      loadChapters();
-      loadStages();
+    watch(() => projectStore.currentProject?.path, async () => {
+      console.log('BookStore: Изменился путь проекта, загружаем данные');
+      await loadBooks();
+      await loadSeries();
+      await loadAuthors();
+      await loadChapters();
+      await loadStages();
     }, { immediate: true });
 
     // Наблюдение за изменениями
