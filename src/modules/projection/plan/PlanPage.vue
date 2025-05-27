@@ -26,6 +26,7 @@ import { PROJECT_TYPE } from '@/modules/project/project.const';
 import { Chapter, Stage } from '@/modules/book/book.types';
 import { useI18n } from 'vue-i18n';
 import { ChapterID, StageID, BookID } from '@/core/id';
+import NotionEditor from '@/modules/book/components/NotionEditor.vue';
 
 const { t } = useI18n();
 const bookStore = useBookPrivateStore();
@@ -296,7 +297,16 @@ const handleStageSelect = (stage: Stage) => {
 };
 
 // Отслеживаем изменения текста
-watch(chapterTextContent, () => {
+watch(chapterTextContent, (newValue, oldValue) => {
+  // Проверяем, действительно ли контент изменился
+  // Игнорируем изменения с пустого на пустой HTML
+  const isNewEmpty = !newValue || newValue === '<p></p>' || newValue.trim() === '';
+  const isOldEmpty = !oldValue || oldValue === '<p></p>' || oldValue.trim() === '';
+
+  if (isNewEmpty && isOldEmpty) {
+    return; // Оба значения пустые, не помечаем как измененное
+  }
+
   isChapterTextDirty.value = true;
 });
 
@@ -665,10 +675,8 @@ onBeforeUnmount(() => {
 
               <!-- Редактор текста главы -->
               <div class="chapter-text-editor">
-                <NInput
-                  v-model:value="chapterTextContent"
-                  type="textarea"
-                  :autosize="{ minRows: 20 }"
+                <NotionEditor
+                  v-model="chapterTextContent"
                   :placeholder="t('book.writeHere')"
                 />
               </div>

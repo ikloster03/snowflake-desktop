@@ -324,32 +324,51 @@ export const useBookPrivateStore = defineStore(
           await fs.mkdir(textDir, { recursive: true });
         }
 
-        const chapterTextPath = `${textDir}${chapterId}.txt`;
-        console.log(`BookStore: Проверяем существование файла текста главы: ${chapterTextPath}`);
-        const exists = await fs.exists(chapterTextPath);
+        // Проверяем сначала HTML файл, затем старый TXT файл для миграции
+        const chapterHtmlPath = `${textDir}${chapterId}.html`;
+        const chapterTxtPath = `${textDir}${chapterId}.txt`;
 
-        // Проверяем, есть ли уже текст в памяти перед созданием нового файла
-        if (!exists) {
-          // Если файла нет, создаем пустой
-          console.log(`BookStore: Файл текста главы не существует, создаем пустой`);
-          await fs.writeTextFile(chapterTextPath, '');
+        console.log(`BookStore: Проверяем существование файла текста главы: ${chapterHtmlPath}`);
+        const htmlExists = await fs.exists(chapterHtmlPath);
+        const txtExists = await fs.exists(chapterTxtPath);
 
-          // Только если нет текста в памяти, создаем новый объект
-          if (!currentChapterText.value || currentChapterText.value.id !== chapterId) {
-            currentChapterText.value = {
-              id: chapterId,
-              content: '',
-              lastModified: new Date()
-            };
+        let content = '';
+
+        if (htmlExists) {
+          // Загружаем HTML файл
+          console.log(`BookStore: Читаем HTML содержимое файла текста главы ${chapterId}`);
+          content = await fs.readTextFile(chapterHtmlPath);
+          console.log(`BookStore: Прочитан HTML текст главы ${chapterId}, длина: ${content.length}`);
+        } else if (txtExists) {
+          // Миграция: загружаем старый TXT файл и конвертируем в HTML
+          console.log(`BookStore: Найден старый TXT файл, выполняем миграцию для главы ${chapterId}`);
+          const txtContent = await fs.readTextFile(chapterTxtPath);
+
+          // Простая конвертация: заменяем переносы строк на параграфы
+          if (txtContent.trim()) {
+            const paragraphs = txtContent.split('\n\n').filter(p => p.trim());
+            content = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+          } else {
+            content = '<p></p>';
           }
 
-          console.log(`BookStore: Создан пустой текст для главы ${chapterId}`);
-          return currentChapterText.value;
-        }
+          // Сохраняем в новом формате
+          await fs.writeTextFile(chapterHtmlPath, content);
+          console.log(`BookStore: Миграция завершена, создан HTML файл для главы ${chapterId}`);
 
-        console.log(`BookStore: Читаем содержимое файла текста главы ${chapterId}`);
-        const content = await fs.readTextFile(chapterTextPath);
-        console.log(`BookStore: Прочитан текст главы ${chapterId}, длина: ${content.length}`);
+          // Удаляем старый TXT файл
+          try {
+            await fs.remove(chapterTxtPath);
+            console.log(`BookStore: Удален старый TXT файл для главы ${chapterId}`);
+          } catch (e) {
+            console.warn(`BookStore: Не удалось удалить старый TXT файл: ${e}`);
+          }
+        } else {
+          // Если файла нет, создаем пустой HTML
+          console.log(`BookStore: Файл текста главы не существует, создаем пустой HTML`);
+          content = '<p></p>';
+          await fs.writeTextFile(chapterHtmlPath, content);
+        }
 
         // Проверяем - если текущий текст в памяти длиннее, то используем его
         if (currentChapterText.value &&
@@ -358,27 +377,18 @@ export const useBookPrivateStore = defineStore(
           console.warn(`BookStore: Текст главы ${chapterId} в памяти (${currentChapterText.value.content.length} символов) длиннее, чем в файле (${content.length} символов). Используем версию из памяти.`);
 
           // Сохраняем текст из памяти обратно в файл
-          await fs.writeTextFile(chapterTextPath, currentChapterText.value.content);
+          await fs.writeTextFile(chapterHtmlPath, currentChapterText.value.content);
           console.log(`BookStore: Сохранен текст из памяти для главы ${chapterId}`);
 
           return currentChapterText.value;
         }
 
-        // Если в файле есть содержимое, используем его
-        if (content.length > 0) {
-          currentChapterText.value = {
-            id: chapterId,
-            content,
-            lastModified: new Date()
-          };
-        } else if (!currentChapterText.value || currentChapterText.value.id !== chapterId) {
-          // Если файл пустой и нет текущего текста в памяти
-          currentChapterText.value = {
-            id: chapterId,
-            content: '',
-            lastModified: new Date()
-          };
-        }
+        // Создаем или обновляем объект текста главы
+        currentChapterText.value = {
+          id: chapterId,
+          content,
+          lastModified: new Date()
+        };
 
         return currentChapterText.value;
       } catch (error) {
@@ -498,13 +508,14 @@ export const useBookPrivateStore = defineStore(
 
       try {
         // Сначала проверяем, не пустое ли содержимое главы
-        if (chapterText.content.length === 0) {
+        if (chapterText.content.length === 0 || chapterText.content === '<p></p>') {
           console.warn(`BookStore: Попытка сохранить пустой текст для главы ${chapterText.id}`);
 
           // Проверяем, есть ли текст в памяти
           if (currentChapterText.value &&
               currentChapterText.value.id === chapterText.id &&
-              currentChapterText.value.content.length > 0) {
+              currentChapterText.value.content.length > 0 &&
+              currentChapterText.value.content !== '<p></p>') {
             console.warn(`BookStore: Предотвращено сохранение пустого текста для главы ${chapterText.id}, используем существующий текст длиной ${currentChapterText.value.content.length}`);
             return;
           }
@@ -533,15 +544,17 @@ export const useBookPrivateStore = defineStore(
           await fs.mkdir(textDir, { recursive: true });
         }
 
-        const chapterTextPath = `${textDir}${chapterText.id}.txt`;
+        const chapterHtmlPath = `${textDir}${chapterText.id}.html`;
 
         // Дополнительная проверка - проверяем существующий файл
-        const fileExists = await fs.exists(chapterTextPath);
+        const fileExists = await fs.exists(chapterHtmlPath);
         if (fileExists) {
-          const existingContent = await fs.readTextFile(chapterTextPath);
+          const existingContent = await fs.readTextFile(chapterHtmlPath);
 
           // Если существующий файл имеет контент, а новый - пустой, предотвращаем затирание
-          if (existingContent.length > 0 && chapterText.content.length === 0) {
+          if (existingContent.length > 0 &&
+              existingContent !== '<p></p>' &&
+              (chapterText.content.length === 0 || chapterText.content === '<p></p>')) {
             console.warn(`BookStore: Предотвращена перезапись файла с контентом (${existingContent.length} символов) пустым текстом для главы ${chapterText.id}`);
 
             // Обновляем текст в памяти существующим из файла
@@ -555,27 +568,27 @@ export const useBookPrivateStore = defineStore(
           }
 
           // Вывод отладочной информации
-          console.log(`Сохранение текста главы ${chapterText.id}:`, {
-            content: chapterText.content.substring(0, 50) + (chapterText.content.length > 50 ? '...' : ''),
-            path: chapterTextPath,
+          console.log(`Сохранение HTML текста главы ${chapterText.id}:`, {
+            content: chapterText.content.substring(0, 100) + (chapterText.content.length > 100 ? '...' : ''),
+            path: chapterHtmlPath,
             length: chapterText.content.length
           });
 
           // Создаем резервную копию перед сохранением
-          const backupPath = `${textDir}${chapterText.id}.backup.txt`;
+          const backupPath = `${textDir}${chapterText.id}.backup.html`;
           await fs.writeTextFile(backupPath, existingContent);
-          console.log(`BookStore: Создана резервная копия текста главы ${chapterText.id}`);
+          console.log(`BookStore: Создана резервная копия HTML текста главы ${chapterText.id}`);
         } else {
           // Вывод отладочной информации
-          console.log(`Сохранение текста главы ${chapterText.id}:`, {
-            content: chapterText.content.substring(0, 50) + (chapterText.content.length > 50 ? '...' : ''),
-            path: chapterTextPath,
+          console.log(`Сохранение нового HTML текста главы ${chapterText.id}:`, {
+            content: chapterText.content.substring(0, 100) + (chapterText.content.length > 100 ? '...' : ''),
+            path: chapterHtmlPath,
             length: chapterText.content.length
           });
         }
 
-        // Сохраняем текст главы
-        await fs.writeTextFile(chapterTextPath, chapterText.content);
+        // Сохраняем HTML текст главы
+        await fs.writeTextFile(chapterHtmlPath, chapterText.content);
 
         // Обновляем данные в памяти
         currentChapterText.value = {
@@ -583,9 +596,9 @@ export const useBookPrivateStore = defineStore(
           lastModified: new Date()
         };
 
-        console.log(`BookStore: Текст главы ${chapterText.id} успешно сохранен, длина: ${chapterText.content.length}`);
+        console.log(`BookStore: HTML текст главы ${chapterText.id} успешно сохранен, длина: ${chapterText.content.length}`);
       } catch (error) {
-        console.error('Ошибка сохранения текста главы:', error);
+        console.error('Ошибка сохранения HTML текста главы:', error);
       }
     };
 
