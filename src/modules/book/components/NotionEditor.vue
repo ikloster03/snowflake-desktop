@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -38,6 +38,8 @@ import {
   Highlight as HighlightIcon,
   Minus
 } from '@vicons/tabler';
+import { slashCommands, type SlashCommandItem } from './SlashCommands';
+import SlashCommandsList from './SlashCommandsList.vue';
 
 interface Props {
   modelValue: string;
@@ -59,7 +61,122 @@ const emit = defineEmits<Emits>();
 
 const editor = ref<Editor | null>(null);
 
+// Состояние для слэш-команд
+const showSlashCommands = ref(false);
+const slashCommandsPosition = ref({ top: 0, left: 0 });
+const slashCommandsQuery = ref('');
+const slashCommandsRange = ref<{ from: number; to: number } | null>(null);
+const slashCommandsListRef = ref<InstanceType<typeof SlashCommandsList> | null>(null);
+const slashCommandsMaxHeight = ref(300);
+
 const lowlight = createLowlight();
+
+// Функции для слэш-команд
+const filteredSlashCommands = computed(() => {
+  if (!slashCommandsQuery.value) {
+    return slashCommands;
+  }
+  return slashCommands.filter(item =>
+    item.title.toLowerCase().includes(slashCommandsQuery.value.toLowerCase())
+  );
+});
+
+const executeSlashCommand = (item: SlashCommandItem) => {
+  if (editor.value && slashCommandsRange.value) {
+    item.command({
+      editor: editor.value,
+      range: slashCommandsRange.value,
+    });
+    hideSlashCommands();
+  }
+};
+
+const showSlashCommandsMenu = (query: string, range: { from: number; to: number }) => {
+  slashCommandsQuery.value = query;
+  slashCommandsRange.value = range;
+
+  nextTick(() => {
+    if (editor.value) {
+      const { view } = editor.value;
+      const { from } = range;
+      const start = view.coordsAtPos(from);
+
+      // Размеры списка команд
+      const menuWidth = 280;
+      const itemHeight = 60; // Примерная высота одного элемента
+      const padding = 20; // Отступы контейнера
+      const maxItemsToShow = filteredSlashCommands.value.length;
+
+      // Размеры окна
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      // Начальная позиция
+      let top = start.top + 20;
+      let left = start.left;
+
+      // Проверяем правую границу
+      if (left + menuWidth > windowWidth) {
+        left = windowWidth - menuWidth - 10;
+      }
+
+      // Проверяем левую границу
+      if (left < 10) {
+        left = 10;
+      }
+
+      // Вычисляем доступное место снизу и сверху
+      const spaceBelow = windowHeight - top - 10;
+      const spaceAbove = start.top - 10;
+
+      let maxHeight = 300;
+      let finalTop = top;
+
+      // Определяем оптимальную позицию и высоту
+      if (spaceBelow >= itemHeight * maxItemsToShow + padding) {
+        // Достаточно места снизу
+        maxHeight = Math.min(300, itemHeight * maxItemsToShow + padding);
+        finalTop = top;
+      } else if (spaceAbove >= itemHeight * maxItemsToShow + padding) {
+        // Показываем сверху
+        maxHeight = Math.min(300, itemHeight * maxItemsToShow + padding);
+        finalTop = start.top - maxHeight - 10;
+      } else {
+        // Выбираем сторону с большим пространством
+        if (spaceBelow > spaceAbove) {
+          maxHeight = Math.max(100, spaceBelow - 10);
+          finalTop = top;
+        } else {
+          maxHeight = Math.max(100, spaceAbove - 10);
+          finalTop = start.top - maxHeight - 10;
+        }
+      }
+
+      // Устанавливаем максимальную высоту
+      slashCommandsMaxHeight.value = maxHeight;
+
+      slashCommandsPosition.value = {
+        top: finalTop,
+        left,
+      };
+
+      showSlashCommands.value = true;
+    }
+  });
+};
+
+const hideSlashCommands = () => {
+  showSlashCommands.value = false;
+  slashCommandsQuery.value = '';
+  slashCommandsRange.value = null;
+};
+
+const handleSlashCommandKeyDown = (event: KeyboardEvent) => {
+  if (showSlashCommands.value && slashCommandsListRef.value) {
+    return slashCommandsListRef.value.onKeyDown(event);
+  }
+  return false;
+};
 
 // Инициализация редактора
 onMounted(() => {
@@ -102,9 +219,58 @@ onMounted(() => {
       const html = editor.getHTML();
       emit('update:modelValue', html);
       emit('change', html);
+
+      // Проверяем слэш-команды
+      checkForSlashCommands();
+    },
+    editorProps: {
+      handleKeyDown: (_view, event) => {
+        // Обрабатываем клавиши для слэш-команд
+        if (handleSlashCommandKeyDown(event)) {
+          return true;
+        }
+
+        // Скрываем слэш-команды при Escape
+        if (event.key === 'Escape' && showSlashCommands.value) {
+          hideSlashCommands();
+          return true;
+        }
+
+        return false;
+      },
     },
   });
 });
+
+// Проверка слэш-команд
+const checkForSlashCommands = () => {
+  if (!editor.value) return;
+
+  const { selection } = editor.value.state;
+  const { $from } = selection;
+
+  if (selection.from !== selection.to) {
+    hideSlashCommands();
+    return;
+  }
+
+  const currentNode = $from.parent;
+  const textInNode = currentNode.textContent;
+  const posInNode = $from.parentOffset;
+  const textBeforeCursor = textInNode.slice(0, posInNode);
+
+  const match = textBeforeCursor.match(/\/([^/\s]*)$/);
+
+  if (match) {
+    const query = match[1];
+    const from = selection.from - match[0].length;
+    const to = selection.from;
+
+    showSlashCommandsMenu(query, { from, to });
+  } else {
+    hideSlashCommands();
+  }
+};
 
 // Очистка при размонтировании
 onBeforeUnmount(() => {
@@ -419,6 +585,27 @@ const handleHeadingSelect = (key: string) => {
     <!-- Редактор -->
     <div class="editor-content">
       <EditorContent :editor="editor as any" v-if="editor" />
+
+      <!-- Слэш-команды -->
+      <Teleport to="body">
+        <div
+          v-if="showSlashCommands"
+          class="slash-commands-container"
+          :style="{
+            position: 'fixed',
+            top: slashCommandsPosition.top + 'px',
+            left: slashCommandsPosition.left + 'px',
+            zIndex: 1000,
+          }"
+        >
+          <SlashCommandsList
+            ref="slashCommandsListRef"
+            :items="filteredSlashCommands"
+            :command="executeSlashCommand"
+            :max-height="slashCommandsMaxHeight"
+          />
+        </div>
+      </Teleport>
     </div>
   </div>
 </template>
@@ -543,5 +730,17 @@ const handleHeadingSelect = (key: string) => {
 
 :deep(.ProseMirror ul[data-type="taskList"] li > div) {
   flex: 1;
+}
+
+/* Стили для слэш-команд */
+.slash-commands-container {
+  position: fixed;
+  z-index: 1000;
+}
+
+:deep(.slash-command-decoration) {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  border-radius: 3px;
+  padding: 0 2px;
 }
 </style>
