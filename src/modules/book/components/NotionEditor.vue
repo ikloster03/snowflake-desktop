@@ -40,6 +40,7 @@ import {
 } from '@vicons/tabler';
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
+import { StageBlock } from './StageBlockExtension';
 
 interface Props {
   modelValue: string;
@@ -214,6 +215,7 @@ onMounted(() => {
       Subscript,
       Superscript,
       HorizontalRule,
+      StageBlock,
     ],
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -742,5 +744,99 @@ const handleHeadingSelect = (key: string) => {
   background-color: rgba(var(--primary-color-rgb), 0.1);
   border-radius: 3px;
   padding: 0 2px;
+}
+
+/* Стили для блока сцены */
+:deep(.stage-block) {
+  margin: 24px 0;
+  padding: 20px;
+  border: 2px solid #18a058;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fffe 0%, #f0fdf9 100%);
+  box-shadow: 0 4px 12px rgba(24, 160, 88, 0.1);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+:deep(.stage-block::before) {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #18a058, #22c55e);
+  border-radius: 12px;
+  z-index: -1;
+  opacity: 0.1;
+}
+
+:deep(.stage-block:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(24, 160, 88, 0.15);
+}
+
+:deep(.stage-block .stage-header) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(24, 160, 88, 0.2);
+}
+
+:deep(.stage-block .stage-header span) {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+:deep(.stage-block .stage-selector) {
+  flex: 1;
+  max-width: 300px;
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.stage-block .stage-selector:focus) {
+  outline: none;
+  border-color: #18a058;
+  box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.1);
+}
+
+:deep(.stage-block .stage-content) {
+  min-height: 80px;
+  padding: 16px;
+  border: 2px dashed rgba(24, 160, 88, 0.3);
+  border-radius: 8px;
+  background: white;
+  font-size: 15px;
+  line-height: 1.6;
+  transition: all 0.2s ease;
+}
+
+:deep(.stage-block .stage-content:hover) {
+  border-color: rgba(24, 160, 88, 0.5);
+  background: #fafffe;
+}
+
+:deep(.stage-block .stage-content p) {
+  margin: 8px 0;
+  color: #374151;
+}
+
+:deep(.stage-block .stage-content:focus) {
+  outline: none;
+  border-color: #18a058;
+  border-style: solid;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.1);
 }
 </style>

@@ -110,4 +110,17 @@ export const slashCommands: SlashCommandItem[] = [
         .run();
     },
   },
+  {
+    title: 'Блок сцены',
+    description: 'Вставить блок для описания сцены',
+    icon: '🎬',
+    command: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setStageBlock()
+        .run();
+    },
+  },
 ];
