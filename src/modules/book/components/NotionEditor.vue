@@ -74,10 +74,27 @@ const lowlight = createLowlight();
 
 // Функции для слэш-команд
 const filteredSlashCommands = computed(() => {
-  if (!slashCommandsQuery.value) {
-    return slashCommands;
+  let commands = slashCommands;
+
+  // Проверяем, находимся ли мы внутри блока сцены
+  if (editor.value) {
+    const { $from } = editor.value.state.selection;
+
+    // Проверяем все родительские узлы
+    for (let depth = $from.depth; depth >= 0; depth--) {
+      const node = $from.node(depth);
+      if (node.type.name === 'stageBlock') {
+        // Если мы внутри блока сцены, исключаем команду блока сцены
+        commands = commands.filter(item => item.title !== 'Блок сцены');
+        break;
+      }
+    }
   }
-  return slashCommands.filter(item =>
+
+  if (!slashCommandsQuery.value) {
+    return commands;
+  }
+  return commands.filter(item =>
     item.title.toLowerCase().includes(slashCommandsQuery.value.toLowerCase())
   );
 });

@@ -115,6 +115,15 @@ export const slashCommands: SlashCommandItem[] = [
     description: 'Вставить блок для описания сцены',
     icon: '🎬',
     command: ({ editor, range }) => {
+      const { $from } = editor.state.selection;
+
+      for (let depth = $from.depth; depth >= 0; depth--) {
+        const node = $from.node(depth);
+        if (node.type.name === 'stageBlock') {
+          return false;
+        }
+      }
+
       editor
         .chain()
         .focus()
