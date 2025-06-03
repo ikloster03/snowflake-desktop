@@ -845,13 +845,13 @@ export const useBookPrivateStore = defineStore(
     };
 
     // Наблюдение за изменением текущей книги
-    watch(currentBookId, async (newBookId, oldBookId) => {
-      console.log(`BookStore: currentBookId изменился с '${oldBookId}' на '${newBookId}'`);
-      if (newBookId && newBookId !== oldBookId) {
-        // Загружаем главы для новой книги
-        await loadBookChapters(newBookId);
-      }
-    });
+    // watch(currentBookId, async (newBookId, oldBookId) => {
+    //   console.log(`BookStore: currentBookId изменился с '${oldBookId}' на '${newBookId}'`);
+    //   if (newBookId && newBookId !== oldBookId) {
+    //     // Загружаем главы для новой книги
+    //     await loadBookChapters(newBookId);
+    //   }
+    // });
 
     // Отслеживание изменений проекта
     watch(() => projectStore.currentProject?.path, async () => {
@@ -859,7 +859,7 @@ export const useBookPrivateStore = defineStore(
       await loadBooks();
       await loadSeries();
       await loadAuthors();
-      await loadChapters();
+      // await loadChapters();
       await loadStages();
     }, { immediate: true });
 
@@ -867,19 +867,19 @@ export const useBookPrivateStore = defineStore(
     watch(books, saveBooks, { deep: true });
     watch(series, saveSeries, { deep: true });
     watch(authors, saveAuthors, { deep: true });
-    watch(chapters, saveChapters, { deep: true });
+    // watch(chapters, saveChapters, { deep: true });
     watch(stages, saveStages, { deep: true });
 
     // Для currentChapterText мы сохраняем напрямую при изменении
-    watch(
-      currentChapterText,
-      (newVal) => {
-        if (newVal) {
-          saveChapterText(newVal);
-        }
-      },
-      { deep: true }
-    );
+    // watch(
+    //   currentChapterText,
+    //   (newVal) => {
+    //     if (newVal) {
+    //       saveChapterText(newVal);
+    //     }
+    //   },
+    //   { deep: true }
+    // );
 
     // Функции поиска
     const findBooksByAuthor = (authorId: string) => {

@@ -328,115 +328,115 @@ const setupAutoSave = () => {
 };
 
 // Отслеживаем изменение выбранной главы, но добавляем задержку для предотвращения бесконечного цикла
-watch(selectedChapterId, async (newChapterId, oldChapterId) => {
-  console.log(
-    `PlanPage: selectedChapterId изменился с '${oldChapterId}' на '${newChapterId}'`
-  );
+// watch(selectedChapterId, async (newChapterId, oldChapterId) => {
+//   console.log(
+//     `PlanPage: selectedChapterId изменился с '${oldChapterId}' на '${newChapterId}'`
+//   );
 
-  // Никаких действий, если ID главы не изменился
-  if (newChapterId === oldChapterId) {
-    console.log('PlanPage: ID главы не изменился, пропускаем обработку');
-    return;
-  }
+//   // Никаких действий, если ID главы не изменился
+//   if (newChapterId === oldChapterId) {
+//     console.log('PlanPage: ID главы не изменился, пропускаем обработку');
+//     return;
+//   }
 
-  // Проверяем, существует ли новая глава
-  if (newChapterId && !chapters.value.some(c => c.id === newChapterId)) {
-    console.error(`PlanPage: попытка выбрать несуществующую главу с ID ${newChapterId}`);
-    // Сбрасываем выбор, если глава больше не существует
-    selectedChapterId.value = null;
-    return;
-  }
+//   // Проверяем, существует ли новая глава
+//   if (newChapterId && !chapters.value.some(c => c.id === newChapterId)) {
+//     console.error(`PlanPage: попытка выбрать несуществующую главу с ID ${newChapterId}`);
+//     // Сбрасываем выбор, если глава больше не существует
+//     selectedChapterId.value = null;
+//     return;
+//   }
 
-  // Сохраняем текст текущей главы перед переключением на новую
-  if (oldChapterId && isChapterTextDirty.value) {
-    console.log(`PlanPage: сохраняем текст главы ${oldChapterId} перед переключением`);
-    try {
-      await bookStore.saveChapterText({
-        id: oldChapterId,
-        content: chapterTextContent.value,
-        lastModified: new Date(),
-      });
-      isChapterTextDirty.value = false;
-    } catch (error) {
-      console.error(`PlanPage: ошибка при сохранении текста главы ${oldChapterId}:`, error);
-    }
-  }
+//   // Сохраняем текст текущей главы перед переключением на новую
+//   if (oldChapterId && isChapterTextDirty.value) {
+//     console.log(`PlanPage: сохраняем текст главы ${oldChapterId} перед переключением`);
+//     try {
+//       await bookStore.saveChapterText({
+//         id: oldChapterId,
+//         content: chapterTextContent.value,
+//         lastModified: new Date(),
+//       });
+//       isChapterTextDirty.value = false;
+//     } catch (error) {
+//       console.error(`PlanPage: ошибка при сохранении текста главы ${oldChapterId}:`, error);
+//     }
+//   }
 
-  if (newChapterId) {
-    // Загружаем текст для новой главы
-    try {
-      await loadChapterText(newChapterId);
-    } catch (error) {
-      console.error(`PlanPage: ошибка при загрузке текста главы ${newChapterId}:`, error);
-    }
+//   if (newChapterId) {
+//     // Загружаем текст для новой главы
+//     try {
+//       await loadChapterText(newChapterId);
+//     } catch (error) {
+//       console.error(`PlanPage: ошибка при загрузке текста главы ${newChapterId}:`, error);
+//     }
 
-    // Сбрасываем выбранную сцену
-    selectedStageId.value = null;
+//     // Сбрасываем выбранную сцену
+//     selectedStageId.value = null;
 
-    // Проверяем сцены для этой главы
-    const stages = chapterStages.value;
-    console.log(
-      `PlanPage: найдено ${stages.length} сцен для главы ${newChapterId}`
-    );
+//     // Проверяем сцены для этой главы
+//     const stages = chapterStages.value;
+//     console.log(
+//       `PlanPage: найдено ${stages.length} сцен для главы ${newChapterId}`
+//     );
 
-    // Автоматически выбираем первую сцену, если она есть
-    if (stages.length > 0) {
-      selectedStageId.value = stages[0].id;
-      console.log(
-        `PlanPage: автоматически выбрана первая сцена: ${stages[0].id}`
-      );
-    }
-  }
-});
+//     // Автоматически выбираем первую сцену, если она есть
+//     if (stages.length > 0) {
+//       selectedStageId.value = stages[0].id;
+//       console.log(
+//         `PlanPage: автоматически выбрана первая сцена: ${stages[0].id}`
+//       );
+//     }
+//   }
+// });
 
 // Наблюдение за изменением текущей книги
-watch(
-  () => bookStore.currentBookId,
-  async (newBookId, oldBookId) => {
-    console.log(
-      `PlanPage: currentBookId изменился с '${oldBookId}' на '${newBookId}'`
-    );
+// watch(
+//   () => bookStore.currentBookId,
+//   async (newBookId, oldBookId) => {
+//     console.log(
+//       `PlanPage: currentBookId изменился с '${oldBookId}' на '${newBookId}'`
+//     );
 
-    // Сохраняем текущий текст главы перед сменой книги
-    if (selectedChapterId.value && isChapterTextDirty.value) {
-      console.log(`PlanPage: сохраняем текст главы ${selectedChapterId.value} перед сменой книги`);
-      await bookStore.saveChapterText({
-        id: selectedChapterId.value,
-        content: chapterTextContent.value,
-        lastModified: new Date(),
-      });
-      isChapterTextDirty.value = false;
-    }
+//     // Сохраняем текущий текст главы перед сменой книги
+//     if (selectedChapterId.value && isChapterTextDirty.value) {
+//       console.log(`PlanPage: сохраняем текст главы ${selectedChapterId.value} перед сменой книги`);
+//       await bookStore.saveChapterText({
+//         id: selectedChapterId.value,
+//         content: chapterTextContent.value,
+//         lastModified: new Date(),
+//       });
+//       isChapterTextDirty.value = false;
+//     }
 
-    if (newBookId && newBookId !== oldBookId) {
-      // Сбрасываем выбранные элементы
-      selectedChapterId.value = null;
-      selectedStageId.value = null;
-      chapterTextContent.value = '';
+//     if (newBookId && newBookId !== oldBookId) {
+//       // Сбрасываем выбранные элементы
+//       selectedChapterId.value = null;
+//       selectedStageId.value = null;
+//       chapterTextContent.value = '';
 
-      // Принудительно загружаем главы для новой книги
-      console.log(
-        `PlanPage: принудительная загрузка глав для новой книги: ${newBookId}`
-      );
+//       // Принудительно загружаем главы для новой книги
+//       console.log(
+//         `PlanPage: принудительная загрузка глав для новой книги: ${newBookId}`
+//       );
 
-      // Даем время реактивной системе обновить компьютед-свойства
-      await new Promise((resolve) => setTimeout(resolve, 100));
+//       // Даем время реактивной системе обновить компьютед-свойства
+//       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const currentChapters = chapters.value;
-      console.log(
-        `PlanPage: после смены книги найдено ${currentChapters.length} глав`
-      );
+//       const currentChapters = chapters.value;
+//       console.log(
+//         `PlanPage: после смены книги найдено ${currentChapters.length} глав`
+//       );
 
-      if (currentChapters.length > 0) {
-        selectedChapterId.value = currentChapters[0].id;
-        console.log(`PlanPage: выбрана первая глава: ${currentChapters[0].id}`);
-        // Загружаем текст этой главы
-        await loadChapterText(currentChapters[0].id);
-      }
-    }
-  },
-  { immediate: true }
-);
+//       if (currentChapters.length > 0) {
+//         selectedChapterId.value = currentChapters[0].id;
+//         console.log(`PlanPage: выбрана первая глава: ${currentChapters[0].id}`);
+//         // Загружаем текст этой главы
+//         await loadChapterText(currentChapters[0].id);
+//       }
+//     }
+//   },
+//   { immediate: true }
+// );
 
 // Инициализация страницы
 onMounted(async () => {
@@ -649,15 +649,6 @@ onBeforeUnmount(() => {
               <div class="chapter-editor-header">
                 <NSpace justify="space-between" align="center">
                   <h3>{{ selectedChapter?.title }}</h3>
-                  <NSpace>
-                    <NButton
-                      :disabled="!isChapterTextDirty"
-                      type="primary"
-                      @click="saveChapterText"
-                    >
-                      {{ t('common.save') }}
-                    </NButton>
-                  </NSpace>
                 </NSpace>
 
                 <!-- Описание главы и сцены, если выбрана -->
