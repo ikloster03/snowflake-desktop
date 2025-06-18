@@ -177,6 +177,14 @@ export const bookI18n = {
         delete: 'Delete Chapter',
         confirmDelete: 'Are you sure you want to delete this chapter? This will also delete all associated scenes and text. This action cannot be undone.',
       },
+      character: {
+        add: 'Add Character',
+        addToText: 'Add character to selected text',
+        selectCharacter: 'Select Character',
+        notFound: 'Character not found',
+        searchPlaceholder: 'Search character...',
+        link: 'Character link',
+      },
       stage: {
         add: 'Add Scene',
         edit: 'Edit Scene',
@@ -363,6 +371,14 @@ export const bookI18n = {
         edit: 'Редактировать главу',
         delete: 'Удалить главу',
         confirmDelete: 'Вы уверены, что хотите удалить эту главу? Это также удалит все связанные сцены и текст. Это действие нельзя отменить.',
+      },
+      character: {
+        add: 'Добавить персонажа',
+        addToText: 'Добавить персонажа к выделенному тексту',
+        selectCharacter: 'Выберите персонажа',
+        notFound: 'Персонаж не найден',
+        searchPlaceholder: 'Поиск персонажа...',
+        link: 'Ссылка на персонажа',
       },
       stage: {
         add: 'Добавить сцену',

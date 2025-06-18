@@ -41,6 +41,11 @@ import {
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
 import { StageBlock } from './StageBlockExtension';
+import { CharacterLink } from './CharacterLinkExtension';
+import FloatingCharacterButton from './FloatingCharacterButton.vue';
+import CharacterSelectionPopup from './CharacterSelectionPopup.vue';
+import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
+import type { Character } from '@/modules/lore/character/character.types';
 
 interface Props {
   modelValue: string;
@@ -61,6 +66,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const editor = ref<Editor | null>(null);
+const characterStore = usePrivateCharacterStore();
 
 // Состояние для слэш-команд
 const showSlashCommands = ref(false);
@@ -69,6 +75,17 @@ const slashCommandsQuery = ref('');
 const slashCommandsRange = ref<{ from: number; to: number } | null>(null);
 const slashCommandsListRef = ref<InstanceType<typeof SlashCommandsList> | null>(null);
 const slashCommandsMaxHeight = ref(300);
+
+// Состояние для плавающей кнопки персонажа
+const showFloatingButton = ref(false);
+const floatingButtonPosition = ref({ x: 0, y: 0 });
+const selectedTextForCharacter = ref('');
+const characterSelectionRange = ref<{ from: number; to: number } | null>(null);
+const savedSelection = ref<{ from: number; to: number } | null>(null);
+
+// Состояние для выбора персонажа
+const showCharacterSelection = ref(false);
+const characterSelectionPosition = ref({ x: 0, y: 0 });
 
 const lowlight = createLowlight();
 
@@ -196,6 +213,140 @@ const handleSlashCommandKeyDown = (event: KeyboardEvent) => {
   return false;
 };
 
+// Функции для работы с плавающей кнопкой персонажа
+const updateFloatingButton = () => {
+  if (!editor.value) return;
+
+  // Если попап выбора персонажа открыт, не обновляем плавающую кнопку
+  if (showCharacterSelection.value) return;
+
+  const { selection } = editor.value.state;
+  const { from, to } = selection;
+
+  console.log('Обновление плавающей кнопки:', { from, to, hasSelection: from !== to });
+
+  // Показываем кнопку только если есть выделенный текст
+  if (from === to) {
+    hideFloatingButton();
+    return;
+  }
+
+  const selectedText = editor.value.state.doc.textBetween(from, to);
+  selectedTextForCharacter.value = selectedText;
+  characterSelectionRange.value = { from, to };
+
+  console.log('Выделенный текст:', selectedText);
+
+  // Вычисляем позицию кнопки
+  const { view } = editor.value;
+  const coords = view.coordsAtPos(from);
+
+  floatingButtonPosition.value = {
+    x: coords.left + (coords.right - coords.left) / 2,
+    y: coords.top,
+  };
+
+  console.log('Позиция кнопки:', floatingButtonPosition.value);
+
+  showFloatingButton.value = true;
+};
+
+const hideFloatingButton = () => {
+  showFloatingButton.value = false;
+  selectedTextForCharacter.value = '';
+  characterSelectionRange.value = null;
+};
+
+const handleFloatingButtonClick = () => {
+  console.log('Клик по плавающей кнопке');
+  console.log('Диапазон выделения:', characterSelectionRange.value);
+
+  if (!characterSelectionRange.value || !editor.value) {
+    console.log('Нет диапазона выделения');
+    return;
+  }
+
+  // Сохраняем текущее выделение
+  savedSelection.value = characterSelectionRange.value;
+
+  const { from, to } = characterSelectionRange.value;
+  const { view } = editor.value;
+  const coords = view.coordsAtPos(from);
+
+  characterSelectionPosition.value = {
+    x: coords.left,
+    y: coords.top + 25,
+  };
+
+  console.log('Позиция попапа выбора персонажа:', characterSelectionPosition.value);
+
+  // Сначала открываем попап, затем добавляем подсветку
+  showCharacterSelection.value = true;
+
+  // Добавляем визуальную подсветку после открытия попапа
+  setTimeout(() => {
+    if (editor.value && savedSelection.value) {
+      const { from, to } = savedSelection.value;
+      editor.value
+        .chain()
+        .setTextSelection({ from, to })
+        .setHighlight({ color: '#3b82f680' })
+        .run();
+    }
+  }, 10);
+
+  hideFloatingButton();
+};
+
+const handleCharacterSelect = (character: Character) => {
+  console.log('Обработка выбора персонажа:', character);
+  console.log('Сохраненное выделение:', savedSelection.value);
+
+  if (!editor.value || !savedSelection.value) {
+    console.log('Нет редактора или сохраненного выделения');
+    return;
+  }
+
+  const { from, to } = savedSelection.value;
+
+  // Получаем текущий текст из диапазона (может быть изменен пользователем)
+  const currentText = editor.value.state.doc.textBetween(from, to);
+
+  console.log('Создание ссылки на персонажа:', { from, to, currentText, characterId: character.id });
+
+  // Удаляем временную подсветку и заменяем выделенный текст ссылкой на персонажа
+  editor.value
+    .chain()
+    .setTextSelection({ from, to })
+    .unsetHighlight()
+    .setCharacterLink({
+      characterId: character.id,
+      text: currentText, // Используем текущий текст из диапазона
+    })
+    .run();
+
+  hideCharacterSelection();
+};
+
+const hideCharacterSelection = () => {
+  showCharacterSelection.value = false;
+
+  // Удаляем временную подсветку если она есть
+  if (editor.value && savedSelection.value) {
+    const { from, to } = savedSelection.value;
+    editor.value
+      .chain()
+      .setTextSelection({ from, to })
+      .unsetHighlight()
+      .run();
+  }
+
+  // Очищаем сохраненные данные
+  selectedTextForCharacter.value = '';
+  characterSelectionRange.value = null;
+  savedSelection.value = null;
+};
+
 // Инициализация редактора
 onMounted(() => {
   editor.value = new Editor({
@@ -233,6 +384,7 @@ onMounted(() => {
       Superscript,
       HorizontalRule,
       StageBlock,
+      CharacterLink,
     ],
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -241,6 +393,13 @@ onMounted(() => {
 
       // Проверяем слэш-команды
       checkForSlashCommands();
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // Обновляем плавающую кнопку при изменении выделения
+      // Но только если попап выбора персонажа не открыт
+      if (!showCharacterSelection.value) {
+        updateFloatingButton();
+      }
     },
     editorProps: {
       handleKeyDown: (_view, event) => {
@@ -255,7 +414,34 @@ onMounted(() => {
           return true;
         }
 
+        // Скрываем выбор персонажей при Escape
+        if (event.key === 'Escape' && showCharacterSelection.value) {
+          hideCharacterSelection();
+          return true;
+        }
+
         return false;
+      },
+      handleClick: (view, pos, event) => {
+        // Если попап выбора персонажа открыт, проверяем клик вне его
+        if (showCharacterSelection.value) {
+          const popup = document.querySelector('.character-selection-popup');
+          const target = event.target as HTMLElement;
+
+          // Если клик не внутри попапа, закрываем его
+          if (!popup || !popup.contains(target)) {
+            hideCharacterSelection();
+            return true; // Предотвращаем обработку клика редактором
+          }
+          return false; // Позволяем попапу обработать клик
+        }
+
+        // Обычное поведение - обновляем плавающую кнопку
+        setTimeout(() => {
+          updateFloatingButton();
+        }, 10);
+
+        return false; // Позволяем редактору обработать клик как обычно
       },
     },
   });
@@ -625,6 +811,22 @@ const handleHeadingSelect = (key: string) => {
           />
         </div>
       </Teleport>
+
+      <!-- Плавающая кнопка персонажа -->
+      <FloatingCharacterButton
+        :visible="showFloatingButton"
+        :position="floatingButtonPosition"
+        @click="handleFloatingButtonClick"
+      />
+
+      <!-- Выбор персонажа -->
+      <CharacterSelectionPopup
+        :visible="showCharacterSelection"
+        :position="characterSelectionPosition"
+        :selected-text="selectedTextForCharacter"
+        @select="handleCharacterSelect"
+        @close="hideCharacterSelection"
+      />
     </div>
   </div>
 </template>
@@ -855,5 +1057,62 @@ const handleHeadingSelect = (key: string) => {
   border-style: solid;
   background: white;
   box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.1);
+}
+
+/* Стили для ссылок на персонажей */
+:deep(.character-link) {
+  display: inline;
+  padding: 2px 6px;
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+:deep(.character-link:hover) {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+:deep(.character-link.selected) {
+  background-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.7);
+}
+
+:deep(.character-link.missing) {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+:deep(.character-link.missing:hover) {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Стили для временной подсветки при выборе персонажа */
+:deep(.ProseMirror mark[data-color="#3b82f680"]) {
+  background-color: rgba(59, 130, 246, 0.5) !important;
+  border-radius: 3px;
+  padding: 1px 2px;
+  animation: pulse 1.5s infinite;
+}
+
+:deep(.ProseMirror mark) {
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 </style>
