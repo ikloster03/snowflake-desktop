@@ -1,51 +1,50 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
-import { Editor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
-import Typography from '@tiptap/extension-typography';
-import TaskList from '@tiptap/extension-task-list';
-import TaskItem from '@tiptap/extension-task-item';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
+import type { Character } from '@/modules/lore/character/character.types';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
-import TextAlign from '@tiptap/extension-text-align';
-import Underline from '@tiptap/extension-underline';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import HorizontalRule from '@tiptap/extension-horizontal-rule';
-import { createLowlight } from 'lowlight';
-import { NButton, NSpace, NTooltip, NDropdown, NIcon } from 'naive-ui';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import TextAlign from '@tiptap/extension-text-align';
+import Typography from '@tiptap/extension-typography';
+import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
+import { Editor, EditorContent } from '@tiptap/vue-3';
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  Strikethrough,
   Code,
-  Quote,
-  List,
-  ListNumbers,
   H1,
   H2,
   H3,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Table as TableIcon,
   Highlight as HighlightIcon,
-  Minus
+  Italic,
+  List,
+  ListNumbers,
+  Minus,
+  Quote,
+  Strikethrough,
+  Table as TableIcon,
+  Underline as UnderlineIcon
 } from '@vicons/tabler';
+import { createLowlight } from 'lowlight';
+import { NButton, NDropdown, NIcon, NSpace, NTooltip } from 'naive-ui';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { CharacterLink } from './CharacterLinkExtension';
+import CharacterSelectionPopup from './CharacterSelectionPopup.vue';
+import FloatingCharacterButton from './FloatingCharacterButton.vue';
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
 import { StageBlock } from './StageBlockExtension';
-import { CharacterLink } from './CharacterLinkExtension';
-import FloatingCharacterButton from './FloatingCharacterButton.vue';
-import CharacterSelectionPopup from './CharacterSelectionPopup.vue';
-import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
-import type { Character } from '@/modules/lore/character/character.types';
 
 interface Props {
   modelValue: string;
@@ -66,7 +65,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const editor = ref<Editor | null>(null);
-const characterStore = usePrivateCharacterStore();
 
 // Состояние для слэш-команд
 const showSlashCommands = ref(false);
@@ -269,7 +267,7 @@ const handleFloatingButtonClick = () => {
   // Сохраняем текущее выделение
   savedSelection.value = characterSelectionRange.value;
 
-  const { from, to } = characterSelectionRange.value;
+  const { from } = characterSelectionRange.value;
   const { view } = editor.value;
   const coords = view.coordsAtPos(from);
 
@@ -394,7 +392,7 @@ onMounted(() => {
       // Проверяем слэш-команды
       checkForSlashCommands();
     },
-    onSelectionUpdate: ({ editor }) => {
+    onSelectionUpdate: () => {
       // Обновляем плавающую кнопку при изменении выделения
       // Но только если попап выбора персонажа не открыт
       if (!showCharacterSelection.value) {
@@ -422,7 +420,7 @@ onMounted(() => {
 
         return false;
       },
-      handleClick: (view, pos, event) => {
+      handleClick: (_view, _pos, event) => {
         // Если попап выбора персонажа открыт, проверяем клик вне его
         if (showCharacterSelection.value) {
           const popup = document.querySelector('.character-selection-popup');
