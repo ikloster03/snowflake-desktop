@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Character } from '@/modules/lore/character/character.types';
+import type { IEvent } from '@/modules/lore/event/event.types';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
@@ -40,8 +41,11 @@ import { createLowlight } from 'lowlight';
 import { NButton, NDropdown, NIcon, NSpace, NTooltip } from 'naive-ui';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { CharacterLink } from './CharacterLinkExtension';
+import { EventLinkExtension } from './EventLinkExtension';
 import CharacterSelectionPopup from './CharacterSelectionPopup.vue';
+import EventSelectionPopup from './EventSelectionPopup.vue';
 import FloatingCharacterButton from './FloatingCharacterButton.vue';
+import FloatingEventButton from './FloatingEventButton.vue';
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
 import { StageBlock } from './StageBlockExtension';
@@ -84,6 +88,16 @@ const savedSelection = ref<{ from: number; to: number } | null>(null);
 // Состояние для выбора персонажа
 const showCharacterSelection = ref(false);
 const characterSelectionPosition = ref({ x: 0, y: 0 });
+
+// Состояние для выбора события
+const showEventSelection = ref(false);
+const eventSelectionPosition = ref({ x: 0, y: 0 });
+const selectedTextForEvent = ref('');
+const eventSelectionRange = ref<{ from: number; to: number } | null>(null);
+
+// Состояние для плавающих кнопок событий
+const showFloatingEventButton = ref(false);
+const floatingEventButtonPosition = ref({ x: 0, y: 0 });
 
 const lowlight = createLowlight();
 
@@ -215,15 +229,15 @@ const handleSlashCommandKeyDown = (event: KeyboardEvent) => {
 const updateFloatingButton = () => {
   if (!editor.value) return;
 
-  // Если попап выбора персонажа открыт, не обновляем плавающую кнопку
-  if (showCharacterSelection.value) return;
+  // Если попап выбора персонажа или события открыт, не обновляем плавающую кнопку
+  if (showCharacterSelection.value || showEventSelection.value) return;
 
   const { selection } = editor.value.state;
   const { from, to } = selection;
 
   console.log('Обновление плавающей кнопки:', { from, to, hasSelection: from !== to });
 
-  // Показываем кнопку только если есть выделенный текст
+  // Показываем кнопки только если есть выделенный текст
   if (from === to) {
     hideFloatingButton();
     return;
@@ -235,22 +249,31 @@ const updateFloatingButton = () => {
 
   console.log('Выделенный текст:', selectedText);
 
-  // Вычисляем позицию кнопки
+  // Вычисляем позицию кнопок
   const { view } = editor.value;
   const coords = view.coordsAtPos(from);
 
+  // Кнопка персонажа слева
   floatingButtonPosition.value = {
-    x: coords.left + (coords.right - coords.left) / 2,
+    x: coords.left + (coords.right - coords.left) / 2 - 20,
     y: coords.top,
   };
 
-  console.log('Позиция кнопки:', floatingButtonPosition.value);
+  // Кнопка события справа
+  floatingEventButtonPosition.value = {
+    x: coords.left + (coords.right - coords.left) / 2 + 20,
+    y: coords.top,
+  };
+
+  console.log('Позиция кнопок:', { character: floatingButtonPosition.value, event: floatingEventButtonPosition.value });
 
   showFloatingButton.value = true;
+  showFloatingEventButton.value = true;
 };
 
 const hideFloatingButton = () => {
   showFloatingButton.value = false;
+  showFloatingEventButton.value = false;
   selectedTextForCharacter.value = '';
   characterSelectionRange.value = null;
 };
@@ -345,6 +368,100 @@ const hideCharacterSelection = () => {
   savedSelection.value = null;
 };
 
+// Функции для работы с событиями
+const showEventSelectionPopup = () => {
+  if (!editor.value) return;
+
+  const selection = editor.value.state.selection;
+  const { from, to } = selection;
+
+  if (from === to) return; // Нет выделения
+
+  const text = editor.value.state.doc.textBetween(from, to);
+  console.log('Показать выбор события для текста:', text);
+
+  selectedTextForEvent.value = text;
+  eventSelectionRange.value = { from, to };
+  savedSelection.value = eventSelectionRange.value;
+
+  const { from: selectionFrom } = eventSelectionRange.value;
+  const { view } = editor.value;
+  const coords = view.coordsAtPos(selectionFrom);
+
+  eventSelectionPosition.value = {
+    x: coords.left,
+    y: coords.top + 25,
+  };
+
+  console.log('Позиция попапа выбора события:', eventSelectionPosition.value);
+
+  // Сначала открываем попап, затем добавляем подсветку
+  showEventSelection.value = true;
+
+  // Добавляем визуальную подсветку после открытия попапа
+  setTimeout(() => {
+    if (editor.value && savedSelection.value) {
+      const { from, to } = savedSelection.value;
+      editor.value
+        .chain()
+        .setTextSelection({ from, to })
+        .setHighlight({ color: '#22c55e80' })
+        .run();
+    }
+  }, 10);
+
+  hideFloatingButton();
+};
+
+const handleEventSelect = (event: IEvent) => {
+  console.log('Обработка выбора события:', event);
+  console.log('Сохраненное выделение:', savedSelection.value);
+
+  if (!editor.value || !savedSelection.value) {
+    console.log('Нет редактора или сохраненного выделения');
+    return;
+  }
+
+  const { from, to } = savedSelection.value;
+
+  // Получаем текущий текст из диапазона (может быть изменен пользователем)
+  const currentText = editor.value.state.doc.textBetween(from, to);
+
+  console.log('Создание ссылки на событие:', { from, to, currentText, eventId: event.id });
+
+  // Удаляем временную подсветку и заменяем выделенный текст ссылкой на событие
+  editor.value
+    .chain()
+    .setTextSelection({ from, to })
+    .unsetHighlight()
+    .setEventLink({
+      eventId: event.id,
+      text: currentText, // Используем текущий текст из диапазона
+    })
+    .run();
+
+  hideEventSelection();
+};
+
+const hideEventSelection = () => {
+  showEventSelection.value = false;
+
+  // Удаляем временную подсветку если она есть
+  if (editor.value && savedSelection.value) {
+    const { from, to } = savedSelection.value;
+    editor.value
+      .chain()
+      .setTextSelection({ from, to })
+      .unsetHighlight()
+      .run();
+  }
+
+  // Очищаем сохраненные данные для событий
+  selectedTextForEvent.value = '';
+  eventSelectionRange.value = null;
+  savedSelection.value = null;
+};
+
 // Инициализация редактора
 onMounted(() => {
   editor.value = new Editor({
@@ -383,6 +500,7 @@ onMounted(() => {
       HorizontalRule,
       StageBlock,
       CharacterLink,
+      EventLinkExtension,
     ],
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -418,6 +536,12 @@ onMounted(() => {
           return true;
         }
 
+        // Скрываем выбор событий при Escape
+        if (event.key === 'Escape' && showEventSelection.value) {
+          hideEventSelection();
+          return true;
+        }
+
         return false;
       },
       handleClick: (_view, _pos, event) => {
@@ -429,6 +553,19 @@ onMounted(() => {
           // Если клик не внутри попапа, закрываем его
           if (!popup || !popup.contains(target)) {
             hideCharacterSelection();
+            return true; // Предотвращаем обработку клика редактором
+          }
+          return false; // Позволяем попапу обработать клик
+        }
+
+        // Если попап выбора события открыт, проверяем клик вне его
+        if (showEventSelection.value) {
+          const popup = document.querySelector('.event-selection-popup');
+          const target = event.target as HTMLElement;
+
+          // Если клик не внутри попапа, закрываем его
+          if (!popup || !popup.contains(target)) {
+            hideEventSelection();
             return true; // Предотвращаем обработку клика редактором
           }
           return false; // Позволяем попапу обработать клик
@@ -825,6 +962,22 @@ const handleHeadingSelect = (key: string) => {
         @select="handleCharacterSelect"
         @close="hideCharacterSelection"
       />
+
+      <!-- Плавающая кнопка события -->
+      <FloatingEventButton
+        :visible="showFloatingEventButton"
+        :position="floatingEventButtonPosition"
+        @click="showEventSelectionPopup"
+      />
+
+      <!-- Выбор события -->
+      <EventSelectionPopup
+        :visible="showEventSelection"
+        :position="eventSelectionPosition"
+        :selected-text="selectedTextForEvent"
+        @select="handleEventSelect"
+        @close="hideEventSelection"
+      />
     </div>
   </div>
 </template>
@@ -1112,5 +1265,48 @@ const handleHeadingSelect = (key: string) => {
   50% {
     opacity: 0.9;
   }
+}
+
+/* Стили для ссылок на события */
+:deep(.event-link) {
+  display: inline;
+  padding: 2px 6px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 4px;
+  color: #22c55e;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+:deep(.event-link:hover) {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+:deep(.event-link.selected) {
+  background-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.7);
+}
+
+:deep(.event-link.missing) {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+:deep(.event-link.missing:hover) {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Стили для временной подсветки при выборе события */
+:deep(.ProseMirror mark[data-color="#22c55e80"]) {
+  background-color: rgba(34, 197, 94, 0.5) !important;
+  border-radius: 3px;
+  padding: 1px 2px;
+  animation: pulse 1.5s infinite;
 }
 </style>

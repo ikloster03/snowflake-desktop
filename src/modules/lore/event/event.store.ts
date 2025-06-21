@@ -92,6 +92,10 @@ export const usePrivateEventStore = defineStore(
       }
     };
 
+    const getEventById = (id: string) => {
+      return events.value.find((e) => e.id === id);
+    };
+
     // Следим за изменениями проекта
     watch(() => projectStore.currentProject?.path, loadEvents, { immediate: true });
 
@@ -103,9 +107,21 @@ export const usePrivateEventStore = defineStore(
       addEvent,
       updateEvent,
       removeEvent,
+      getEventById,
       canAddEvent,
       loadEvents,
       saveEvents,
     };
   }
 );
+
+// Публичный стор для использования в компонентах
+export const useEventStore = defineStore(EVENT_STORE, () => {
+  const privateStore = usePrivateEventStore();
+
+  return {
+    events: privateStore.events,
+    loadEvents: privateStore.loadEvents,
+    getEventById: privateStore.getEventById,
+  };
+});

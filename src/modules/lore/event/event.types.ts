@@ -5,6 +5,7 @@ export interface IEvent {
   id: EventID;
   order: number;
   title: string;
+  name: string;
   description: string;
   time: string;
   type: EventType;

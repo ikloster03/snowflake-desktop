@@ -9,6 +9,7 @@ const showForm = ref(false);
 const eventData = ref<Omit<IEvent, 'id' | 'time'> & { time: number }>({
   order: 0,
   title: '',
+  name: '',
   description: '',
   time: Date.now(),
   type: 'other',
@@ -36,6 +37,7 @@ const handleQuickCreate = () => {
     eventData.value = {
       order: 0,
       title: '',
+      name: '',
       description: '',
       time: Date.now(),
       type: 'other',

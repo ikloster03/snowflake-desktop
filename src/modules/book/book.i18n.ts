@@ -185,6 +185,14 @@ export const bookI18n = {
         searchPlaceholder: 'Search character...',
         link: 'Character link',
       },
+      event: {
+        add: 'Add Event',
+        addToText: 'Add event to selected text',
+        selectEvent: 'Select Event',
+        notFound: 'Event not found',
+        searchPlaceholder: 'Search event...',
+        link: 'Event link',
+      },
       stage: {
         add: 'Add Scene',
         edit: 'Edit Scene',
@@ -379,6 +387,14 @@ export const bookI18n = {
         notFound: 'Персонаж не найден',
         searchPlaceholder: 'Поиск персонажа...',
         link: 'Ссылка на персонажа',
+      },
+      event: {
+        add: 'Добавить событие',
+        addToText: 'Добавить событие к выделенному тексту',
+        selectEvent: 'Выберите событие',
+        notFound: 'Событие не найдено',
+        searchPlaceholder: 'Поиск события...',
+        link: 'Ссылка на событие',
       },
       stage: {
         add: 'Добавить сцену',

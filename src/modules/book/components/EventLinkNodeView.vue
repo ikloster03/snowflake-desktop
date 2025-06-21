@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { computed, ref, watch, onBeforeUnmount } from 'vue';
+import { usePrivateEventStore } from '@/modules/lore/event/event.store';
 import { NodeViewWrapper } from '@tiptap/vue-3';
-import { NButton, NIcon } from 'naive-ui';
 import { X } from '@vicons/tabler';
-import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
+import { NButton, NIcon } from 'naive-ui';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 const props = defineProps<{
   node: any;
@@ -16,20 +16,20 @@ const props = defineProps<{
   editor: any;
 }>();
 
-const characterStore = usePrivateCharacterStore();
+const eventStore = usePrivateEventStore();
 const showDeleteButton = ref(false);
 
-const character = computed(() => {
-  return characterStore.getCharacterById(props.node.attrs.characterId);
+const event = computed(() => {
+  return eventStore.getEventById(props.node.attrs.eventId);
 });
 
 const displayText = computed(() => {
-  return props.node.attrs.text || character.value?.name || 'Неизвестный персонаж';
+  return props.node.attrs.text || event.value?.title || 'Неизвестное событие';
 });
 
 const linkClass = computed(() => {
-  const baseClass = 'character-link';
-  if (!character.value) {
+  const baseClass = 'event-link';
+  if (!event.value) {
     return `${baseClass} missing`;
   }
   if (showDeleteButton.value) {
@@ -38,7 +38,7 @@ const linkClass = computed(() => {
   return baseClass;
 });
 
-const handleClick = (event: MouseEvent) => {
+const handleClick = (event: Event) => {
   event.preventDefault();
   event.stopPropagation();
   showDeleteButton.value = !showDeleteButton.value;
@@ -63,7 +63,7 @@ const handleDeleteLink = (event: MouseEvent) => {
 // Скрываем кнопку при клике вне ссылки
 const handleDocumentClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
-  const linkElement = document.querySelector(`[data-character-id="${props.node.attrs.characterId}"]`);
+  const linkElement = document.querySelector(`[data-event-id="${props.node.attrs.eventId}"]`);
 
   if (linkElement && !linkElement.contains(target)) {
     showDeleteButton.value = false;
@@ -88,11 +88,11 @@ onBeforeUnmount(() => {
   <NodeViewWrapper
     as="span"
     :class="linkClass"
-    :title="character?.name || 'Персонаж не найден'"
-    :data-character-id="node.attrs.characterId"
+    :title="event?.title || 'Событие не найдено'"
+    :data-event-id="node.attrs.eventId"
     @click="handleClick"
   >
-    <span class="character-link-text">{{ displayText }}</span>
+    <span class="event-link-text">{{ displayText }}</span>
     <NButton
       v-if="showDeleteButton"
       size="tiny"
@@ -111,15 +111,15 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.character-link {
+.event-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 6px;
-  background-color: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
   border-radius: 4px;
-  color: #3b82f6;
+  color: #22c55e;
   cursor: pointer;
   text-decoration: none;
   font-weight: 500;
@@ -127,29 +127,29 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
-.character-link:hover {
-  background-color: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.5);
+.event-link:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
-.character-link.active {
-  background-color: rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.7);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+.event-link.active {
+  background-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.7);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
 }
 
-.character-link.missing {
+.event-link.missing {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
   color: #ef4444;
 }
 
-.character-link.missing:hover {
+.event-link.missing:hover {
   background-color: rgba(239, 68, 68, 0.2);
   border-color: rgba(239, 68, 68, 0.5);
 }
 
-.character-link-text {
+.event-link-text {
   flex: 1;
 }
 
