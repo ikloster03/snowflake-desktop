@@ -91,6 +91,10 @@ export const usePrivateLocationStore = defineStore(
       }
     };
 
+    const getLocationById = (locationId: string) => {
+      return locations.value.find((loc) => loc.id === locationId);
+    };
+
     // Следим за изменениями проекта
     watch(() => projectStore.currentProject?.path, loadLocations, { immediate: true });
 
@@ -102,7 +106,8 @@ export const usePrivateLocationStore = defineStore(
       addLocation,
       updateLocation,
       removeLocation,
-      canAddLocation
+      canAddLocation,
+      getLocationById,
     };
   }
 );

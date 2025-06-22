@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Character } from '@/modules/lore/character/character.types';
 import type { IEvent } from '@/modules/lore/event/event.types';
+import type { ILocation } from '@/modules/lore/location/location.types';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
@@ -42,10 +43,13 @@ import { NButton, NDropdown, NIcon, NSpace, NTooltip } from 'naive-ui';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { CharacterLink } from './CharacterLinkExtension';
 import { EventLinkExtension } from './EventLinkExtension';
+import { LocationLinkExtension } from './LocationLinkExtension';
 import CharacterSelectionPopup from './CharacterSelectionPopup.vue';
 import EventSelectionPopup from './EventSelectionPopup.vue';
+import LocationSelectionPopup from './LocationSelectionPopup.vue';
 import FloatingCharacterButton from './FloatingCharacterButton.vue';
 import FloatingEventButton from './FloatingEventButton.vue';
+import FloatingLocationButton from './FloatingLocationButton.vue';
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
 import { StageBlock } from './StageBlockExtension';
@@ -98,6 +102,16 @@ const eventSelectionRange = ref<{ from: number; to: number } | null>(null);
 // Состояние для плавающих кнопок событий
 const showFloatingEventButton = ref(false);
 const floatingEventButtonPosition = ref({ x: 0, y: 0 });
+
+// Состояние для выбора локации
+const showLocationSelection = ref(false);
+const locationSelectionPosition = ref({ x: 0, y: 0 });
+const selectedTextForLocation = ref('');
+const locationSelectionRange = ref<{ from: number; to: number } | null>(null);
+
+// Состояние для плавающей кнопки локации
+const showFloatingLocationButton = ref(false);
+const floatingLocationButtonPosition = ref({ x: 0, y: 0 });
 
 const lowlight = createLowlight();
 
@@ -255,25 +269,37 @@ const updateFloatingButton = () => {
 
   // Кнопка персонажа слева
   floatingButtonPosition.value = {
-    x: coords.left + (coords.right - coords.left) / 2 - 20,
+    x: coords.left + (coords.right - coords.left) / 2 - 60,
     y: coords.top,
   };
 
-  // Кнопка события справа
+  // Кнопка события в центре
   floatingEventButtonPosition.value = {
-    x: coords.left + (coords.right - coords.left) / 2 + 20,
+    x: coords.left + (coords.right - coords.left) / 2,
     y: coords.top,
   };
 
-  console.log('Позиция кнопок:', { character: floatingButtonPosition.value, event: floatingEventButtonPosition.value });
+  // Кнопка локации справа
+  floatingLocationButtonPosition.value = {
+    x: coords.left + (coords.right - coords.left) / 2 + 60,
+    y: coords.top,
+  };
+
+  console.log('Позиция кнопок:', {
+    character: floatingButtonPosition.value,
+    event: floatingEventButtonPosition.value,
+    location: floatingLocationButtonPosition.value
+  });
 
   showFloatingButton.value = true;
   showFloatingEventButton.value = true;
+  showFloatingLocationButton.value = true;
 };
 
 const hideFloatingButton = () => {
   showFloatingButton.value = false;
   showFloatingEventButton.value = false;
+  showFloatingLocationButton.value = false;
   selectedTextForCharacter.value = '';
   characterSelectionRange.value = null;
 };
@@ -462,6 +488,94 @@ const hideEventSelection = () => {
   savedSelection.value = null;
 };
 
+// Функции для работы с локациями
+const showLocationSelectionPopup = () => {
+  if (!editor.value) return;
+
+  const { view } = editor.value;
+  const { from, to } = view.state.selection;
+
+  if (from === to) return; // Нет выделения
+
+  // Сохраняем выделенный текст и диапазон
+  selectedTextForLocation.value = view.state.doc.textBetween(from, to);
+  locationSelectionRange.value = { from, to };
+  savedSelection.value = { from, to };
+
+  // Вычисляем позицию для попапа
+  const coords = view.coordsAtPos(from);
+  locationSelectionPosition.value = {
+    x: coords.left,
+    y: coords.top + 25,
+  };
+
+  showLocationSelection.value = true;
+
+  // Добавляем визуальную подсветку после открытия попапа
+  setTimeout(() => {
+    if (editor.value && savedSelection.value) {
+      const { from, to } = savedSelection.value;
+      editor.value
+        .chain()
+        .setTextSelection({ from, to })
+        .setHighlight({ color: '#fbbf2480' })
+        .run();
+    }
+  }, 10);
+
+  hideFloatingButton();
+};
+
+const handleLocationSelect = (location: ILocation) => {
+  console.log('Обработка выбора локации:', location);
+  console.log('Сохраненное выделение:', savedSelection.value);
+
+  if (!editor.value || !savedSelection.value) {
+    console.log('Нет редактора или сохраненного выделения');
+    return;
+  }
+
+  const { from, to } = savedSelection.value;
+
+  // Получаем текущий текст из диапазона (может быть изменен пользователем)
+  const currentText = editor.value.state.doc.textBetween(from, to);
+
+  console.log('Создание ссылки на локацию:', { from, to, currentText, locationId: location.id });
+
+  // Удаляем временную подсветку и заменяем выделенный текст ссылкой на локацию
+  editor.value
+    .chain()
+    .setTextSelection({ from, to })
+    .unsetHighlight()
+    .deleteSelection()
+    .setLocationLink({
+      locationId: location.id,
+      text: currentText, // Используем текущий текст из диапазона
+    })
+    .run();
+
+  hideLocationSelection();
+};
+
+const hideLocationSelection = () => {
+  showLocationSelection.value = false;
+
+  // Удаляем временную подсветку если она есть
+  if (editor.value && savedSelection.value) {
+    const { from, to } = savedSelection.value;
+    editor.value
+      .chain()
+      .setTextSelection({ from, to })
+      .unsetHighlight()
+      .run();
+  }
+
+  // Очищаем сохраненные данные для локаций
+  selectedTextForLocation.value = '';
+  locationSelectionRange.value = null;
+  savedSelection.value = null;
+};
+
 // Инициализация редактора
 onMounted(() => {
   editor.value = new Editor({
@@ -501,6 +615,7 @@ onMounted(() => {
       StageBlock,
       CharacterLink,
       EventLinkExtension,
+      LocationLinkExtension,
     ],
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -542,6 +657,12 @@ onMounted(() => {
           return true;
         }
 
+        // Скрываем выбор локаций при Escape
+        if (event.key === 'Escape' && showLocationSelection.value) {
+          hideLocationSelection();
+          return true;
+        }
+
         return false;
       },
       handleClick: (_view, _pos, event) => {
@@ -566,6 +687,19 @@ onMounted(() => {
           // Если клик не внутри попапа, закрываем его
           if (!popup || !popup.contains(target)) {
             hideEventSelection();
+            return true; // Предотвращаем обработку клика редактором
+          }
+          return false; // Позволяем попапу обработать клик
+        }
+
+        // Если попап выбора локации открыт, проверяем клик вне его
+        if (showLocationSelection.value) {
+          const popup = document.querySelector('.location-selection-popup');
+          const target = event.target as HTMLElement;
+
+          // Если клик не внутри попапа, закрываем его
+          if (!popup || !popup.contains(target)) {
+            hideLocationSelection();
             return true; // Предотвращаем обработку клика редактором
           }
           return false; // Позволяем попапу обработать клик
@@ -970,6 +1104,14 @@ const handleHeadingSelect = (key: string) => {
         @click="showEventSelectionPopup"
       />
 
+      <!-- Плавающая кнопка локации -->
+      <FloatingLocationButton
+        :visible="showFloatingLocationButton"
+        :position="floatingLocationButtonPosition"
+        :has-selection="!!selectedTextForLocation"
+        @click="showLocationSelectionPopup"
+      />
+
       <!-- Выбор события -->
       <EventSelectionPopup
         :visible="showEventSelection"
@@ -977,6 +1119,15 @@ const handleHeadingSelect = (key: string) => {
         :selected-text="selectedTextForEvent"
         @select="handleEventSelect"
         @close="hideEventSelection"
+      />
+
+      <!-- Выбор локации -->
+      <LocationSelectionPopup
+        :visible="showLocationSelection"
+        :position="locationSelectionPosition"
+        :selected-text="selectedTextForLocation"
+        @select="handleLocationSelect"
+        @close="hideLocationSelection"
       />
     </div>
   </div>
