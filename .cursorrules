@@ -131,3 +131,5 @@ You are an expert in developing desktop applications using Tauri: with Rust for 
 - **Commit messages**: the commit message should be in the present tense and describe what the commit does.
 - **Commit messages**: the commit message should be in english.
 - **Commit messages**: the commit message should be no more than 100 characters.
+
+Не делай коммитов автоматически.
