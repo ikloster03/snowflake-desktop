@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { NButton, NIcon, NTooltip } from 'naive-ui';
-import { Calendar } from '@vicons/tabler';
+import { Package } from '@vicons/tabler';
 import { useI18n } from 'vue-i18n';
 
 interface Props {
@@ -20,7 +20,7 @@ const { t } = useI18n();
 
 const buttonStyle = computed(() => ({
   position: 'fixed' as const,
-  left: `${props.position.x}px`, // Смещаем вправо от кнопки персонажа
+  left: `${props.position.x}px`,
   top: `${props.position.y}px`,
   zIndex: 1000,
   transform: 'translateY(-100%)',
@@ -37,7 +37,7 @@ const handleClick = () => {
     <div
       v-if="visible"
       :style="buttonStyle"
-      class="floating-event-button"
+      class="floating-item-button"
     >
       <NTooltip trigger="hover">
         <template #trigger>
@@ -46,30 +46,30 @@ const handleClick = () => {
             size="small"
             circle
             @click="handleClick"
-            class="event-button"
+            class="item-button"
           >
             <template #icon>
-              <NIcon><Calendar /></NIcon>
+              <NIcon><Package /></NIcon>
             </template>
           </NButton>
         </template>
-        {{ t('book.event.addToText') }}
+        {{ t('book.item.addToText') }}
       </NTooltip>
     </div>
   </Teleport>
 </template>
 
 <style scoped>
-.floating-event-button {
+.floating-item-button {
   pointer-events: all;
 }
 
-.event-button {
+.item-button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 2px solid white;
 }
 
-.event-button:hover {
+.item-button:hover {
   transform: scale(1.1);
   transition: transform 0.2s ease;
 }

@@ -20,7 +20,7 @@ const { t } = useI18n();
 
 const buttonStyle = computed(() => ({
   position: 'fixed' as const,
-  left: `${props.position.x + 60}px`,
+  left: `${props.position.x}px`,
   top: `${props.position.y}px`,
   zIndex: 1000,
   transform: 'translateY(-100%)',
