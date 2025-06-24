@@ -199,6 +199,13 @@ export const bookI18n = {
         delete: 'Delete Scene',
         confirmDelete: 'Are you sure you want to delete this scene? This action cannot be undone.',
       },
+      export: {
+        button: 'Export to DOCX',
+        loading: 'Exporting to DOCX...',
+        success: 'Book successfully exported to DOCX',
+        error: 'Failed to export book to DOCX',
+        saveTitle: 'Select directory to save DOCX file',
+      },
     },
   },
   'ru-RU': {
@@ -401,6 +408,13 @@ export const bookI18n = {
         edit: 'Редактировать сцену',
         delete: 'Удалить сцену',
         confirmDelete: 'Вы уверены, что хотите удалить эту сцену? Это действие нельзя отменить.',
+      },
+      export: {
+        button: 'Экспорт в DOCX',
+        loading: 'Экспорт в DOCX...',
+        success: 'Книга успешно экспортирована в DOCX',
+        error: 'Не удалось экспортировать книгу в DOCX',
+        saveTitle: 'Выберите папку для сохранения DOCX файла',
       },
     },
   },

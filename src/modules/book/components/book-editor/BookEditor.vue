@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { NCard, NSpace, NButton, NModal, NAlert } from 'naive-ui';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useBookPrivateStore } from '../../book.store';
 import { useI18n } from 'vue-i18n';
 import BookForm from '../BookForm.vue';
@@ -8,12 +8,15 @@ import { ISingleBook } from '../../book.types';
 import { useRoute, useRouter } from 'vue-router';
 import { BOOK_PAGE } from '../../book.const';
 import { useProjectStore } from '@/modules/project/project.store';
+import { useMessage } from 'naive-ui';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const store = useBookPrivateStore();
 const projectStore = useProjectStore();
+const message = useMessage();
 
 // Получаем ID книги из маршрута
 const bookId = computed(() => route.params.id as string);
@@ -22,6 +25,17 @@ const bookId = computed(() => route.params.id as string);
 const book = computed(() => {
   return store.books.find((book) => book.id === bookId.value);
 });
+
+// Загружаем главы для текущей книги
+const loadBookData = async () => {
+  if (bookId.value) {
+    await store.loadBookChapters(bookId.value);
+  }
+};
+
+// Загружаем данные при монтировании и при изменении bookId
+onMounted(loadBookData);
+watch(bookId, loadBookData);
 
 // Состояние формы
 const formRef = ref<{ submitForm: () => void } | null>(null);
@@ -64,6 +78,40 @@ const cancelDelete = () => {
 const handleBack = () => {
   router.push({ name: BOOK_PAGE.name });
 };
+
+const handleExportBook = async () => {
+  if (!book.value) return;
+
+  try {
+    // Показываем лоадер сразу при начале процесса экспорта
+    message.loading(t('book.export.loading'), { duration: 0 });
+
+    // Открываем диалог выбора директории
+    const selectedDirectory = await open({
+      directory: true,
+      multiple: false,
+      title: t('book.export.saveTitle'),
+    });
+
+    // Если пользователь отменил выбор директории
+    if (!selectedDirectory) {
+      message.destroyAll();
+      return;
+    }
+
+    await store.exportBookToWord(book.value.id, selectedDirectory as string);
+
+    // Убираем лоадер и показываем успех
+    message.destroyAll();
+    message.success(t('book.export.success'));
+  } catch (error) {
+    // Убираем лоадер и показываем ошибку
+    message.destroyAll();
+
+    message.error(error instanceof Error ? error.message : t('book.export.error'));
+    console.error('Export error:', error);
+  }
+};
 </script>
 
 <template>
@@ -82,6 +130,13 @@ const handleBack = () => {
         <NSpace v-if="!isEditing">
           <NButton type="primary" @click="handleEdit">
             {{ t('common.edit') }}
+          </NButton>
+          <NButton
+            secondary
+            :disabled="!book || !store.canExportBook(book.id)"
+            @click="handleExportBook"
+          >
+            {{ t('book.export.button') }}
           </NButton>
           <NButton type="error" @click="handleDelete">
             {{ t('common.delete') }}

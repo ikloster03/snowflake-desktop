@@ -14,6 +14,7 @@ import type { Character } from '@/modules/lore/character/character.types';
 import type { IEvent } from '@/modules/lore/event/event.types';
 import type { ILocation } from '@/modules/lore/location/location.types';
 import type { IItem } from '@/modules/lore/item/item.types';
+import { exportBookToWord as exportBookToWordUtil } from './utils/export.utils';
 
 export const BOOK_STORE = 'book';
 
@@ -934,6 +935,67 @@ export const useBookPrivateStore = defineStore(
       );
     };
 
+    /**
+     * Экспортирует книгу в Word формат
+     */
+    const exportBookToWord = async (bookId: string, selectedDirectory: string): Promise<void> => {
+      const book = books.value.find(b => b.id === bookId);
+      if (!book) {
+        throw new Error('Книга не найдена');
+      }
+
+      // Получаем главы из store, а не из book.chapters
+      const bookChapters = chapters.value.filter(c => c.bookId === bookId);
+      if (bookChapters.length === 0) {
+        throw new Error('Книга не содержит глав для экспорта');
+      }
+
+      // Загружаем тексты глав
+      const chaptersText: ChapterText[] = [];
+      for (const chapter of bookChapters) {
+        try {
+          const chapterTextPath = `${projectStore.currentProject!.path}/${BOOK_DATA.BOOKS_DIR}${bookId}/${BOOK_DATA.CHAPTER_TEXT_DIR}${chapter.id}.html`;
+          const exists = await fs.exists(chapterTextPath);
+
+          if (exists) {
+            const chapterTextContent = await fs.readTextFile(chapterTextPath);
+            const chapterText: ChapterText = {
+              id: chapter.id,
+              content: chapterTextContent,
+              lastModified: new Date()
+            };
+            chaptersText.push(chapterText);
+          }
+        } catch (error) {
+          console.warn(`Не удалось загрузить текст главы ${chapter.id}:`, error);
+        }
+      }
+
+      if (chaptersText.length === 0) {
+        throw new Error('Книга не содержит контента для экспорта');
+      }
+
+      // Создаем временный объект книги с главами для экспорта
+      const bookWithChapters = {
+        ...book,
+        chapters: bookChapters
+      };
+
+      await exportBookToWordUtil(bookWithChapters, selectedDirectory, chaptersText);
+    };
+
+    /**
+     * Проверяет, можно ли экспортировать книгу
+     */
+    const canExportBookCheck = (bookId: string): boolean => {
+      const book = books.value.find(b => b.id === bookId);
+      if (!book) return false;
+
+      // Проверяем наличие глав в store chapters, а не в book.chapters
+      const bookChapters = chapters.value.filter(c => c.bookId === bookId);
+      return bookChapters.length > 0;
+    };
+
     return {
       // Вычисляемые свойства
       authors,
@@ -988,6 +1050,8 @@ export const useBookPrivateStore = defineStore(
       getStageLocations,
       getStageItems,
       getStageById,
+      exportBookToWord,
+      canExportBook: canExportBookCheck,
     };
   }
 );
@@ -1061,5 +1125,7 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     getStageLocations: privateStore.getStageLocations,
     getStageItems: privateStore.getStageItems,
     getStageById: privateStore.getStageById,
+    exportBookToWord: privateStore.exportBookToWord,
+    canExportBook: privateStore.canExportBook,
   };
 });
