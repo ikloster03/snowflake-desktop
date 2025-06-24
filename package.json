@@ -9,7 +9,7 @@
     "dev:desktop": "tauri dev",
     "type-check": "vue-tsc --noEmit",
     "lint:types": "vue-tsc --noEmit --pretty",
-    "build": "pnpm type-check && vite build",
+    "build": "pnpm type-check && vite build --mode desktop",
     "build:web": "pnpm type-check && vite build --mode web",
     "build:desktop": "pnpm type-check && vite build --mode desktop && tauri build",
     "build:desktop-frontend": "pnpm type-check && vite build --mode desktop",
