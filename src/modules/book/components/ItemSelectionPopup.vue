@@ -12,11 +12,14 @@ import {
 import { useI18n } from 'vue-i18n';
 import { usePrivateItemStore } from '@/modules/lore/item/item.store';
 import type { IItem } from '@/modules/lore/item/item.types';
+import { useBookStore } from '../book.store';
+import type { StageID } from '@/core/id';
 
 interface Props {
   visible: boolean;
   position: { x: number; y: number };
   selectedText: string;
+  currentStageId?: StageID | null;
 }
 
 interface Emits {
@@ -29,22 +32,39 @@ const emit = defineEmits<Emits>();
 
 const { t } = useI18n();
 const itemStore = usePrivateItemStore();
+const bookStore = useBookStore();
+
 const searchQuery = ref('');
 const listRef = ref<HTMLElement>();
 
+// Получаем доступные предметы в зависимости от контекста сцены
+const availableItems = computed(() => {
+  console.log('ItemSelectionPopup: currentStageId:', props.currentStageId);
+
+  if (props.currentStageId) {
+    const stageItems = bookStore.getStageItems(props.currentStageId);
+    console.log('ItemSelectionPopup: stageItems:', stageItems);
+    return stageItems;
+  }
+
+  console.log('ItemSelectionPopup: all items:', itemStore.items);
+  return itemStore.items;
+});
+
 const filteredItems = computed(() => {
-  const items = itemStore.items;
-  console.log('Все предметы:', items);
-  console.log('Поисковый запрос:', searchQuery.value);
+  console.log('ItemSelectionPopup: availableItems:', availableItems.value);
+  console.log('ItemSelectionPopup: searchQuery:', searchQuery.value);
 
   if (!searchQuery.value) {
-    return items;
+    console.log('ItemSelectionPopup: no search query, returning all available items');
+    return availableItems.value;
   }
-  const filtered = items.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+  const filtered = availableItems.value.filter((item: IItem) =>
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
-  console.log('Отфильтрованные предметы:', filtered);
+
+  console.log('ItemSelectionPopup: filtered items:', filtered);
   return filtered;
 });
 
@@ -197,7 +217,39 @@ onBeforeUnmount(() => {
             </NList>
           </div>
 
-          <NEmpty v-else :description="t('book.item.notFound')" />
+          <!-- Если предметы не найдены -->
+          <NEmpty v-if="itemStore.items.length === 0" class="popup-empty">
+            <template #icon>
+              <NIcon size="48" :color="'#8B8B8B'">
+                <Package />
+              </NIcon>
+            </template>
+            <template #description>
+              {{ t('modules.book.empty.noItems') }}
+            </template>
+          </NEmpty>
+
+          <NEmpty v-else-if="props.currentStageId && availableItems.length === 0" class="popup-empty">
+            <template #icon>
+              <NIcon size="48" :color="'#8B8B8B'">
+                <Package />
+              </NIcon>
+            </template>
+            <template #description>
+              {{ t('modules.book.empty.noAssignedItems') }}
+            </template>
+          </NEmpty>
+
+          <NEmpty v-else-if="filteredItems.length === 0" class="popup-empty">
+            <template #icon>
+              <NIcon size="48" :color="'#8B8B8B'">
+                <Package />
+              </NIcon>
+            </template>
+            <template #description>
+              {{ t('modules.book.empty.itemsNotFound') }}
+            </template>
+          </NEmpty>
         </div>
       </NCard>
     </div>
@@ -289,5 +341,13 @@ onBeforeUnmount(() => {
 
 .item-search-input {
   margin-bottom: 8px;
+}
+
+.popup-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 </style>

@@ -5,11 +5,14 @@ import { MapPin } from '@vicons/tabler';
 import { usePrivateLocationStore } from '@/modules/lore/location/location.store';
 import type { ILocation } from '@/modules/lore/location/location.types';
 import { useI18n } from 'vue-i18n';
+import { useBookStore } from '../book.store';
+import type { StageID } from '@/core/id';
 
 interface Props {
   visible: boolean;
   position: { x: number; y: number };
   selectedText: string;
+  currentStageId?: StageID | null;
 }
 
 interface Emits {
@@ -22,20 +25,34 @@ const emit = defineEmits<Emits>();
 
 const { t } = useI18n();
 const locationStore = usePrivateLocationStore();
+const bookStore = useBookStore();
 const searchQuery = ref('');
 const listRef = ref<HTMLElement>();
 
 const filteredLocations = computed(() => {
-  const locations = locationStore.locations;
-  console.log('Все локации:', locations);
+  // Определяем источник локаций в зависимости от контекста сцены
+  let availableLocations: ILocation[];
+
+  if (props.currentStageId) {
+    // Если мы в сцене, показываем только локации этой сцены
+    availableLocations = bookStore.getStageLocations(props.currentStageId);
+    console.log('Локации сцены:', availableLocations);
+  } else {
+    // Если не в сцене, показываем все локации
+    availableLocations = locationStore.locations;
+    console.log('Все локации:', availableLocations);
+  }
+
   console.log('Поисковый запрос:', searchQuery.value);
 
   if (!searchQuery.value) {
-    return locations;
+    return availableLocations;
   }
-  const filtered = locations.filter(location =>
+
+  const filtered = availableLocations.filter(location =>
     location.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+
   console.log('Отфильтрованные локации:', filtered);
   return filtered;
 });
@@ -148,6 +165,8 @@ onBeforeUnmount(() => {
             </NList>
           </div>
 
+          <NEmpty v-else-if="props.currentStageId && locationStore.locations.length > 0" description="В этой сцене нет назначенных локаций. Добавьте локации к сцене в планировщике книги." />
+          <NEmpty v-else-if="locationStore.locations.length === 0" description="Локации не созданы. Создайте локации в разделе Лор проекта." />
           <NEmpty v-else :description="t('book.location.notFound')" />
         </div>
       </NCard>

@@ -5,11 +5,14 @@ import { User } from '@vicons/tabler';
 import { useI18n } from 'vue-i18n';
 import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
 import type { Character } from '@/modules/lore/character/character.types';
+import { useBookStore } from '../book.store';
+import type { StageID } from '@/core/id';
 
 interface Props {
   visible: boolean;
   position: { x: number; y: number };
   selectedText: string;
+  currentStageId?: StageID | null;
 }
 
 interface Emits {
@@ -22,20 +25,34 @@ const emit = defineEmits<Emits>();
 
 const { t } = useI18n();
 const characterStore = usePrivateCharacterStore();
+const bookStore = useBookStore();
 const searchQuery = ref('');
 const listRef = ref<HTMLElement>();
 
 const filteredCharacters = computed(() => {
-  const characters = characterStore.characters;
-  console.log('Все персонажи:', characters);
+  // Определяем источник персонажей в зависимости от контекста сцены
+  let availableCharacters: Character[];
+
+  if (props.currentStageId) {
+    // Если мы в сцене, показываем только персонажей этой сцены
+    availableCharacters = bookStore.getStageCharacters(props.currentStageId);
+    console.log('Персонажи сцены:', availableCharacters);
+  } else {
+    // Если не в сцене, показываем всех персонажей
+    availableCharacters = characterStore.characters;
+    console.log('Все персонажи:', availableCharacters);
+  }
+
   console.log('Поисковый запрос:', searchQuery.value);
 
   if (!searchQuery.value) {
-    return characters;
+    return availableCharacters;
   }
-  const filtered = characters.filter(character =>
+
+  const filtered = availableCharacters.filter(character =>
     character.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+
   console.log('Отфильтрованные персонажи:', filtered);
   return filtered;
 });
@@ -148,6 +165,8 @@ onBeforeUnmount(() => {
             </NList>
           </div>
 
+          <NEmpty v-else-if="props.currentStageId && characterStore.characters.length > 0" description="В этой сцене нет назначенных персонажей. Добавьте персонажей к сцене в планировщике книги." />
+          <NEmpty v-else-if="characterStore.characters.length === 0" description="Персонажи не созданы. Создайте персонажей в разделе Лор проекта." />
           <NEmpty v-else :description="t('book.character.notFound')" />
         </div>
       </NCard>

@@ -6,6 +6,14 @@ import * as fs from '@tauri-apps/plugin-fs';
 import { useProjectStore } from '../project/project.store';
 import { ref, watch, computed } from 'vue';
 import { ChapterID, StageID } from '@/core/id';
+import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
+import { usePrivateEventStore } from '@/modules/lore/event/event.store';
+import { usePrivateLocationStore } from '@/modules/lore/location/location.store';
+import { usePrivateItemStore } from '@/modules/lore/item/item.store';
+import type { Character } from '@/modules/lore/character/character.types';
+import type { IEvent } from '@/modules/lore/event/event.types';
+import type { ILocation } from '@/modules/lore/location/location.types';
+import type { IItem } from '@/modules/lore/item/item.types';
 
 export const BOOK_STORE = 'book';
 
@@ -844,15 +852,6 @@ export const useBookPrivateStore = defineStore(
         .sort((a, b) => (a.order || 0) - (b.order || 0));
     };
 
-    // Наблюдение за изменением текущей книги
-    // watch(currentBookId, async (newBookId, oldBookId) => {
-    //   console.log(`BookStore: currentBookId изменился с '${oldBookId}' на '${newBookId}'`);
-    //   if (newBookId && newBookId !== oldBookId) {
-    //     // Загружаем главы для новой книги
-    //     await loadBookChapters(newBookId);
-    //   }
-    // });
-
     // Отслеживание изменений проекта
     watch(() => projectStore.currentProject?.path, async () => {
       console.log('BookStore: Изменился путь проекта, загружаем данные');
@@ -870,16 +869,51 @@ export const useBookPrivateStore = defineStore(
     // watch(chapters, saveChapters, { deep: true });
     watch(stages, saveStages, { deep: true });
 
-    // Для currentChapterText мы сохраняем напрямую при изменении
-    // watch(
-    //   currentChapterText,
-    //   (newVal) => {
-    //     if (newVal) {
-    //       saveChapterText(newVal);
-    //     }
-    //   },
-    //   { deep: true }
-    // );
+    // Методы для получения данных, связанных с конкретной сценой
+    const getStageCharacters = (stageId: StageID): Character[] => {
+      const stage = stages.value.find(s => s.id === stageId)
+      if (!stage || !stage.characterIds.length) return []
+
+      const characterStore = usePrivateCharacterStore()
+      return characterStore.characters.filter(character =>
+        stage.characterIds.includes(character.id)
+      )
+    }
+
+    const getStageEvents = (stageId: StageID): IEvent[] => {
+      const stage = stages.value.find(s => s.id === stageId)
+      if (!stage || !stage.eventIds.length) return []
+
+      const eventStore = usePrivateEventStore()
+      return eventStore.events.filter(event =>
+        stage.eventIds.includes(event.id)
+      )
+    }
+
+    const getStageLocations = (stageId: StageID): ILocation[] => {
+      const stage = stages.value.find(s => s.id === stageId)
+      if (!stage || !stage.locationIds.length) return []
+
+      const locationStore = usePrivateLocationStore()
+      return locationStore.locations.filter(location =>
+        stage.locationIds.includes(location.id)
+      )
+    }
+
+    const getStageItems = (stageId: StageID): IItem[] => {
+      const stage = stages.value.find(s => s.id === stageId)
+      if (!stage || !stage.itemIds?.length) return []
+
+      const itemStore = usePrivateItemStore()
+      return itemStore.items.filter(item =>
+        stage.itemIds!.includes(item.id)
+      )
+    }
+
+    // Метод для получения сцены по ID
+    const getStageById = (stageId: StageID): Stage | undefined => {
+      return stages.value.find(s => s.id === stageId)
+    }
 
     // Функции поиска
     const findBooksByAuthor = (authorId: string) => {
@@ -949,6 +983,11 @@ export const useBookPrivateStore = defineStore(
       updateSeries,
       updateStage,
       loadBookChapters,
+      getStageCharacters,
+      getStageEvents,
+      getStageLocations,
+      getStageItems,
+      getStageById,
     };
   }
 );
@@ -1017,5 +1056,10 @@ export const useBookStore = defineStore(BOOK_STORE, () => {
     updateSeries: privateStore.updateSeries,
     updateStage: privateStore.updateStage,
     loadBookChapters: privateStore.loadBookChapters,
+    getStageCharacters: privateStore.getStageCharacters,
+    getStageEvents: privateStore.getStageEvents,
+    getStageLocations: privateStore.getStageLocations,
+    getStageItems: privateStore.getStageItems,
+    getStageById: privateStore.getStageById,
   };
 });

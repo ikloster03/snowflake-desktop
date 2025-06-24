@@ -57,6 +57,7 @@ import FloatingItemButton from './FloatingItemButton.vue';
 import { slashCommands, type SlashCommandItem } from './SlashCommands';
 import SlashCommandsList from './SlashCommandsList.vue';
 import { StageBlock } from './StageBlockExtension';
+import type { StageID } from '@/core/id';
 
 interface Props {
   modelValue: string;
@@ -77,6 +78,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const editor = ref<Editor | null>(null);
+
+// Отслеживание текущей сцены
+const currentStageId = ref<StageID | null>(null);
 
 // Состояние для слэш-команд
 const showSlashCommands = ref(false);
@@ -155,6 +159,23 @@ const filteredSlashCommands = computed(() => {
     item.title.toLowerCase().includes(slashCommandsQuery.value.toLowerCase())
   );
 });
+
+// Функция для получения ID текущей сцены
+const getCurrentStageId = (): StageID | null => {
+  if (!editor.value) return null;
+
+  const { $from } = editor.value.state.selection;
+
+  // Проверяем все родительские узлы
+  for (let depth = $from.depth; depth >= 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === 'stageBlock') {
+      return (node.attrs.stageId as StageID) || null;
+    }
+  }
+
+  return null;
+};
 
 const executeSlashCommand = (item: SlashCommandItem) => {
   if (editor.value && slashCommandsRange.value) {
@@ -257,13 +278,16 @@ const handleSlashCommandKeyDown = (event: KeyboardEvent) => {
 const updateFloatingButton = () => {
   if (!editor.value) return;
 
+  // Обновляем текущую сцену
+  currentStageId.value = getCurrentStageId();
+
   // Если попап выбора персонажа или события открыт, не обновляем плавающую кнопку
   if (showCharacterSelection.value || showEventSelection.value || showLocationSelection.value || showItemSelection.value) return;
 
   const { selection } = editor.value.state;
   const { from, to } = selection;
 
-  console.log('Обновление плавающей кнопки:', { from, to, hasSelection: from !== to });
+  console.log('Обновление плавающей кнопки:', { from, to, hasSelection: from !== to, currentStageId: currentStageId.value });
 
   // Показываем кнопки только если есть выделенный текст
   if (from === to) {
@@ -1224,6 +1248,7 @@ const handleHeadingSelect = (key: string) => {
         :visible="showCharacterSelection"
         :position="characterSelectionPosition"
         :selected-text="selectedTextForCharacter"
+        :current-stage-id="currentStageId"
         @select="handleCharacterSelect"
         @close="hideCharacterSelection"
       />
@@ -1255,6 +1280,7 @@ const handleHeadingSelect = (key: string) => {
         :visible="showEventSelection"
         :position="eventSelectionPosition"
         :selected-text="selectedTextForEvent"
+        :current-stage-id="currentStageId"
         @select="handleEventSelect"
         @close="hideEventSelection"
       />
@@ -1264,6 +1290,7 @@ const handleHeadingSelect = (key: string) => {
         :visible="showLocationSelection"
         :position="locationSelectionPosition"
         :selected-text="selectedTextForLocation"
+        :current-stage-id="currentStageId"
         @select="handleLocationSelect"
         @close="hideLocationSelection"
       />
@@ -1273,6 +1300,7 @@ const handleHeadingSelect = (key: string) => {
         :visible="showItemSelection"
         :position="itemSelectionPosition"
         :selected-text="selectedTextForItem"
+        :current-stage-id="currentStageId"
         @select="handleItemSelect"
         @close="hideItemSelection"
       />
@@ -1416,87 +1444,74 @@ const handleHeadingSelect = (key: string) => {
 
 /* Стили для блока сцены */
 :deep(.stage-block) {
-  margin: 24px 0;
-  padding: 20px;
-  border: 2px solid #18a058;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f8fffe 0%, #f0fdf9 100%);
-  box-shadow: 0 4px 12px rgba(24, 160, 88, 0.1);
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px solid #18a058;
+  border-radius: 8px;
+  background: #fafffe;
   position: relative;
   transition: all 0.2s ease;
 }
 
-:deep(.stage-block::before) {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, #18a058, #22c55e);
-  border-radius: 12px;
-  z-index: -1;
-  opacity: 0.1;
-}
-
 :deep(.stage-block:hover) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(24, 160, 88, 0.15);
+  border-color: #22c55e;
+  background: #f0fdf9;
+  box-shadow: 0 2px 8px rgba(24, 160, 88, 0.08);
 }
 
 :deep(.stage-block .stage-header) {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(24, 160, 88, 0.2);
+  gap: 4px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(24, 160, 88, 0.15);
 }
 
 :deep(.stage-block .stage-header span) {
-  font-size: 20px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  font-size: 16px;
+  color: #18a058;
+  font-weight: 500;
 }
 
 :deep(.stage-block .stage-selector) {
   flex: 1;
-  max-width: 300px;
-  padding: 10px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  max-width: 280px;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   background: white;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #374151;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 :deep(.stage-block .stage-selector:focus) {
   outline: none;
   border-color: #18a058;
-  box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.1);
+  box-shadow: 0 0 0 2px rgba(24, 160, 88, 0.1);
 }
 
 :deep(.stage-block .stage-content) {
-  min-height: 80px;
-  padding: 16px;
-  border: 2px dashed rgba(24, 160, 88, 0.3);
-  border-radius: 8px;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px dashed rgba(24, 160, 88, 0.25);
+  border-radius: 6px;
   background: white;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   transition: all 0.2s ease;
 }
 
 :deep(.stage-block .stage-content:hover) {
-  border-color: rgba(24, 160, 88, 0.5);
+  border-color: rgba(24, 160, 88, 0.4);
   background: #fafffe;
 }
 
 :deep(.stage-block .stage-content p) {
-  margin: 8px 0;
+  margin: 6px 0;
   color: #374151;
 }
 
@@ -1505,7 +1520,7 @@ const handleHeadingSelect = (key: string) => {
   border-color: #18a058;
   border-style: solid;
   background: white;
-  box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.1);
+  box-shadow: 0 0 0 2px rgba(24, 160, 88, 0.1);
 }
 
 /* Стили для ссылок на персонажей */

@@ -5,11 +5,14 @@ import { Calendar } from '@vicons/tabler';
 import { useI18n } from 'vue-i18n';
 import { usePrivateEventStore } from '@/modules/lore/event/event.store';
 import type { IEvent } from '@/modules/lore/event/event.types';
+import { useBookStore } from '../book.store';
+import type { StageID } from '@/core/id';
 
 interface Props {
   visible: boolean;
   position: { x: number; y: number };
   selectedText: string;
+  currentStageId?: StageID | null;
 }
 
 interface Emits {
@@ -22,21 +25,35 @@ const emit = defineEmits<Emits>();
 
 const { t } = useI18n();
 const eventStore = usePrivateEventStore();
+const bookStore = useBookStore();
 const searchQuery = ref('');
 const listRef = ref<HTMLElement>();
 
 const filteredEvents = computed(() => {
-  const events = eventStore.events;
-  console.log('Все события:', events);
+  // Определяем источник событий в зависимости от контекста сцены
+  let availableEvents: IEvent[];
+
+  if (props.currentStageId) {
+    // Если мы в сцене, показываем только события этой сцены
+    availableEvents = bookStore.getStageEvents(props.currentStageId);
+    console.log('События сцены:', availableEvents);
+  } else {
+    // Если не в сцене, показываем все события
+    availableEvents = eventStore.events;
+    console.log('Все события:', availableEvents);
+  }
+
   console.log('Поисковый запрос:', searchQuery.value);
 
   if (!searchQuery.value) {
-    return events;
+    return availableEvents;
   }
-  const filtered = events.filter(event =>
+
+  const filtered = availableEvents.filter(event =>
     event.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
     event.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+
   console.log('Отфильтрованные события:', filtered);
   return filtered;
 });
@@ -149,6 +166,7 @@ onBeforeUnmount(() => {
             </NList>
           </div>
 
+          <NEmpty v-else-if="props.currentStageId && eventStore.events.length > 0" description="В этой сцене нет назначенных событий. Добавьте события к сцене в планировщике книги." />
           <NEmpty v-else-if="eventStore.events.length === 0" description="События не созданы. Создайте события в разделе Лор проекта." />
           <NEmpty v-else :description="t('book.event.notFound')" />
         </div>
