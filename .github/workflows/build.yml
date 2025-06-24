@@ -1,9 +1,9 @@
 name: 'Build and Release'
 
 on:
-  push:
-    branches: [main, develop]
-    tags: ['v*']
+  # push:
+    # branches: [main, develop]
+    # tags: ['v*']
   pull_request:
     branches: [main]
   workflow_dispatch:  # Добавляет ручной запуск
@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Rust setup
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Install dependencies
