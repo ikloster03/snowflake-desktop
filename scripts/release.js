@@ -39,7 +39,7 @@ function checkWorkingDirectory() {
 
     // Проверяем, есть ли изменения только в файлах версий
     const lines = status.split('\n').filter(line => line.trim());
-    const versionFiles = ['package.json', 'src-tauri/Cargo.toml'];
+    const versionFiles = ['package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'];
     const nonVersionChanges = lines.filter(line => {
       const filePath = line.substring(3).trim();
       return !versionFiles.includes(filePath);
@@ -124,11 +124,40 @@ function updateVersion(currentVersion, releaseType) {
 }
 
 /**
+ * Обновляет Cargo.lock после изменения версии в Cargo.toml
+ */
+function updateCargoLock() {
+  try {
+    console.log('Updating Cargo.lock...');
+    const result = execSync('cargo update --workspace', {
+      cwd: join(rootDir, 'src-tauri'),
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    console.log('✅ Updated Cargo.lock');
+  } catch (error) {
+    // Если cargo update не удался, попробуем cargo check
+    try {
+      console.log('Trying cargo check to update Cargo.lock...');
+      execSync('cargo check', {
+        cwd: join(rootDir, 'src-tauri'),
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      console.log('✅ Updated Cargo.lock via cargo check');
+    } catch (checkError) {
+      console.warn('⚠️  Could not update Cargo.lock automatically');
+      console.warn('   This is not critical, but Cargo.lock might be out of sync');
+    }
+  }
+}
+
+/**
  * Коммитит изменения версий
  */
 function commitVersionChanges(version) {
   try {
-    execGit('git add package.json src-tauri/Cargo.toml');
+    execGit('git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock');
     execGit(`git commit -m "chore: bump version to v${version}"`);
     console.log(`✅ Committed version changes`);
   } catch (error) {
@@ -248,6 +277,9 @@ function main() {
     writeCargoToml(cargoContent, newVersion);
     console.log('✅ Updated src-tauri/Cargo.toml');
 
+    // Обновляем Cargo.lock
+    updateCargoLock();
+
     // Коммитим изменения
     commitVersionChanges(newVersion);
 
@@ -260,8 +292,9 @@ function main() {
     console.log('What happened:');
     console.log(`1. ✅ Updated version from ${currentVersion} to ${newVersion}`);
     console.log('2. ✅ Updated package.json and Cargo.toml');
-    console.log('3. ✅ Committed version changes with message "chore: bump version to v' + newVersion + '"');
-    console.log(`4. ✅ Created and pushed tag ${tagName}`);
+    console.log('3. ✅ Updated Cargo.lock');
+    console.log('4. ✅ Committed version changes with message "chore: bump version to v' + newVersion + '"');
+    console.log(`5. ✅ Created and pushed tag ${tagName}`);
     console.log('');
     console.log('GitHub Actions will now:');
     console.log('- Build the application for all platforms');
