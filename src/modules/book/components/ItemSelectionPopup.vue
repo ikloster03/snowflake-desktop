@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
                 <Package />
               </NIcon>
             </template>
-            <template #description>
+            <template #default>
               {{ t('modules.book.empty.noItems') }}
             </template>
           </NEmpty>
@@ -235,7 +235,7 @@ onBeforeUnmount(() => {
                 <Package />
               </NIcon>
             </template>
-            <template #description>
+            <template #default>
               {{ t('modules.book.empty.noAssignedItems') }}
             </template>
           </NEmpty>
@@ -246,7 +246,7 @@ onBeforeUnmount(() => {
                 <Package />
               </NIcon>
             </template>
-            <template #description>
+            <template #default>
               {{ t('modules.book.empty.itemsNotFound') }}
             </template>
           </NEmpty>
