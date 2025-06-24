@@ -18,11 +18,14 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "pre-push": "pnpm install && pnpm type-check && pnpm test run && pnpm docs:build",
+    "pre-push": "echo '📦 Installing dependencies...' && pnpm install && echo '🔍 Type checking...' && pnpm type-check && echo '🧪 Running tests...' && pnpm test run && echo '📚 Building docs...' && pnpm docs:build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "prepare": "npx simple-git-hooks",
+    "hooks:install": "npx simple-git-hooks",
+    "hooks:test:commit": "echo 'test: testing commit message' | npx commitlint",
+    "hooks:test:pre-push": "pnpm pre-push",
     "version:patch": "node scripts/update-version.js patch",
     "version:minor": "node scripts/update-version.js minor",
     "version:major": "node scripts/update-version.js major",
@@ -103,7 +106,7 @@
     "vue-tsc": "^2.1.10"
   },
   "simple-git-hooks": {
-    "commit-msg": "npx --no -- commitlint --edit ${1}",
-    "pre-push": "pnpm pre-push"
+    "commit-msg": "echo '🔍 Checking commit message...' && npx --no -- commitlint --edit ${1} && echo '✅ Commit message is valid'",
+    "pre-push": "echo '🚀 Running pre-push checks...' && pnpm pre-push && echo '✅ Pre-push checks passed'"
   }
 }
