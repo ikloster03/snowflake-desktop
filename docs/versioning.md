@@ -237,6 +237,25 @@ cd src-tauri
 env -i HOME=$HOME USER=$USER PATH=$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin cargo update
 ```
 
+#### Проблема с 'vite: command not found' в GitHub Actions
+Если получаете ошибку в CI:
+```
+/home/runner/work/_temp/xxx.sh: line 1: vite: command not found
+```
+
+**Решение:** Используйте команды через `pnpm` или готовые npm скрипты:
+```bash
+# ❌ Неправильно
+vite build --mode desktop
+
+# ✅ Правильно
+pnpm vite build --mode desktop
+# или
+pnpm build:desktop-frontend
+```
+
+**Причина:** В GitHub Actions исполняемые файлы из `node_modules/.bin/` не добавляются автоматически в PATH.
+
 ## Git Hooks
 
 Проект использует Git hooks для автоматической проверки качества кода:

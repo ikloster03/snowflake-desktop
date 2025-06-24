@@ -88,4 +88,4 @@ jobs:
           cargo check
 
       - name: Build desktop app (debug)
-        run: pnpm type-check && vite build --mode desktop
+        run: pnpm build:desktop-frontend

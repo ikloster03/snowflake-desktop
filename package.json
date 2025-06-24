@@ -12,6 +12,7 @@
     "build": "pnpm type-check && vite build",
     "build:web": "pnpm type-check && vite build --mode web",
     "build:desktop": "pnpm type-check && vite build --mode desktop && tauri build",
+    "build:desktop-frontend": "pnpm type-check && vite build --mode desktop",
     "preview": "vite preview",
     "preview:web": "vite preview --outDir web-dist",
     "tauri": "tauri",

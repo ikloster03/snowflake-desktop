@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+web-dist
 *.local
 
 docs/.vitepress/cache
