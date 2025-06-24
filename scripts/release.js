@@ -12,6 +12,7 @@ const rootDir = join(__dirname, '..');
 
 const PACKAGE_JSON_PATH = join(rootDir, 'package.json');
 const CARGO_TOML_PATH = join(rootDir, 'src-tauri', 'Cargo.toml');
+const TAURI_CONF_PATH = join(rootDir, 'src-tauri', 'tauri.conf.json');
 
 /**
  * Выполняет git команду
@@ -39,7 +40,7 @@ function checkWorkingDirectory() {
 
     // Проверяем, есть ли изменения только в файлах версий
     const lines = status.split('\n').filter(line => line.trim());
-    const versionFiles = ['package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'];
+    const versionFiles = ['package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'src-tauri/tauri.conf.json'];
     const nonVersionChanges = lines.filter(line => {
       const filePath = line.substring(3).trim();
       return !versionFiles.includes(filePath);
@@ -102,6 +103,22 @@ function writeCargoToml(content, newVersion) {
     `version = "${newVersion}"`
   );
   writeFileSync(CARGO_TOML_PATH, updatedContent, 'utf8');
+}
+
+/**
+ * Читает и парсит tauri.conf.json
+ */
+function readTauriConf() {
+  const content = readFileSync(TAURI_CONF_PATH, 'utf8');
+  return JSON.parse(content);
+}
+
+/**
+ * Записывает tauri.conf.json
+ */
+function writeTauriConf(tauriConf) {
+  const content = JSON.stringify(tauriConf, null, 2) + '\n';
+  writeFileSync(TAURI_CONF_PATH, content, 'utf8');
 }
 
 /**
@@ -179,7 +196,7 @@ function updateCargoLock() {
  */
 function commitVersionChanges(version) {
   try {
-    execGit('git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock');
+    execGit('git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock src-tauri/tauri.conf.json');
     execGit(`git commit -m "chore: bump version to v${version}"`);
     console.log(`✅ Committed version changes`);
   } catch (error) {
@@ -274,6 +291,7 @@ function main() {
     // Читаем текущие версии
     const packageJson = readPackageJson();
     const cargoContent = readCargoToml();
+    const tauriConf = readTauriConf();
     const currentVersion = packageJson.version;
 
     console.log(`Current version: ${currentVersion}`);
@@ -299,6 +317,10 @@ function main() {
     writeCargoToml(cargoContent, newVersion);
     console.log('✅ Updated src-tauri/Cargo.toml');
 
+    tauriConf.version = newVersion;
+    writeTauriConf(tauriConf);
+    console.log('✅ Updated src-tauri/tauri.conf.json');
+
     // Обновляем Cargo.lock
     updateCargoLock();
 
@@ -314,9 +336,10 @@ function main() {
     console.log('What happened:');
     console.log(`1. ✅ Updated version from ${currentVersion} to ${newVersion}`);
     console.log('2. ✅ Updated package.json and Cargo.toml');
-    console.log('3. ✅ Updated Cargo.lock');
-    console.log('4. ✅ Committed version changes with message "chore: bump version to v' + newVersion + '"');
-    console.log(`5. ✅ Created and pushed tag ${tagName}`);
+    console.log('3. ✅ Updated tauri.conf.json');
+    console.log('4. ✅ Updated Cargo.lock');
+    console.log('5. ✅ Committed version changes with message "chore: bump version to v' + newVersion + '"');
+    console.log(`6. ✅ Created and pushed tag ${tagName}`);
     console.log('');
     console.log('GitHub Actions will now:');
     console.log('- Build the application for all platforms');

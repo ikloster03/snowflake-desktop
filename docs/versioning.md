@@ -75,6 +75,7 @@ pnpm version:tag
 2. **Автоматическое обновление файлов:**
    - `package.json` - версия фронтенда
    - `src-tauri/Cargo.toml` - версия Rust бэкенда
+   - `src-tauri/tauri.conf.json` - версия Tauri конфигурации
    - `src-tauri/Cargo.lock` - обновление зависимостей
 3. **Автоматический коммит** изменений версий
 4. **Создание и отправка тега**
@@ -96,7 +97,7 @@ pnpm version:release:major
 ```
 
 **Что происходит автоматически:**
-- ✅ Обновляет версию в файлах
+- ✅ Обновляет версию в файлах (package.json, Cargo.toml, tauri.conf.json)
 - ✅ Обновляет Cargo.lock с новыми зависимостями
 - ✅ Коммитит изменения с сообщением "chore: bump version to vX.X.X"
 - ✅ Создает тег vX.X.X
