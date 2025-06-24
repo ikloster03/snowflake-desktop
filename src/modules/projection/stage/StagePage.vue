@@ -30,13 +30,14 @@ import { usePrivateItemStore } from '@/modules/lore/item/item.store';
 import type { IEvent } from '@/modules/lore/event/event.types';
 import type { ILocation } from '@/modules/lore/location/location.types';
 import type { IItem } from '@/modules/lore/item/item.types';
+import { usePrivateCharacterStore } from '@/modules/lore/character/character.store';
 
 const bookStore = useBookStore();
 const message = useMessage();
 const eventStore = usePrivateEventStore();
 const locationStore = usePrivateLocationStore();
 const itemStore = usePrivateItemStore();
-
+const characterStore = usePrivateCharacterStore();
 // Состояние
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
@@ -80,9 +81,9 @@ const chapterOptions = computed(() => {
 });
 
 const characterOptions = computed(() => {
-  return bookStore.authors.map((author) => ({
-    label: author.firstName + ' ' + author.lastName,
-    value: author.id,
+  return characterStore.characters.map((character) => ({
+    label: character.name,
+    value: character.id,
   }));
 });
 
