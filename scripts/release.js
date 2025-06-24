@@ -129,25 +129,47 @@ function updateVersion(currentVersion, releaseType) {
 function updateCargoLock() {
   try {
     console.log('Updating Cargo.lock...');
+
+    // Создаем чистое окружение для cargo команд
+    const cleanEnv = {
+      HOME: process.env.HOME,
+      USER: process.env.USER,
+      PATH: `${process.env.HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`,
+      LANG: process.env.LANG || 'en_US.UTF-8',
+      LC_ALL: process.env.LC_ALL || 'en_US.UTF-8'
+    };
+
     const result = execSync('cargo update --workspace', {
       cwd: join(rootDir, 'src-tauri'),
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: cleanEnv
     });
     console.log('✅ Updated Cargo.lock');
   } catch (error) {
     // Если cargo update не удался, попробуем cargo check
     try {
       console.log('Trying cargo check to update Cargo.lock...');
+
+      const cleanEnv = {
+        HOME: process.env.HOME,
+        USER: process.env.USER,
+        PATH: `${process.env.HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`,
+        LANG: process.env.LANG || 'en_US.UTF-8',
+        LC_ALL: process.env.LC_ALL || 'en_US.UTF-8'
+      };
+
       execSync('cargo check', {
         cwd: join(rootDir, 'src-tauri'),
         encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: cleanEnv
       });
       console.log('✅ Updated Cargo.lock via cargo check');
     } catch (checkError) {
       console.warn('⚠️  Could not update Cargo.lock automatically');
       console.warn('   This is not critical, but Cargo.lock might be out of sync');
+      console.warn('   You can manually run: cd src-tauri && cargo update');
     }
   }
 }

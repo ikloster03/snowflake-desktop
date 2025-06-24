@@ -189,3 +189,50 @@ git tag -d v0.2.1
 # Удалить тег на сервере
 git push origin :refs/tags/v0.2.1
 ```
+
+## Системные зависимости
+
+### Ubuntu/Debian
+Для сборки Tauri приложения на Ubuntu/Debian необходимы следующие пакеты:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  libgtk-3-dev \
+  libwebkit2gtk-4.0-dev \
+  libwebkit2gtk-4.1-dev \
+  libappindicator3-dev \
+  librsvg2-dev \
+  patchelf \
+  libsoup-3.0-dev \
+  libjavascriptcoregtk-4.1-dev \
+  libssl-dev \
+  pkg-config
+```
+
+### Решение проблем
+
+#### Проблема с libsoup-3.0
+Если получаете ошибку:
+```
+The system library `libsoup-3.0` required by crate `soup3-sys` was not found.
+```
+
+**Решение:** Установите `libsoup-3.0-dev`:
+```bash
+sudo apt-get install libsoup-3.0-dev pkg-config
+```
+
+#### Проблема с proxy 'cursor'
+Если получаете ошибку:
+```
+error: unknown proxy name: 'cursor'
+```
+
+**Решение:** Эта проблема возникает при использовании Cursor IDE. Скрипт релиза автоматически использует чистое окружение для cargo команд.
+
+Если проблема остается, можно вручную запустить:
+```bash
+cd src-tauri
+env -i HOME=$HOME USER=$USER PATH=$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin cargo update
+```
