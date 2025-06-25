@@ -323,12 +323,17 @@ pnpm prepare
    pnpm pre-push
    ```
 
-### Проблема: `EMFILE: too many open files` в Windows
+### Проблема: `EMFILE: too many open files` в Windows и macOS
 
 **Проблема:**
 ```bash
+# Windows
 error during build:
 [commonjs--resolver] Could not load D:/a/snowflake-desktop/snowflake-desktop/node_modules/.pnpm/@vicons+fluent@0.12.0/node_modules/@vicons/fluent/es/StarOff24Regular.js: EMFILE: too many open files
+
+# macOS  
+error during build:
+[commonjs--resolver] Could not load /Users/runner/work/snowflake-desktop/snowflake-desktop/node_modules/.pnpm/@vicons+fluent@0.12.0/node_modules/@vicons/fluent/es/TagLockAccent20Filled.js: EMFILE: too many open files
 ```
 
 **Решение:**
@@ -345,7 +350,7 @@ error during build:
      },
      build: {
        rollupOptions: {
-         maxParallelFileOps: 5, // Ограничение параллельных операций с файлами
+         maxParallelFileOps: 2, // Агрессивное ограничение параллельных операций
          output: {
            manualChunks: {
              'icons': ['@vicons/fluent', '@vicons/tabler', '@vicons/material'],
@@ -357,17 +362,26 @@ error during build:
    });
    ```
 
-2. **Оптимизация GitHub Actions** для Windows:
+2. **Оптимизация GitHub Actions** для Windows и macOS:
    ```yaml
+   # Windows
    - name: Optimize for Windows build (prevent EMFILE)
      if: matrix.platform == 'windows-latest'
      run: |
        echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
        echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
      shell: bash
+
+   # macOS
+   - name: Optimize for macOS build (prevent EMFILE)
+     if: matrix.platform == 'macos-latest'
+     run: |
+       echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
+       echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
+       ulimit -n 4096
    ```
 
-**Причина:** Windows имеет более строгие лимиты на количество одновременно открытых файлов. Библиотеки иконок содержат тысячи файлов, что приводит к превышению лимита.
+**Причина:** Windows и macOS имеют лимиты на количество одновременно открытых файлов. Библиотека `@vicons/fluent` содержит тысячи файлов иконок, что приводит к превышению лимита при сборке.
 
 ### Проблема: Ошибка прокси в Cursor IDE
 

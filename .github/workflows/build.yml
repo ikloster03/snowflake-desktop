@@ -67,6 +67,15 @@ jobs:
           echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
         shell: bash
 
+      - name: Optimize for macOS build (prevent EMFILE)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          # Increase file handle limits for Node.js on macOS
+          echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
+          echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
+          # Increase ulimit for file descriptors
+          ulimit -n 4096
+
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
         env:

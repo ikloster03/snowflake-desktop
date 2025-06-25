@@ -77,7 +77,7 @@ export default defineConfig(async ({ mode }) => {
       // Rollup options to handle too many open files
       rollupOptions: {
         // Limit concurrent file operations
-        maxParallelFileOps: 5,
+        maxParallelFileOps: 2,
         output: {
           // Manual chunks to reduce file handle pressure
           manualChunks: {
