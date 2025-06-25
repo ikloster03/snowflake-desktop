@@ -383,6 +383,25 @@ error during build:
 
 **Причина:** Windows и macOS имеют лимиты на количество одновременно открытых файлов. Библиотека `@vicons/fluent` содержит тысячи файлов иконок, что приводит к превышению лимита при сборке.
 
+### Проблема: Отсутствующие Rust targets для macOS
+
+**Проблема:**
+```bash
+failed to build x86_64-apple-darwin binary: Target x86_64-apple-darwin is not installed (installed targets: aarch64-apple-darwin). Please run `rustup target add x86_64-apple-darwin`.
+```
+
+**Решение:**
+Добавить установку Rust targets в GitHub Actions для macOS:
+```yaml
+- name: Install Rust targets for macOS
+  if: matrix.platform == 'macos-latest'
+  run: |
+    rustup target add aarch64-apple-darwin
+    rustup target add x86_64-apple-darwin
+```
+
+**Причина:** Для создания universal binary на macOS требуются оба target: `aarch64-apple-darwin` (Apple Silicon) и `x86_64-apple-darwin` (Intel). По умолчанию устанавливается только один target.
+
 ### Проблема: Ошибка прокси в Cursor IDE
 
 **Проблема:**
