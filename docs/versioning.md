@@ -405,3 +405,38 @@ failed to build x86_64-apple-darwin binary: Target x86_64-apple-darwin is not in
 ### Проблема: Ошибка прокси в Cursor IDE
 
 **Проблема:**
+
+## Проблема: Ошибка определения формата иконки для macOS
+
+### Описание проблемы
+При сборке для macOS может возникнуть ошибка:
+```
+failed to bundle project: image format could not be determined
+```
+
+### Причина
+Для macOS Tauri требует иконку в формате `.icns`, но в проекте могут быть только файлы `.png`, `.svg` или `.ico`.
+
+### Решение
+1. Создать правильные иконки для всех платформ:
+```bash
+pnpm tauri icon src-tauri/icons/snowflake.png
+```
+
+2. Обновить конфигурацию в `src-tauri/tauri.conf.json`:
+```json
+{
+  "bundle": {
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png", 
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ]
+  }
+}
+```
+
+Команда `tauri icon` автоматически создает иконки для всех платформ в правильных форматах и размерах.
