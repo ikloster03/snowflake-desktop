@@ -322,3 +322,53 @@ pnpm prepare
    # Запустить pre-push проверки
    pnpm pre-push
    ```
+
+### Проблема: `EMFILE: too many open files` в Windows
+
+**Проблема:**
+```bash
+error during build:
+[commonjs--resolver] Could not load D:/a/snowflake-desktop/snowflake-desktop/node_modules/.pnpm/@vicons+fluent@0.12.0/node_modules/@vicons/fluent/es/StarOff24Regular.js: EMFILE: too many open files
+```
+
+**Решение:**
+1. **Оптимизация Vite конфигурации** в `vite.config.ts`:
+   ```ts
+   export default defineConfig({
+     // Оптимизация зависимостей для уменьшения нагрузки на файловые дескрипторы
+     optimizeDeps: {
+       include: [
+         'vue', 'vue-router', 'pinia', 'naive-ui',
+         '@vicons/fluent', '@vicons/tabler', '@vicons/material',
+       ],
+       force: true, // Принудительная пре-сборка библиотек иконок
+     },
+     build: {
+       rollupOptions: {
+         maxParallelFileOps: 5, // Ограничение параллельных операций с файлами
+         output: {
+           manualChunks: {
+             'icons': ['@vicons/fluent', '@vicons/tabler', '@vicons/material'],
+             // ... другие чанки
+           },
+         },
+       },
+     },
+   });
+   ```
+
+2. **Оптимизация GitHub Actions** для Windows:
+   ```yaml
+   - name: Optimize for Windows build (prevent EMFILE)
+     if: matrix.platform == 'windows-latest'
+     run: |
+       echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
+       echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
+     shell: bash
+   ```
+
+**Причина:** Windows имеет более строгие лимиты на количество одновременно открытых файлов. Библиотеки иконок содержат тысячи файлов, что приводит к превышению лимита.
+
+### Проблема: Ошибка прокси в Cursor IDE
+
+**Проблема:**

@@ -54,12 +54,48 @@ export default defineConfig(async ({ mode }) => {
       __IS_TAURI__: isTauri,
       __IS_WEB__: !isTauri,
     },
+    // Optimize dependencies to reduce file handle pressure
+    optimizeDeps: {
+      include: [
+        'vue',
+        'vue-router',
+        'pinia',
+        'naive-ui',
+        '@vicons/fluent',
+        '@vicons/tabler',
+        '@vicons/material',
+      ],
+      // Force pre-bundling of icon libraries to reduce file handles
+      force: true,
+    },
     // Conditionally modify build for web deployment
     build: {
       // For web builds, we can customize target
       target: isTauri ? 'esnext' : 'es2015',
       // When building for web, we might want to adjust output directory
       outDir: isTauri ? 'dist' : 'web-dist',
+      // Rollup options to handle too many open files
+      rollupOptions: {
+        // Limit concurrent file operations
+        maxParallelFileOps: 5,
+        output: {
+          // Manual chunks to reduce file handle pressure
+          manualChunks: {
+            'vue-vendor': ['vue', 'vue-router', 'pinia'],
+            'ui-vendor': ['naive-ui'],
+            'icons': ['@vicons/fluent', '@vicons/tabler', '@vicons/material'],
+            'editor': [
+              '@tiptap/core',
+              '@tiptap/starter-kit',
+              '@tiptap/vue-3',
+              '@tiptap/extension-highlight',
+              '@tiptap/extension-table',
+              '@tiptap/extension-task-list',
+              '@tiptap/extension-task-item',
+            ],
+          },
+        },
+      },
     },
   };
 });
