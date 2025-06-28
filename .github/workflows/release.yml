@@ -143,6 +143,74 @@ jobs:
     needs: [create-release, build-tauri]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version
+        run: echo "PACKAGE_VERSION=$(node -pe "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Create and upload latest.json
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            const version = process.env.PACKAGE_VERSION;
+
+            // Get release info
+            const { data: release } = await github.rest.repos.getRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id
+            });
+
+            // Create latest.json content
+            const latestJson = {
+              version: `v${version}`,
+              notes: release.body,
+              pub_date: release.published_at || new Date().toISOString(),
+              platforms: {}
+            };
+
+            // Add platform-specific download URLs
+            for (const asset of release.assets) {
+              if (asset.name.includes('_x64-setup.exe')) {
+                latestJson.platforms['windows-x86_64'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+              } else if (asset.name.includes('_amd64.AppImage')) {
+                latestJson.platforms['linux-x86_64'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+              } else if (asset.name.includes('_universal.dmg')) {
+                latestJson.platforms['darwin-universal'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+              }
+            }
+
+            // Convert to JSON string
+            const latestJsonContent = JSON.stringify(latestJson, null, 2);
+
+            // Upload latest.json as release asset directly
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: 'latest.json',
+              data: Buffer.from(latestJsonContent, 'utf8'),
+              headers: {
+                'content-type': 'application/json'
+              }
+            });
+
+            console.log('✅ latest.json created and uploaded successfully');
+            console.log('Content:', latestJsonContent);
+
       - name: Publish release
         id: publish-release
         uses: actions/github-script@v7

@@ -10,11 +10,15 @@ import {
 import {
   DarkModeOutlined as Dark,
   LightModeOutlined as Light,
+  SystemUpdateAltOutlined as UpdateIcon,
 } from '@vicons/material';
 import { NAvatar, NButton, NDrawerContent, NIcon, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import { PROJECT_PAGE } from '@/modules/project/project.const';
+import { ref, onMounted } from 'vue';
+import { getVersion } from '@tauri-apps/api/app';
+import UpdaterComponent from '@/modules/app/UpdaterComponent.vue';
 
 type DrawerLeftMenuEmits = {
   (e: 'close'): void;
@@ -24,6 +28,26 @@ const emit = defineEmits<DrawerLeftMenuEmits>();
 
 const { t } = useI18n();
 const settingsStore = useSettingsStore();
+
+const updaterRef = ref<InstanceType<typeof UpdaterComponent>>();
+const currentVersion = ref('');
+
+const handleCheckUpdates = () => {
+  updaterRef.value?.checkForUpdates();
+};
+
+const loadVersion = async () => {
+  try {
+    currentVersion.value = await getVersion();
+  } catch (error) {
+    console.error('Ошибка получения версии:', error);
+    currentVersion.value = '0.1.0';
+  }
+};
+
+onMounted(() => {
+  loadVersion();
+});
 </script>
 
 <template>
@@ -86,12 +110,23 @@ const settingsStore = useSettingsStore();
             {{ t('settings') }}
           </NButton>
         </RouterLink>
+        <NButton text @click="handleCheckUpdates">
+          <template #icon>
+            <NIcon>
+              <UpdateIcon />
+            </NIcon>
+          </template>
+          Проверить обновления
+        </NButton>
       </NFlex>
       <div>
         <div>Snowflake desktop</div>
-        <div>Version 0.1</div>
+        <div>Version {{ currentVersion || '0.1.0' }}</div>
       </div>
     </NFlex>
+
+    <!-- Компонент обновлений -->
+    <UpdaterComponent ref="updaterRef" />
   </NDrawerContent>
 </template>
 

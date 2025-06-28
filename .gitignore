@@ -25,3 +25,6 @@ docs/.vitepress/cache
 *.njsproj
 *.sln
 *.sw?
+
+updater-key
+updater-key.pub
