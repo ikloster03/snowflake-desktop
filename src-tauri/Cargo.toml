@@ -1,6 +1,6 @@
 [package]
 name = "snowflake"
-version = "0.2.17"
+version = "0.2.18"
 description = "Snowflake"
 authors = ["ikloster"]
 edition = "2021"
