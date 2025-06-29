@@ -163,27 +163,22 @@ jobs:
 
               if (asset.name.includes('_x64-setup.exe')) {
                 latestJson.platforms['windows-x86_64'] = {
-                  signature: '',
                   url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.AppImage')) {
                 latestJson.platforms['linux-x86_64-appimage'] = {
-                  signature: '',
                   url: correctUrl
                 };
                 // Keep backward compatibility
                 latestJson.platforms['linux-x86_64'] = {
-                  signature: '',
                   url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.deb')) {
                 latestJson.platforms['linux-x86_64-deb'] = {
-                  signature: '',
                   url: correctUrl
                 };
               } else if (asset.name.includes('.x86_64.rpm')) {
                 latestJson.platforms['linux-x86_64-rpm'] = {
-                  signature: '',
                   url: correctUrl
                 };
               }
