@@ -164,7 +164,22 @@ jobs:
                   url: asset.browser_download_url
                 };
               } else if (asset.name.includes('_amd64.AppImage')) {
+                latestJson.platforms['linux-x86_64-appimage'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+                // Keep backward compatibility
                 latestJson.platforms['linux-x86_64'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+              } else if (asset.name.includes('_amd64.deb')) {
+                latestJson.platforms['linux-x86_64-deb'] = {
+                  signature: '',
+                  url: asset.browser_download_url
+                };
+              } else if (asset.name.includes('.x86_64.rpm')) {
+                latestJson.platforms['linux-x86_64-rpm'] = {
                   signature: '',
                   url: asset.browser_download_url
                 };
