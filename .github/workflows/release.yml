@@ -115,6 +115,7 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: ${{ matrix.args }}
@@ -156,29 +157,71 @@ jobs:
               platforms: {}
             };
 
-            // Add platform-specific download URLs
+            // Helper function to get signature content
+            const getSignatureContent = async (sigAsset) => {
+              if (!sigAsset) return '';
+
+              try {
+                const response = await fetch(sigAsset.browser_download_url);
+                const signature = await response.text();
+                return signature.trim();
+              } catch (error) {
+                console.warn(`Failed to fetch signature for ${sigAsset.name}:`, error);
+                return '';
+              }
+            };
+
+            // Process assets and add platform-specific download URLs with signatures
             for (const asset of release.assets) {
+              // Skip .sig files as they are processed separately
+              if (asset.name.endsWith('.sig')) continue;
+
               // Construct correct download URL using tag name
               const correctUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/v${version}/${asset.name}`;
 
+              // Find corresponding signature file
+              const sigAsset = release.assets.find(a => a.name === `${asset.name}.sig`);
+              const signature = sigAsset ? await getSignatureContent(sigAsset) : '';
+
+              // Map assets to platform identifiers
               if (asset.name.includes('_x64-setup.exe')) {
                 latestJson.platforms['windows-x86_64'] = {
+                  signature: signature,
                   url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.AppImage')) {
                 latestJson.platforms['linux-x86_64-appimage'] = {
+                  signature: signature,
                   url: correctUrl
                 };
                 // Keep backward compatibility
                 latestJson.platforms['linux-x86_64'] = {
+                  signature: signature,
                   url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.deb')) {
                 latestJson.platforms['linux-x86_64-deb'] = {
+                  signature: signature,
                   url: correctUrl
                 };
               } else if (asset.name.includes('.x86_64.rpm')) {
                 latestJson.platforms['linux-x86_64-rpm'] = {
+                  signature: signature,
+                  url: correctUrl
+                };
+              } else if (asset.name.includes('_x64.msi')) {
+                latestJson.platforms['windows-x86_64-msi'] = {
+                  signature: signature,
+                  url: correctUrl
+                };
+              } else if (asset.name.includes('.app.tar.gz')) {
+                latestJson.platforms['darwin-x86_64'] = {
+                  signature: signature,
+                  url: correctUrl
+                };
+              } else if (asset.name.includes('_universal.dmg')) {
+                latestJson.platforms['darwin-universal'] = {
+                  signature: signature,
                   url: correctUrl
                 };
               }
@@ -201,6 +244,10 @@ jobs:
 
             console.log('✅ latest.json created and uploaded successfully');
             console.log('Content:', latestJsonContent);
+
+            // Log signature info for debugging
+            const sigFiles = release.assets.filter(a => a.name.endsWith('.sig'));
+            console.log(`Found ${sigFiles.length} signature files:`, sigFiles.map(f => f.name));
 
       - name: Publish release
         id: publish-release
