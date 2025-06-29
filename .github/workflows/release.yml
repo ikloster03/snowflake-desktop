@@ -133,6 +133,21 @@ jobs:
       - name: Get version
         run: echo "PACKAGE_VERSION=$(node -pe "require('./package.json').version")" >> $GITHUB_ENV
 
+      - name: Publish release first
+        id: publish-release
+        uses: actions/github-script@v7
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              draft: false,
+              prerelease: false
+            })
+
       - name: Create and upload latest.json
         uses: actions/github-script@v7
         env:
@@ -141,6 +156,9 @@ jobs:
         with:
           script: |
             const version = process.env.PACKAGE_VERSION;
+
+            // Wait a moment for release to be fully published
+            await new Promise(resolve => setTimeout(resolve, 5000));
 
             // Get release info
             const { data: release } = await github.rest.repos.getRelease({
@@ -157,31 +175,42 @@ jobs:
               platforms: {}
             };
 
-            // Process assets and add platform-specific download URLs with signatures
-            for (const asset of release.assets) {
-              // Skip .sig files as they are processed separately
-              if (asset.name.endsWith('.sig')) continue;
+            // Helper function to get signature content via GitHub API
+            const getSignatureContent = async (sigAssetName) => {
+              try {
+                // First try to get via download URL (for published releases)
+                const sigAsset = release.assets.find(a => a.name === sigAssetName);
+                if (!sigAsset) {
+                  console.warn(`Signature file ${sigAssetName} not found`);
+                  return '';
+                }
 
+                console.log(`Fetching signature from: ${sigAsset.browser_download_url}`);
+                const response = await fetch(sigAsset.browser_download_url);
+
+                if (!response.ok) {
+                  console.warn(`Failed to fetch signature ${sigAssetName}: ${response.status} ${response.statusText}`);
+                  return '';
+                }
+
+                const sigContent = await response.text();
+                console.log(`Got signature for ${sigAssetName}: ${sigContent.substring(0, 50)}...`);
+                return sigContent.trim();
+              } catch (error) {
+                console.warn(`Error fetching signature for ${sigAssetName}:`, error);
+                return '';
+              }
+            };
+
+            // Process assets and add platform-specific download URLs with signatures
+            const mainAssets = release.assets.filter(asset => !asset.name.endsWith('.sig'));
+
+            for (const asset of mainAssets) {
               // Construct correct download URL using tag name
               const correctUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/v${version}/${asset.name}`;
 
-              // Find corresponding signature file
-              const sigAsset = release.assets.find(a => a.name === `${asset.name}.sig`);
-
-              // For Tauri updater, signature should be base64 encoded content of .sig file
-              // The .sig file itself contains the minisign signature which needs to be base64 encoded
-              let signature = '';
-              if (sigAsset) {
-                try {
-                  // Get the .sig file content (it's already in base64 format from Tauri)
-                  const response = await fetch(sigAsset.browser_download_url);
-                  const sigContent = await response.text();
-                  // The .sig file content is already in the correct format for Tauri
-                  signature = sigContent.trim();
-                } catch (error) {
-                  console.warn(`Failed to fetch signature for ${sigAsset.name}:`, error);
-                }
-              }
+              // Get signature for this asset
+              const signature = await getSignatureContent(`${asset.name}.sig`);
 
               // Map assets to platform identifiers
               if (asset.name.includes('_x64-setup.exe')) {
@@ -249,28 +278,13 @@ jobs:
             const sigFiles = release.assets.filter(a => a.name.endsWith('.sig'));
             console.log(`Found ${sigFiles.length} signature files:`, sigFiles.map(f => f.name));
 
-            // Log first signature content for debugging
-            if (sigFiles.length > 0) {
-              try {
-                const firstSigResponse = await fetch(sigFiles[0].browser_download_url);
-                const firstSigContent = await firstSigResponse.text();
-                console.log(`Sample signature content from ${sigFiles[0].name}:`, firstSigContent.substring(0, 100) + '...');
-              } catch (error) {
-                console.warn('Failed to fetch sample signature:', error);
-              }
-            }
+            // Check if any signatures are empty
+            const emptySignatures = Object.entries(latestJson.platforms)
+              .filter(([platform, data]) => !data.signature)
+              .map(([platform]) => platform);
 
-      - name: Publish release
-        id: publish-release
-        uses: actions/github-script@v7
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-        with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
+            if (emptySignatures.length > 0) {
+              console.warn(`⚠️  Empty signatures found for platforms: ${emptySignatures.join(', ')}`);
+            } else {
+              console.log('✅ All platforms have signatures');
+            }
