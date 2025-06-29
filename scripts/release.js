@@ -346,7 +346,7 @@ function main() {
     console.log('- Create a GitHub Release');
     console.log('- Attach build artifacts to the release');
     console.log('');
-    console.log(`View the release at: https://github.com/YOUR_USERNAME/YOUR_REPO/releases/tag/${tagName}`);
+    console.log(`View the release at: https://github.com/ikloster03/snowflake-desktop/releases/tag/${tagName}`);
 
   } catch (error) {
     console.error('❌ Error creating release:', error.message);
