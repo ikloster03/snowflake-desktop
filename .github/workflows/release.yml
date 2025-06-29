@@ -103,18 +103,6 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
-      - name: Debug signing environment
-        run: |
-          echo "Checking signing environment variables..."
-          if [ -n "$TAURI_SIGNING_PRIVATE_KEY" ]; then
-            echo "✅ TAURI_SIGNING_PRIVATE_KEY is set (length: ${#TAURI_SIGNING_PRIVATE_KEY})"
-            echo "First 5 chars: ${TAURI_SIGNING_PRIVATE_KEY:0:5}..."
-          else
-            echo "❌ TAURI_SIGNING_PRIVATE_KEY is not set"
-          fi
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-
       - name: Optimize for Windows build (prevent EMFILE)
         if: matrix.platform == 'windows-latest'
         run: |
@@ -124,13 +112,14 @@ jobs:
         shell: bash
 
       - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0.5.22
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           args: ${{ matrix.args }}
+          includeUpdaterJson: true
 
   publish-release:
     permissions:
