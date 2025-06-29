@@ -2,6 +2,7 @@
 import { SETTINGS_PAGE } from '@/modules/settings';
 import { PROFILE_PAGE } from '@/modules/profile/profile.const';
 import { useSettingsStore } from '@/modules/settings/settings.store';
+import { useProfileStore } from '@/modules/profile/profile.store';
 import {
   Person32Filled as Person,
   Settings20Filled as SettingsIcon,
@@ -16,7 +17,7 @@ import { NAvatar, NButton, NDrawerContent, NIcon, NFlex } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import { PROJECT_PAGE } from '@/modules/project/project.const';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getVersion } from '@tauri-apps/api/app';
 import UpdaterComponent from '@/modules/app/UpdaterComponent.vue';
 
@@ -28,9 +29,15 @@ const emit = defineEmits<DrawerLeftMenuEmits>();
 
 const { t } = useI18n();
 const settingsStore = useSettingsStore();
+const profileStore = useProfileStore();
 
 const updaterRef = ref<InstanceType<typeof UpdaterComponent>>();
 const currentVersion = ref('');
+
+// Вычисляемое свойство для отображения имени пользователя
+const displayName = computed(() => {
+  return profileStore.userProfile?.displayName || 'Без имени';
+});
 
 const handleCheckUpdates = () => {
   updaterRef.value?.checkForUpdates();
@@ -45,8 +52,17 @@ const loadVersion = async () => {
   }
 };
 
+const loadProfile = async () => {
+  try {
+    await profileStore.getOrCreateProfile();
+  } catch (error) {
+    console.error('Ошибка загрузки профиля:', error);
+  }
+};
+
 onMounted(() => {
   loadVersion();
+  loadProfile();
 });
 </script>
 
@@ -69,7 +85,7 @@ onMounted(() => {
             </template>
           </NButton>
         </NFlex>
-        <div>Иван Иванов</div>
+        <div>{{ displayName }}</div>
         <RouterLink
           v-slot="{ navigate }"
           :to="{ name: PROFILE_PAGE.name }"

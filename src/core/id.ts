@@ -14,6 +14,7 @@ export type EventID = ID<'Event'>;
 export type ItemID = ID<'Item'>;
 export type LocationID = ID<'Location'>;
 export type ProjectID = ID<'Project'>;
+export type ProfileID = ID<'Profile'>;
 // Функция для создания типизированного ID
 export function createID<Brand extends string>(id?: string): ID<Brand> {
   const uuid = id ?? uuidv4();

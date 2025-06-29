@@ -1,5 +1,7 @@
+import { ProfileID } from '@/core/id';
+
 export interface IUserProfile {
-  id: string;
+  id: ProfileID;
   email: string;
   displayName: string;
   avatar?: string;

@@ -15,6 +15,7 @@ export const profileI18n = {
       messages: {
         success: 'Profile updated successfully',
         error: 'Error updating profile',
+        loadError: 'Error loading profile',
       },
     },
   },
@@ -34,6 +35,7 @@ export const profileI18n = {
       messages: {
         success: 'Профиль успешно обновлен',
         error: 'Ошибка при обновлении профиля',
+        loadError: 'Ошибка при загрузке профиля',
       },
     },
   },
