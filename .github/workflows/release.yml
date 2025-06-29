@@ -55,8 +55,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target universal-apple-darwin'
           - platform: 'ubuntu-22.04'
             args: ''
           - platform: 'windows-latest'
@@ -97,12 +95,6 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Rust targets for macOS
-        if: matrix.platform == 'macos-latest'
-        run: |
-          rustup target add aarch64-apple-darwin
-          rustup target add x86_64-apple-darwin
-
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -118,24 +110,6 @@ jobs:
           echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
           echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
         shell: bash
-
-      - name: Optimize for macOS build (prevent EMFILE)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          # Increase file handle limits for Node.js on macOS
-          echo "UV_THREADPOOL_SIZE=128" >> $GITHUB_ENV
-          echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
-          # Increase ulimit for file descriptors
-          ulimit -n 4096
-
-      - name: Setup macOS environment
-        if: matrix.platform == 'macos-latest'
-        run: |
-          # Install create-dmg for better DMG creation
-          brew install create-dmg
-          # Set up environment for unsigned builds
-          echo "APPLE_SIGNING_IDENTITY=-" >> $GITHUB_ENV
-          echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> $GITHUB_ENV
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
@@ -191,11 +165,6 @@ jobs:
                 };
               } else if (asset.name.includes('_amd64.AppImage')) {
                 latestJson.platforms['linux-x86_64'] = {
-                  signature: '',
-                  url: asset.browser_download_url
-                };
-              } else if (asset.name.includes('_universal.dmg')) {
-                latestJson.platforms['darwin-universal'] = {
                   signature: '',
                   url: asset.browser_download_url
                 };
