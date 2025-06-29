@@ -158,30 +158,33 @@ jobs:
 
             // Add platform-specific download URLs
             for (const asset of release.assets) {
+              // Construct correct download URL using tag name
+              const correctUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/v${version}/${asset.name}`;
+
               if (asset.name.includes('_x64-setup.exe')) {
                 latestJson.platforms['windows-x86_64'] = {
                   signature: '',
-                  url: asset.browser_download_url
+                  url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.AppImage')) {
                 latestJson.platforms['linux-x86_64-appimage'] = {
                   signature: '',
-                  url: asset.browser_download_url
+                  url: correctUrl
                 };
                 // Keep backward compatibility
                 latestJson.platforms['linux-x86_64'] = {
                   signature: '',
-                  url: asset.browser_download_url
+                  url: correctUrl
                 };
               } else if (asset.name.includes('_amd64.deb')) {
                 latestJson.platforms['linux-x86_64-deb'] = {
                   signature: '',
-                  url: asset.browser_download_url
+                  url: correctUrl
                 };
               } else if (asset.name.includes('.x86_64.rpm')) {
                 latestJson.platforms['linux-x86_64-rpm'] = {
                   signature: '',
-                  url: asset.browser_download_url
+                  url: correctUrl
                 };
               }
             }
