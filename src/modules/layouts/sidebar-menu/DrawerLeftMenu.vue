@@ -95,7 +95,7 @@ onMounted(() => {
             <template #icon>
               <NIcon> <Person /> </NIcon>
             </template>
-            {{ t('profile') }}
+            {{ t('profileLink') }}
           </NButton>
         </RouterLink>
         <RouterLink
