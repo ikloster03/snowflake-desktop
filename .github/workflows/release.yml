@@ -157,20 +157,6 @@ jobs:
               platforms: {}
             };
 
-            // Helper function to get signature content
-            const getSignatureContent = async (sigAsset) => {
-              if (!sigAsset) return '';
-
-              try {
-                const response = await fetch(sigAsset.browser_download_url);
-                const signature = await response.text();
-                return signature.trim();
-              } catch (error) {
-                console.warn(`Failed to fetch signature for ${sigAsset.name}:`, error);
-                return '';
-              }
-            };
-
             // Process assets and add platform-specific download URLs with signatures
             for (const asset of release.assets) {
               // Skip .sig files as they are processed separately
@@ -181,7 +167,21 @@ jobs:
 
               // Find corresponding signature file
               const sigAsset = release.assets.find(a => a.name === `${asset.name}.sig`);
-              const signature = sigAsset ? await getSignatureContent(sigAsset) : '';
+
+              // For Tauri updater, signature should be base64 encoded content of .sig file
+              // The .sig file itself contains the minisign signature which needs to be base64 encoded
+              let signature = '';
+              if (sigAsset) {
+                try {
+                  // Get the .sig file content (it's already in base64 format from Tauri)
+                  const response = await fetch(sigAsset.browser_download_url);
+                  const sigContent = await response.text();
+                  // The .sig file content is already in the correct format for Tauri
+                  signature = sigContent.trim();
+                } catch (error) {
+                  console.warn(`Failed to fetch signature for ${sigAsset.name}:`, error);
+                }
+              }
 
               // Map assets to platform identifiers
               if (asset.name.includes('_x64-setup.exe')) {
@@ -248,6 +248,17 @@ jobs:
             // Log signature info for debugging
             const sigFiles = release.assets.filter(a => a.name.endsWith('.sig'));
             console.log(`Found ${sigFiles.length} signature files:`, sigFiles.map(f => f.name));
+
+            // Log first signature content for debugging
+            if (sigFiles.length > 0) {
+              try {
+                const firstSigResponse = await fetch(sigFiles[0].browser_download_url);
+                const firstSigContent = await firstSigResponse.text();
+                console.log(`Sample signature content from ${sigFiles[0].name}:`, firstSigContent.substring(0, 100) + '...');
+              } catch (error) {
+                console.warn('Failed to fetch sample signature:', error);
+              }
+            }
 
       - name: Publish release
         id: publish-release
