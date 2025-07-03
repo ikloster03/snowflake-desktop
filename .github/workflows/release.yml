@@ -100,10 +100,10 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v${{ steps.vars.outputs.tag }}
           args: ${{ matrix.args }}
           includeUpdaterJson: true
-          releaseName: "Snowflake v${{ steps.vars.outputs.tag }}"
+          tagName: v__VERSION__
+          releaseName: "Snowflake v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
