@@ -7,45 +7,25 @@ on:
 
 jobs:
   create-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-22.04
-    outputs:
-      release_id: ${{ steps.create-release.outputs.result }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
         with:
-          version: 8
+          fetch-depth: 0
+      - name: Set output
+        id: vars
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'pnpm'
+          node-version: lts/*
 
-      - name: Get version
-        run: echo "PACKAGE_VERSION=$(node -pe "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: Create release
-        id: create-release
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: `v${process.env.PACKAGE_VERSION}`,
-              name: `Snowflake v${process.env.PACKAGE_VERSION}`,
-              body: 'Смотрите assets для загрузки файлов приложения.',
-              draft: true,
-              prerelease: false
-            })
-            return data.id
+      - name: Generate changelog
+        id: create_release
+        run: npx changelogithub --draft --name Snowflake-${{ steps.vars.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-tauri:
     needs: create-release
@@ -116,176 +96,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: v${{ steps.vars.outputs.tag }}
           args: ${{ matrix.args }}
           includeUpdaterJson: true
-
-  publish-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-22.04
-    needs: [create-release, build-tauri]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Get version
-        run: echo "PACKAGE_VERSION=$(node -pe "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: Publish release first
-        id: publish-release
-        uses: actions/github-script@v7
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-        with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
-
-      - name: Create and upload latest.json
-        uses: actions/github-script@v7
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          release_id: ${{ needs.create-release.outputs.release_id }}
-        with:
-          script: |
-            const version = process.env.PACKAGE_VERSION;
-
-            // Wait a moment for release to be fully published
-            await new Promise(resolve => setTimeout(resolve, 5000));
-
-            // Get release info
-            const { data: release } = await github.rest.repos.getRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id
-            });
-
-            // Create latest.json content
-            const latestJson = {
-              version: `v${version}`,
-              notes: release.body,
-              pub_date: release.published_at || new Date().toISOString(),
-              platforms: {}
-            };
-
-            // Helper function to get signature content via GitHub API
-            const getSignatureContent = async (sigAssetName) => {
-              try {
-                // First try to get via download URL (for published releases)
-                const sigAsset = release.assets.find(a => a.name === sigAssetName);
-                if (!sigAsset) {
-                  console.warn(`Signature file ${sigAssetName} not found`);
-                  return '';
-                }
-
-                console.log(`Fetching signature from: ${sigAsset.browser_download_url}`);
-                const response = await fetch(sigAsset.browser_download_url);
-
-                if (!response.ok) {
-                  console.warn(`Failed to fetch signature ${sigAssetName}: ${response.status} ${response.statusText}`);
-                  return '';
-                }
-
-                const sigContent = await response.text();
-                console.log(`Got signature for ${sigAssetName}: ${sigContent.substring(0, 50)}...`);
-                return sigContent.trim();
-              } catch (error) {
-                console.warn(`Error fetching signature for ${sigAssetName}:`, error);
-                return '';
-              }
-            };
-
-            // Process assets and add platform-specific download URLs with signatures
-            const mainAssets = release.assets.filter(asset => !asset.name.endsWith('.sig'));
-
-            for (const asset of mainAssets) {
-              // Construct correct download URL using tag name
-              const correctUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/v${version}/${asset.name}`;
-
-              // Get signature for this asset
-              const signature = await getSignatureContent(`${asset.name}.sig`);
-
-              // Map assets to platform identifiers
-              if (asset.name.includes('_x64-setup.exe')) {
-                latestJson.platforms['windows-x86_64'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('_amd64.AppImage')) {
-                latestJson.platforms['linux-x86_64-appimage'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-                // Keep backward compatibility
-                latestJson.platforms['linux-x86_64'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('_amd64.deb')) {
-                latestJson.platforms['linux-x86_64-deb'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('.x86_64.rpm')) {
-                latestJson.platforms['linux-x86_64-rpm'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('_x64.msi')) {
-                latestJson.platforms['windows-x86_64-msi'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('.app.tar.gz')) {
-                latestJson.platforms['darwin-x86_64'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              } else if (asset.name.includes('_universal.dmg')) {
-                latestJson.platforms['darwin-universal'] = {
-                  signature: signature,
-                  url: correctUrl
-                };
-              }
-            }
-
-            // Convert to JSON string
-            const latestJsonContent = JSON.stringify(latestJson, null, 2);
-
-            // Upload latest.json as release asset directly
-            await github.rest.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              name: 'latest.json',
-              data: Buffer.from(latestJsonContent, 'utf8'),
-              headers: {
-                'content-type': 'application/json'
-              }
-            });
-
-            console.log('✅ latest.json created and uploaded successfully');
-            console.log('Content:', latestJsonContent);
-
-            // Log signature info for debugging
-            const sigFiles = release.assets.filter(a => a.name.endsWith('.sig'));
-            console.log(`Found ${sigFiles.length} signature files:`, sigFiles.map(f => f.name));
-
-            // Check if any signatures are empty
-            const emptySignatures = Object.entries(latestJson.platforms)
-              .filter(([platform, data]) => !data.signature)
-              .map(([platform]) => platform);
-
-            if (emptySignatures.length > 0) {
-              console.warn(`⚠️  Empty signatures found for platforms: ${emptySignatures.join(', ')}`);
-            } else {
-              console.log('✅ All platforms have signatures');
-            }
+          releaseName: "Snowflake v${{ steps.vars.outputs.tag }}"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
