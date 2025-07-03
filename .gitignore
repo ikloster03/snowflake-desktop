@@ -28,3 +28,5 @@ docs/.vitepress/cache
 
 updater-key
 updater-key.pub
+
+.env
