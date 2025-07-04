@@ -5,438 +5,373 @@ description: Download Snowflake for your operating system
 
 # Downloads
 
-Snowflake is available for Windows, macOS, and Linux. Choose the version for your operating system.
+Download the latest version of Snowflake Desktop for your operating system.
 
-<div class="downloads-container">
-  <div class="download-hero">
-    <h2>Download Snowflake</h2>
-    <p>Book manager for writers. Free and open source.</p>
-  </div>
-
-  <div class="download-buttons">
-    <div class="download-card primary">
-      <div class="download-icon">🪟</div>
-      <h3>Windows</h3>
-      <p>Windows 10 or newer</p>
-      <div class="download-actions">
-        <a href="#" class="btn btn-primary" id="download-windows">
-          Download for Windows
+<div class="download-section">
+  <div class="latest-release">
+    <h2>Latest Version</h2>
+    <div class="release-info">
+      <div class="version-info">
+        <span class="version" id="latest-version">Loading...</span>
+        <span class="release-date" id="latest-date"></span>
+      </div>
+      <div class="download-buttons">
+        <a href="#" class="btn btn-primary" id="download-windows" style="display: none;">
+          <i class="icon">💻</i>
+          Windows
         </a>
-        <div class="download-options">
-          <a href="#" class="download-option" data-platform="windows-msi">MSI Installer</a>
-          <a href="#" class="download-option" data-platform="windows-exe">EXE Installer</a>
-        </div>
-      </div>
-    </div>
-    <!-- <div class="download-card">
-      <div class="download-icon">🍎</div>
-      <h3>macOS</h3>
-      <p>macOS 10.15 or newer</p>
-      <div class="download-actions">
-        <a href="#" class="btn btn-secondary" id="download-mac">
-          Download for macOS
+        <a href="#" class="btn btn-primary" id="download-linux" style="display: none;">
+          <i class="icon">🐧</i>
+          Linux
         </a>
-        <div class="download-options">
-          <a href="#" class="download-option" data-platform="mac-dmg">DMG</a>
-          <a href="#" class="download-option" data-platform="mac-app">APP</a>
-        </div>
-      </div>
-    </div> -->
-    <div class="download-card">
-      <div class="download-icon">🐧</div>
-      <h3>Linux</h3>
-      <p>Ubuntu 20.04 or newer</p>
-      <div class="download-actions">
-        <a href="#" class="btn btn-secondary" id="download-linux">
-          Download for Linux
+        <a href="#" class="btn btn-primary" id="download-macos" style="display: none;">
+          <i class="icon">🍎</i>
+          macOS
         </a>
-        <div class="download-options">
-          <a href="#" class="download-option" data-platform="linux-deb">DEB</a>
-          <a href="#" class="download-option" data-platform="linux-appimage">AppImage</a>
+      </div>
+      <div class="additional-downloads">
+        <div class="platform-group" id="windows-group" style="display: none;">
+          <h4>Windows</h4>
+          <div class="download-links">
+            <a href="#" class="download-link" id="download-windows-msi" style="display: none;">MSI Installer</a>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="system-requirements">
-    <h3>System Requirements</h3>
-    <div class="requirements-grid">
-      <div class="requirement-item">
-        <h4>Windows</h4>
-        <ul>
-          <li>Windows 10 or newer</li>
-          <li>64-bit processor</li>
-          <li>4 GB RAM</li>
-          <li>100 MB free space</li>
-        </ul>
-      </div>
-      <!-- <div class="requirement-item">
-        <h4>macOS</h4>
-        <ul>
-          <li>macOS 10.15 (Catalina) or newer</li>
-          <li>Intel or Apple Silicon</li>
-          <li>4 GB RAM</li>
-          <li>100 MB free space</li>
-        </ul>
-      </div> -->
-      <div class="requirement-item">
-        <h4>Linux</h4>
-        <ul>
-          <li>Ubuntu 20.04 or newer</li>
-          <li>64-bit processor</li>
-          <li>4 GB RAM</li>
-          <li>100 MB free space</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="release-info">
-    <div class="current-version">
-      <h3>Current Version</h3>
-      <div class="version-badge" id="current-version">
-        <span class="version-number">Loading...</span>
-        <span class="version-date"></span>
+        <div class="platform-group" id="linux-group" style="display: none;">
+          <h4>Linux</h4>
+          <div class="download-links">
+            <a href="#" class="download-link" id="download-linux-deb" style="display: none;">DEB Package</a>
+            <a href="#" class="download-link" id="download-linux-rpm" style="display: none;">RPM Package</a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="release-notes">
       <h3>What's New</h3>
-      <div class="release-content" id="release-notes">
-        <p>Loading release information...</p>
-      </div>
+      <div id="release-notes-content">Loading release information...</div>
     </div>
   </div>
 
   <div class="all-releases">
-    <h3>All Releases</h3>
-    <div class="releases-list" id="releases-list">
-      <div class="loading">Loading releases...</div>
+    <h2>All Releases</h2>
+    <div id="all-releases-content">
+      <p>Loading releases list...</p>
     </div>
   </div>
-
-  
 </div>
 
 <script>
-const GITHUB_API_URL = 'https://api.github.com/repos/ikloster03/snowflake-desktop';
+// Check if we're in the browser
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  // GitHub API endpoints
+  const GITHUB_API_BASE = 'https://api.github.com/repos/ikloster03/snowflake-desktop';
+  const LATEST_RELEASE_URL = `${GITHUB_API_BASE}/releases/latest`;
+  const ALL_RELEASES_URL = `${GITHUB_API_BASE}/releases`;
 
-async function fetchLatestRelease() {
-  try {
-    const response = await fetch(`${GITHUB_API_URL}/releases/latest`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  // Function to fetch latest release
+  async function fetchLatestRelease() {
+    try {
+      const response = await fetch(LATEST_RELEASE_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const release = await response.json();
+      return release;
+    } catch (error) {
+      console.error('Error loading latest release:', error);
+      return null;
     }
-    const release = await response.json();
-    return release;
-  } catch (error) {
-    console.error('Error loading latest release:', error);
+  }
+
+  // Function to fetch all releases
+  async function fetchAllReleases() {
+    try {
+      const response = await fetch(ALL_RELEASES_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const releases = await response.json();
+      return releases;
+    } catch (error) {
+      console.error('Error loading all releases:', error);
+      return [];
+    }
+  }
+
+  // Function to find primary asset by platform
+  function getPrimaryAssetByPlatform(assets, platform) {
+    const patterns = {
+      windows: [
+        /\.exe$/i,
+        /windows.*\.zip$/i,
+        /win.*\.zip$/i,
+        /\.msi$/i
+      ],
+      linux: [
+        /\.AppImage$/i,
+        /linux.*\.tar\.gz$/i,
+        /\.deb$/i,
+        /\.rpm$/i
+      ],
+      macos: [
+        /\.dmg$/i,
+        /darwin.*\.tar\.gz$/i,
+        /macos.*\.zip$/i,
+        /osx.*\.zip$/i
+      ]
+    };
+
+    const platformPatterns = patterns[platform] || [];
+    
+    for (const pattern of platformPatterns) {
+      const asset = assets.find(asset => 
+        pattern.test(asset.name) && 
+        !asset.name.endsWith('.sig') && 
+        asset.name !== 'latest.json'
+      );
+      if (asset) return asset;
+    }
+    
     return null;
   }
-}
 
-async function fetchAllReleases() {
-  try {
-    const response = await fetch(`${GITHUB_API_URL}/releases`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const releases = await response.json();
-    return releases;
-  } catch (error) {
-    console.error('Error loading all releases:', error);
-    return [];
-  }
-}
+  // Function to update download page
+  async function updateDownloadPage() {
+    try {
+      const [latestRelease, allReleases] = await Promise.all([
+        fetchLatestRelease(),
+        fetchAllReleases()
+      ]);
 
-function getAssetByPlatform(assets, platform) {
-  const platformMap = {
-    'windows-msi': /\.msi$/i,
-    'windows-exe': /\.exe$/i,
-    'mac-dmg': /\.dmg$/i,
-    'mac-app': /\.app\.tar\.gz$/i,
-    'linux-deb': /\.deb$/i,
-    'linux-appimage': /\.AppImage$/i
-  };
-  
-  const pattern = platformMap[platform];
-  if (!pattern) return null;
-  
-  return assets.find(asset => pattern.test(asset.name));
-}
-
-function getPrimaryAssetByPlatform(assets, platform) {
-  const platformMap = {
-    'windows': [/\.msi$/i, /\.exe$/i],
-    'mac': [/\.dmg$/i, /\.app\.tar\.gz$/i],
-    'linux': [/\.deb$/i, /\.AppImage$/i]
-  };
-  
-  const patterns = platformMap[platform];
-  if (!patterns) return null;
-  
-  for (const pattern of patterns) {
-    const asset = assets.find(asset => pattern.test(asset.name));
-    if (asset) return asset;
-  }
-  
-  return null;
-}
-
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
-
-async function updateDownloadPage() {
-  try {
-    const latestRelease = await fetchLatestRelease();
-    const allReleases = await fetchAllReleases();
-    
-    if (latestRelease) {
-      // Update current version info
-      const versionElement = document.getElementById('current-version');
-      if (versionElement) {
-        versionElement.innerHTML = `
-          <span class="version-number">${latestRelease.tag_name}</span>
-          <span class="version-date">${formatDate(latestRelease.published_at)}</span>
-        `;
-      }
-      
-      // Update release notes
-      const releaseNotesElement = document.getElementById('release-notes');
-      if (releaseNotesElement) {
-        const releaseBody = latestRelease.body || 'Release information not available';
-        releaseNotesElement.innerHTML = `<div class="release-body">${releaseBody}</div>`;
-      }
-      
-      // Update download links
-      const assets = latestRelease.assets || [];
-      
-      // Primary download buttons
-      const windowsBtn = document.getElementById('download-windows');
-      const macBtn = document.getElementById('download-mac');
-      const linuxBtn = document.getElementById('download-linux');
-      
-      const windowsAsset = getPrimaryAssetByPlatform(assets, 'windows');
-      const macAsset = getPrimaryAssetByPlatform(assets, 'mac');
-      const linuxAsset = getPrimaryAssetByPlatform(assets, 'linux');
-      
-      if (windowsAsset && windowsBtn) {
-        windowsBtn.href = windowsAsset.browser_download_url;
-        windowsBtn.style.display = 'inline-block';
-      }
-      if (macAsset && macBtn) {
-        macBtn.href = macAsset.browser_download_url;
-        macBtn.style.display = 'inline-block';
-      }
-      if (linuxAsset && linuxBtn) {
-        linuxBtn.href = linuxAsset.browser_download_url;
-        linuxBtn.style.display = 'inline-block';
-      }
-      
-      // Additional download options
-      document.querySelectorAll('.download-option').forEach(option => {
-        const platform = option.getAttribute('data-platform');
-        const asset = getAssetByPlatform(assets, platform);
-        if (asset) {
-          option.href = asset.browser_download_url;
-          option.innerHTML = `${asset.name} (${formatFileSize(asset.size)})`;
-          option.style.display = 'block';
-        } else {
-          option.style.display = 'none';
+      if (latestRelease) {
+        // Update latest version info
+        const versionElement = document.getElementById('latest-version');
+        const dateElement = document.getElementById('latest-date');
+        
+        if (versionElement) {
+          versionElement.textContent = latestRelease.tag_name;
         }
-      });
-    }
-    
-    // Update all releases list
-    const releasesListElement = document.getElementById('releases-list');
-    if (releasesListElement) {
-      // Remove current release from all releases list
-      const filteredReleases = allReleases.filter(release => 
-        !latestRelease || release.tag_name !== latestRelease.tag_name
-      );
-      
-      if (filteredReleases.length > 0) {
-        releasesListElement.innerHTML = filteredReleases.map(release => `
-          <div class="release-item">
-            <div class="release-header">
-              <h4>${release.tag_name}${release.prerelease ? ' (Pre-release)' : ''}</h4>
-              <span class="release-date">${formatDate(release.published_at)}</span>
-            </div>
-            ${release.body ? `<div class="release-description">${release.body}</div>` : ''}
-            <div class="release-assets">
-              ${release.assets
-                .filter(asset => !asset.name.endsWith('.sig') && asset.name !== 'latest.json')
-                .map(asset => `
-                  <a href="${asset.browser_download_url}" class="asset-link" download>
-                    ${asset.name} (${formatFileSize(asset.size)})
-                  </a>
-                `).join('')}
-            </div>
-          </div>
-        `).join('');
-      } else {
-        releasesListElement.innerHTML = '<p>No previous releases found</p>';
+        
+        if (dateElement) {
+          const releaseDate = new Date(latestRelease.published_at);
+          dateElement.textContent = releaseDate.toLocaleDateString('en-US');
+        }
+
+        // Update download buttons
+        const platforms = ['windows', 'linux', 'macos'];
+        platforms.forEach(platform => {
+          const button = document.getElementById(`download-${platform}`);
+          if (button) {
+            const asset = getPrimaryAssetByPlatform(latestRelease.assets, platform);
+            if (asset) {
+              button.href = asset.browser_download_url;
+              button.style.display = 'inline-flex';
+              button.setAttribute('download', '');
+            }
+          }
+        });
+
+        // Update additional download links
+        const additionalDownloads = {
+          'windows-msi': /\.msi$/i,
+          'linux-deb': /\.deb$/i,
+          'linux-rpm': /\.rpm$/i
+        };
+
+        Object.entries(additionalDownloads).forEach(([id, pattern]) => {
+          const link = document.getElementById(`download-${id}`);
+          if (link) {
+            const asset = latestRelease.assets.find(asset => 
+              pattern.test(asset.name) && 
+              !asset.name.endsWith('.sig') && 
+              asset.name !== 'latest.json'
+            );
+            if (asset) {
+              link.href = asset.browser_download_url;
+              link.style.display = 'inline-flex';
+              link.setAttribute('download', '');
+            }
+          }
+        });
+
+        // Show groups with additional links
+        const windowsGroup = document.getElementById('windows-group');
+        const linuxGroup = document.getElementById('linux-group');
+        
+        if (windowsGroup && document.getElementById('download-windows-msi').style.display !== 'none') {
+          windowsGroup.style.display = 'block';
+        }
+        
+        if (linuxGroup && (document.getElementById('download-linux-deb').style.display !== 'none' || 
+                          document.getElementById('download-linux-rpm').style.display !== 'none')) {
+          linuxGroup.style.display = 'block';
+        }
+
+        // Update release notes
+        const notesElement = document.getElementById('release-notes-content');
+        if (notesElement) {
+          if (latestRelease.body && latestRelease.body.trim()) {
+            notesElement.innerHTML = latestRelease.body
+              .replace(/\n/g, '<br>')
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>');
+          } else {
+            notesElement.innerHTML = '<p>Release information not available.</p>';
+          }
+        }
       }
+
+      // Update all releases list
+      const allReleasesElement = document.getElementById('all-releases-content');
+      if (allReleasesElement && allReleases.length > 0) {
+        // Filter out current release from all releases list
+        const filteredReleases = allReleases.filter(release => 
+          !latestRelease || release.id !== latestRelease.id
+        );
+        
+        if (filteredReleases.length > 0) {
+          allReleasesElement.innerHTML = filteredReleases.map(release => {
+            const releaseDate = new Date(release.published_at);
+            const assets = release.assets.filter(asset => 
+              !asset.name.endsWith('.sig') && asset.name !== 'latest.json'
+            );
+            
+            const downloadLinks = assets.map(asset => 
+              `<a href="${asset.browser_download_url}" class="download-link" download>${asset.name}</a>`
+            ).join('');
+
+            const preReleaseNote = release.prerelease ? '<span class="pre-release">Pre-release</span>' : '';
+
+            return `
+              <div class="release-item">
+                <div class="release-header">
+                  <h3>${release.tag_name} ${preReleaseNote}</h3>
+                  <span class="release-date">${releaseDate.toLocaleDateString('en-US')}</span>
+                </div>
+                <div class="release-body">
+                  ${release.body ? release.body.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') : 'No description available'}
+                </div>
+                <div class="release-downloads">
+                  ${downloadLinks}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          allReleasesElement.innerHTML = '<p>No previous releases found.</p>';
+        }
+      }
+    } catch (error) {
+      console.error('Error updating download page:', error);
     }
-  } catch (error) {
-    console.error('Error in updateDownloadPage:', error);
   }
-}
 
-// Launch function on page load
-document.addEventListener('DOMContentLoaded', updateDownloadPage);
-window.addEventListener('load', updateDownloadPage);
+  // Run page update after DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateDownloadPage);
+  } else {
+    updateDownloadPage();
+  }
 
-if (document.readyState !== 'loading') {
-  updateDownloadPage();
+  // Additional check for cases when DOMContentLoaded has already passed
+  window.addEventListener('load', function() {
+    if (document.getElementById('latest-version') && document.getElementById('latest-version').textContent === 'Loading...') {
+      updateDownloadPage();
+    }
+  });
 }
 </script>
 
 <style>
-.downloads-container {
-  max-width: 1200px;
+.download-section {
+  max-width: 800px;
   margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.latest-release {
+  background: var(--vp-c-bg-soft);
+  border-radius: 12px;
   padding: 2rem;
+  margin-bottom: 3rem;
+  border: 1px solid var(--vp-c-divider);
 }
 
-.download-hero {
-  text-align: center;
-  padding: 3rem 0;
-}
-
-.download-hero h2 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.latest-release h2 {
+  margin-top: 0;
   color: var(--vp-c-text-1);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
 }
 
-.download-hero p {
-  font-size: 1.2rem;
+.release-info {
+  margin-bottom: 2rem;
+}
+
+.version-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.version {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--vp-c-brand);
+}
+
+.release-date {
   color: var(--vp-c-text-2);
+  font-size: 0.9rem;
 }
 
 .download-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
-}
-
-.download-card {
-  background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 16px;
-  padding: 2.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.download-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, transparent, rgba(var(--vp-c-brand-rgb), 0.05));
-  border-radius: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.download-card:hover::before {
-  opacity: 1;
-}
-
-.download-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  border-color: var(--vp-c-brand-light);
-}
-
-.download-card.primary {
-  border-color: var(--vp-c-brand);
-  background: linear-gradient(135deg, var(--vp-c-brand-soft), var(--vp-c-brand-softer));
-  box-shadow: 0 4px 20px rgba(var(--vp-c-brand-rgb), 0.2);
-}
-
-.download-card.primary:hover {
-  box-shadow: 0 12px 40px rgba(var(--vp-c-brand-rgb), 0.3);
-}
-
-.download-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-}
-
-.download-card h3 {
-  font-size: 1.8rem;
-  margin-bottom: 0.8rem;
-  color: var(--vp-c-text-1);
-  font-weight: 700;
-}
-
-.download-card p {
-  color: var(--vp-c-text-2);
-  margin-bottom: 2rem;
-  font-size: 1.1rem;
-}
-
-.download-actions {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .btn {
-  padding: 16px 32px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   text-decoration: none !important;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 600;
+  font-size: 1rem;
   transition: all 0.3s ease;
   border: 2px solid transparent;
-  display: inline-block;
   position: relative;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: inherit;
+  z-index: 1;
+}
+
+.btn:hover {
+  text-decoration: none !important;
 }
 
 .btn:focus,
 .btn:active,
 .btn:visited {
   text-decoration: none !important;
-  color: inherit;
+}
+
+.btn * {
+  position: relative;
+  z-index: 2;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--vp-c-brand), var(--vp-c-brand-dark));
+  background: linear-gradient(135deg, var(--vp-c-brand), var(--vp-c-brand-darker));
   color: white !important;
-  border-color: var(--vp-c-brand);
-  box-shadow: 0 4px 15px rgba(var(--vp-c-brand-rgb), 0.3);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--vp-c-brand-light), var(--vp-c-brand));
+  background: linear-gradient(135deg, var(--vp-c-brand-darker), var(--vp-c-brand));
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(var(--vp-c-brand-rgb), 0.4);
-  color: white !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:focus,
@@ -446,111 +381,54 @@ if (document.readyState !== 'loading') {
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, transparent, rgba(var(--vp-c-brand-rgb), 0.1));
-  color: var(--vp-c-brand) !important;
-  border-color: var(--vp-c-brand);
-  box-shadow: 0 4px 15px rgba(var(--vp-c-brand-rgb), 0.2);
+  background: linear-gradient(135deg, var(--vp-c-bg-soft), var(--vp-c-bg));
+  color: var(--vp-c-text-1) !important;
+  border: 2px solid var(--vp-c-divider);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, var(--vp-c-brand-soft), var(--vp-c-brand-lighter));
+  background: linear-gradient(135deg, var(--vp-c-bg), var(--vp-c-bg-soft));
+  border-color: var(--vp-c-brand);
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(var(--vp-c-brand-rgb), 0.3);
-  color: var(--vp-c-brand) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:focus,
 .btn-secondary:active,
 .btn-secondary:visited {
-  color: var(--vp-c-brand) !important;
+  color: var(--vp-c-text-1) !important;
 }
 
-.download-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.download-option {
-  color: var(--vp-c-text-2);
-  text-decoration: none;
-  font-size: 0.9rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.download-option:hover {
-  background: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
-}
-
-.release-info {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-  margin: 3rem 0;
-  padding: 2rem;
-  background: var(--vp-c-bg-soft);
-  border-radius: 12px;
-}
-
-.current-version h3,
-.release-notes h3 {
-  margin-bottom: 1rem;
-  color: var(--vp-c-text-1);
-}
-
-.version-badge {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: var(--vp-c-brand-soft);
-  border-radius: 8px;
-  border: 1px solid var(--vp-c-brand);
-}
-
-.version-number {
+.icon {
   font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--vp-c-brand);
 }
 
-.version-date {
-  font-size: 0.9rem;
-  color: var(--vp-c-text-2);
+.release-notes {
+  background: var(--vp-c-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--vp-c-divider);
 }
 
-.release-content {
-  color: var(--vp-c-text-2);
-  line-height: 1.6;
-}
-
-.release-body {
-  white-space: pre-wrap;
-}
-
-.all-releases {
-  margin: 3rem 0;
-}
-
-.all-releases h3 {
-  margin-bottom: 1.5rem;
+.release-notes h3 {
+  margin-top: 0;
   color: var(--vp-c-text-1);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
 }
 
-.releases-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.all-releases h2 {
+  color: var(--vp-c-text-1);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
 }
 
 .release-item {
   background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--vp-c-divider);
 }
 
 .release-header {
@@ -560,96 +438,79 @@ if (document.readyState !== 'loading') {
   margin-bottom: 1rem;
 }
 
-.release-header h4 {
+.release-header h3 {
   margin: 0;
   color: var(--vp-c-text-1);
+  font-size: 1.3rem;
 }
 
-.release-date {
-  color: var(--vp-c-text-2);
-  font-size: 0.9rem;
-}
-
-.release-assets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.asset-link {
-  color: var(--vp-c-brand);
-  text-decoration: none;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--vp-c-brand);
+.pre-release {
+  background: #f59e0b;
+  color: white;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 0.5rem;
 }
 
-.asset-link:hover {
-  background: var(--vp-c-brand-soft);
-}
-
-.system-requirements {
-  margin: 3rem 0;
-}
-
-.system-requirements h3 {
-  margin-bottom: 1.5rem;
-  color: var(--vp-c-text-1);
-}
-
-.requirements-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-}
-
-.requirement-item {
-  background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.requirement-item h4 {
+.release-body {
+  color: var(--vp-c-text-2);
+  line-height: 1.6;
   margin-bottom: 1rem;
-  color: var(--vp-c-text-1);
 }
 
-.requirement-item ul {
-  list-style: none;
-  padding: 0;
+.release-downloads {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.requirement-item li {
-  color: var(--vp-c-text-2);
-  padding: 0.25rem 0;
-  position: relative;
-  padding-left: 1.5rem;
+.download-link {
+  background: var(--vp-c-brand);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  text-decoration: none !important;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.requirement-item li:before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--vp-c-brand);
-  font-weight: bold;
+.download-link:hover {
+  background: var(--vp-c-brand-darker);
+  transform: translateY(-1px);
+  text-decoration: none !important;
 }
 
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--vp-c-text-2);
+.download-link:focus,
+.download-link:active,
+.download-link:visited {
+  text-decoration: none !important;
 }
 
 @media (max-width: 768px) {
-  .download-buttons {
-    grid-template-columns: 1fr;
+  .download-section {
+    padding: 1rem;
   }
   
-  .release-info {
-    grid-template-columns: 1fr;
+  .latest-release {
+    padding: 1.5rem;
+  }
+  
+  .version-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .download-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    justify-content: center;
   }
   
   .release-header {
@@ -658,12 +519,56 @@ if (document.readyState !== 'loading') {
     gap: 0.5rem;
   }
   
-  .release-assets {
+  .release-downloads {
     flex-direction: column;
   }
-  
-  .requirements-grid {
-    grid-template-columns: 1fr;
-  }
+}
+
+.additional-downloads {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.platform-group {
+  margin-bottom: 1.5rem;
+}
+
+.platform-group h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--vp-c-text-1);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.platform-group .download-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.platform-group .download-link {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1) !important;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid var(--vp-c-divider);
+  transition: all 0.2s ease;
+}
+
+.platform-group .download-link:hover {
+  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-c-brand);
+  transform: translateY(-1px);
+  text-decoration: none !important;
+}
+
+.platform-group .download-link:focus,
+.platform-group .download-link:active,
+.platform-group .download-link:visited {
+  text-decoration: none !important;
 }
 </style> 
