@@ -289,6 +289,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 }
 
 .latest-release {
+  word-break: break-word;
   background: var(--vp-c-bg-soft);
   border-radius: 12px;
   padding: 2rem;
@@ -456,6 +457,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 }
 
 .release-body {
+  word-break: break-word;
   color: var(--vp-c-text-2);
   line-height: 1.6;
   margin-bottom: 1rem;
@@ -492,11 +494,11 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
 @media (max-width: 768px) {
   .download-section {
-    padding: 1rem;
+    padding: 0;
   }
   
   .latest-release {
-    padding: 1.5rem;
+    padding: 0.5rem;
   }
   
   .version-info {
@@ -517,6 +519,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .release-item {
+    padding: 0.5rem;
   }
   
   .release-downloads {
