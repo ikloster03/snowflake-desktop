@@ -9,13 +9,13 @@ export default withMermaid(
       root: {
         label: 'Русский',
         lang: 'ru',
-        title: 'Snowflake Docs',
+        title: 'Snowflake',
         description: 'Документация проекта Snowflake',
       },
       en: {
         label: 'English',
         lang: 'en',
-        title: 'Snowflake Docs',
+        title: 'Snowflake',
         description: 'Snowflake Documentation',
         themeConfig: {
           search: {
@@ -24,8 +24,9 @@ export default withMermaid(
 
           nav: [
             { text: 'Home', link: '/en/' },
+            { text: 'Downloads', link: '/en/downloads' },
             { text: 'Guide', link: '/en/user-guide' },
-            { text: 'Architecture', link: '/en/architecture' },
+            { text: 'Roadmap', link: '/en/roadmap' },
           ],
 
           sidebar: [
@@ -41,7 +42,6 @@ export default withMermaid(
             {
               text: 'Development',
               items: [
-                { text: 'Development plan', link: '/en/plan' },
                 { text: 'Strategy', link: '/en/product-strategy' },
                 { text: 'User stories', link: '/en/user-stories-tasks' },
                 { text: 'Acceptance criteria', link: '/en/acceptance-criteria' },
@@ -67,8 +67,9 @@ export default withMermaid(
 
       nav: [
         { text: 'Главная', link: '/' },
-        { text: 'Гайд', link: '/user-guide' },
-        { text: 'Архитектура', link: '/architecture' },
+        { text: 'Загрузки', link: '/downloads' },
+        { text: 'Руководство пользователя', link: '/user-guide' },
+        { text: 'Дорожная карта', link: '/roadmap' },
       ],
 
       sidebar: [
@@ -84,7 +85,6 @@ export default withMermaid(
         {
           text: 'Разработка',
           items: [
-            { text: 'План разработки', link: '/plan' },
             { text: 'Стратегия', link: '/product-strategy' },
             { text: 'Пользовательские истории', link: '/user-stories-tasks' },
             { text: 'Критерии приемки', link: '/acceptance-criteria' },
