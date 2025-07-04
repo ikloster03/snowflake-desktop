@@ -1,204 +1,434 @@
-# Snowflake Desktop Development Roadmap
+# Roadmap
 
-## Introduction
+We're actively working on improvements to Snowflake Desktop.
 
-This document outlines the planned development roadmap for Snowflake Desktop. The plan may be revised at any time.
+For more detail about individual releases see the [Changelog](https://github.com/ikloster03/snowflake-desktop/releases). Have a feature request? Create an [issue on GitHub](https://github.com/ikloster03/snowflake-desktop/issues).
 
-## Potential Improvements
+<div class="roadmap-container">
 
-- **Text Editor Enhancements**
+## 🚀 Active Development
 
-  - Advanced formatting (lists, quotes, headers of different levels)
-  - Integration of spelling and grammar checking
-  - Simple table insertion capability
-  - Text statistics (word count, character count, estimated reading time)
+<div class="roadmap-section active">
+  <div class="roadmap-item">
+    <div class="roadmap-icon">📝</div>
+    <div class="roadmap-content">
+      <h3>Enhanced Text Editor</h3>
+      <p>Extended formatting, spell checking, and text statistics.</p>
+    </div>
+  </div>
 
-- **Performance Optimization**
+  <div class="roadmap-item">
+    <div class="roadmap-icon">⚡</div>
+    <div class="roadmap-content">
+      <h3>Performance Optimization</h3>
+      <p>Improved loading of large projects and memory management.</p>
+    </div>
+  </div>
 
-  - Improved loading of large projects
-  - Optimization for projects with a large number of characters
-  - More efficient memory management when working with visual tools
+  <div class="roadmap-item">
+    <div class="roadmap-icon">📊</div>
+    <div class="roadmap-content">
+      <h3>Export System</h3>
+      <p>Extended DOCX export settings and preview functionality.</p>
+    </div>
+  </div>
+</div>
 
-- **Export System Improvements**
+## 📋 Planned
 
-  - Extended DOCX export settings
-  - Export preview
-  - Character map export to graphic formats (PNG, SVG)
+<div class="roadmap-section planned">
+  <div class="roadmap-item">
+    <div class="roadmap-icon">🎯</div>
+    <div class="roadmap-content">
+      <h3>Progress Tracker</h3>
+      <p>Track word count goals and deadlines.</p>
+    </div>
+  </div>
 
-- **Planning Functionality Expansion**
+  <div class="roadmap-item">
+    <div class="roadmap-icon">🗺️</div>
+    <div class="roadmap-content">
+      <h3>Enhanced World Map</h3>
+      <p>Map layers, scaling, and event binding to locations.</p>
+    </div>
+  </div>
 
-  - Task tracker for monitoring book progress
-  - Setting word count goals and deadlines
-  - Progress visualization and statistics
+  <div class="roadmap-item">
+    <div class="roadmap-icon">☁️</div>
+    <div class="roadmap-content">
+      <h3>Cloud Backup</h3>
+      <p>Automatic backup with version comparison.</p>
+    </div>
+  </div>
 
-- **World Map Improvements**
+  <div class="roadmap-item">
+    <div class="roadmap-icon">🤖</div>
+    <div class="roadmap-content">
+      <h3>AI Assistant</h3>
+      <p>Character name generation and description assistance.</p>
+    </div>
+  </div>
 
-  - Adding map layers
-  - Scaling parts of the map
-  - Linking events to locations on the map
-  - Displaying character movements
+  <div class="roadmap-item">
+    <div class="roadmap-icon">📝</div>
+    <div class="roadmap-content">
+      <h3>Notes System</h3>
+      <p>Create and organize research notes.</p>
+    </div>
+  </div>
 
-- **Backup System Update**
+  <div class="roadmap-item">
+    <div class="roadmap-icon">📈</div>
+    <div class="roadmap-content">
+      <h3>Analysis Tools</h3>
+      <p>Word frequency analysis and character appearance tracking.</p>
+    </div>
+  </div>
+</div>
 
-  - Extended automatic backup settings
-  - Cloud backup (local server)
-  - Version comparison and selective restoration
+## ✅ Launched
 
-- **Initial AI Integration**
+<div class="roadmap-section launched">
+  <div class="roadmap-timeline">
+    <div class="timeline-period">January 2025</div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">🎨</div>
+      <div class="roadmap-content">
+        <h3>Character Map</h3>
+        <p>Visual representation of characters and their relationships.</p>
+        <div class="version-badge">v0.2.26</div>
+      </div>
+    </div>
+  </div>
 
-  - Character name generation
-  - Assistance in creating character and location descriptions
-  - Plot development suggestions
-  - Text structure analysis and recommendations
+  <div class="roadmap-timeline">
+    <div class="timeline-period">December 2024</div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">📅</div>
+      <div class="roadmap-content">
+        <h3>Timeline</h3>
+        <p>Tool for planning events in chronological order.</p>
+        <div class="version-badge">v0.2.20</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">🏗️</div>
+      <div class="roadmap-content">
+        <h3>Plot Planner</h3>
+        <p>Structured planning of chapters and scenes.</p>
+        <div class="version-badge">v0.2.15</div>
+      </div>
+    </div>
+  </div>
 
-- **Notes System**
+  <div class="roadmap-timeline">
+    <div class="timeline-period">November 2024</div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">🌍</div>
+      <div class="roadmap-content">
+        <h3>World Map</h3>
+        <p>Create and edit location maps for your world.</p>
+        <div class="version-badge">v0.2.10</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">👥</div>
+      <div class="roadmap-content">
+        <h3>Character Management</h3>
+        <p>Detailed character profiles with descriptions and characteristics.</p>
+        <div class="version-badge">v0.2.5</div>
+      </div>
+    </div>
+  </div>
 
-  - Creation and organization of research notes
-  - Attaching notes to scenes, characters, and locations
-  - Quick note search
-  - Organizing notes in a tree structure
+  <div class="roadmap-timeline">
+    <div class="timeline-period">October 2024</div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">📚</div>
+      <div class="roadmap-content">
+        <h3>Project Management</h3>
+        <p>Create and organize writing projects.</p>
+        <div class="version-badge">v0.2.0</div>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">🎭</div>
+      <div class="roadmap-content">
+        <h3>Theme System</h3>
+        <p>Light and dark themes for comfortable work.</p>
+        <div class="version-badge">v0.1.5</div>
+      </div>
+    </div>
+  </div>
 
-- **Advanced Analysis Tools**
+  <div class="roadmap-timeline">
+    <div class="timeline-period">September 2024</div>
+    <div class="roadmap-item">
+      <div class="roadmap-icon">🚀</div>
+      <div class="roadmap-content">
+        <h3>First Release</h3>
+        <p>Basic functionality for managing writing projects.</p>
+        <div class="version-badge">v0.1.0</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  - Word frequency analysis
-  - Tracking character appearances in scenes
-  - Analysis of emotional tone in scenes
-  - Visualization of character arcs
+## 🔬 Experimental Features
 
-- **Enhanced Series Management**
+<div class="roadmap-section experimental">
+  <div class="roadmap-item experimental-item">
+    <div class="roadmap-icon">🧠</div>
+    <div class="roadmap-content">
+      <h3>AI Writing Assistant</h3>
+      <p><strong>Status:</strong> Concept testing</p>
+      <p>Built-in AI helper for idea generation and text improvement.</p>
+      <div class="experimental-status">
+        <span class="status-indicator research">Research</span>
+      </div>
+    </div>
+  </div>
 
-  - Detailed book series planning
-  - Common lore elements for the entire series
-  - Tracking character development across multiple books
-  - Managing plot lines spanning multiple books
+  <div class="roadmap-item experimental-item">
+    <div class="roadmap-icon">🎤</div>
+    <div class="roadmap-content">
+      <h3>Voice Input</h3>
+      <p><strong>Status:</strong> Technology research</p>
+      <p>Speech recognition system for text dictation.</p>
+      <div class="experimental-status">
+        <span class="status-indicator research">Research</span>
+      </div>
+    </div>
+  </div>
 
-- **Basic Collaboration Features**
+  <div class="roadmap-item experimental-item">
+    <div class="roadmap-icon">🧪</div>
+    <div class="roadmap-content">
+      <h3>Character Modeling</h3>
+      <p><strong>Status:</strong> Concept development</p>
+      <p>Advanced system for creating psychologically credible characters.</p>
+      <div class="experimental-status">
+        <span class="status-indicator concept">Concept</span>
+      </div>
+    </div>
+  </div>
 
-  - Export and import of individual project components
-  - Comment system for editors and co-authors
-  - Export of special versions for editors
-  - Change comparison and merging
+  <div class="roadmap-item experimental-item">
+    <div class="roadmap-icon">👥</div>
+    <div class="roadmap-content">
+      <h3>Collaboration</h3>
+      <p><strong>Status:</strong> Active development</p>
+      <p>Technology for simultaneous multi-author work.</p>
+      <div class="experimental-status">
+        <span class="status-indicator development">Development</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-- **Extended Tag System**
+</div>
 
-  - Tags for all project elements
-  - Tag filtering
-  - Color marking of tags
-  - Automatic thematic tagging
+<style>
+.roadmap-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
 
-- **External Service Integration**
+.roadmap-section {
+  margin-bottom: 4rem;
+}
 
-  - Synchronization with cloud storage (Google Drive, Dropbox)
-  - Integration with Grammarly for advanced grammar checking
-  - Publication in e-book formats
-  - Export for self-publishing platforms
+.roadmap-section.active .roadmap-item {
+  border-left: 4px solid var(--vp-c-brand);
+  background: linear-gradient(135deg, var(--vp-c-brand-soft), transparent);
+}
 
-- **Enhanced User Interface**
+.roadmap-section.planned .roadmap-item {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), transparent);
+}
 
-  - Fully customizable interface
-  - New themes
-  - Focus mode for writing
-  - Improved accessibility
+.roadmap-section.launched .roadmap-item {
+  border-left: 4px solid #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+}
 
-- **Multimedia Support**
+.roadmap-section.experimental .roadmap-item {
+  border-left: 4px solid #8b5cf6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), transparent);
+}
 
-  - Extended image support
-  - Adding audio notes
-  - Built-in links to research materials
-  - Reference gallery for characters and locations
+.roadmap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
 
-- **Full Professional Feature Set**
+.roadmap-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
-  - Stability and optimization of all components
-  - Comprehensive documentation
-  - Package of templates for various genres
-  - Extension ecosystem
+.roadmap-item:hover::before {
+  opacity: 1;
+}
 
-- **Enhanced Project Management**
+.roadmap-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
 
-  - Project portfolio
-  - Templates for quick creation of new projects
-  - Import data from other writing programs
-  - Unified interface for managing multiple projects
+.roadmap-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vp-c-bg);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-- **Full Collaboration System**
+.roadmap-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
 
-  - Real-time project work
-  - Role and permission management
-  - Change history with author attribution
-  - In-project chat and discussions
+.roadmap-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--vp-c-text-1);
+}
 
-- **Extended AI Integration**
+.roadmap-content p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
 
-  - Plot integrity analysis
-  - Finding inconsistencies in text and lore
-  - Advanced character development suggestions
-  - Assistance in world description generation
+.roadmap-timeline {
+  position: relative;
+  margin-bottom: 2rem;
+}
 
-- **Web Application Version**
+.timeline-period {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--vp-c-brand);
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--vp-c-brand);
+}
 
-  - Synchronization between desktop and web versions
-  - Responsive design for mobile devices
-  - Basic offline functionality
-  - Compatibility with major browsers
+.version-badge {
+  display: inline-block;
+  background: var(--vp-c-brand);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  text-decoration: none;
+}
 
-- **Marketplace for Extensions and Templates**
+.experimental-item {
+  position: relative;
+}
 
-  - User plugin ecosystem
-  - Paid and free templates for various genres
-  - Community ability to create and share extensions
-  - Integration with content sales platforms
+.experimental-status {
+  margin-top: 1rem;
+}
 
-- **Publishing Platform Integration**
-  - Direct export to major publishing formats
-  - Automatic manuscript preparation according to requirements
-  - Integration with self-publishing platforms
-  - Tools for book marketing and promotion
+.status-indicator {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-## Experimental Features
+.status-indicator.research {
+  background: #fef3c7;
+  color: #92400e;
+}
 
-The following features are under active research and testing. They may appear in future versions of the application, but specific timelines are not yet determined.
+.status-indicator.concept {
+  background: #ede9fe;
+  color: #7c3aed;
+}
 
-### AI Assistant for Writers
+.status-indicator.development {
+  background: #d1fae5;
+  color: #065f46;
+}
 
-- **Status**: Conceptual testing
-- **Description**: Built-in AI assistant for generating ideas, overcoming creative blocks, and improving text.
-- **Current Results**:
-  - Successful experiments with name generation and basic descriptions
-  - Issues with consistency when generating large volumes of text
-  - Good results when editing and improving existing text
+@media (max-width: 768px) {
+  .roadmap-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .roadmap-icon {
+    width: 3rem;
+    height: 3rem;
+    font-size: 2rem;
+    margin: 0 auto 1rem auto;
+  }
+  
+  .timeline-period {
+    font-size: 1rem;
+  }
+}
 
-### Voice Input and Dictation
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-- **Status**: Technology research
-- **Description**: Speech recognition system for text dictation and voice control of the application.
-- **Current Results**:
-  - Good results using third-party APIs
-  - Difficulties with recognizing specific terminology
-  - High accuracy when used for commands
+.roadmap-item {
+  animation: slideInUp 0.6s ease-out;
+}
 
-### Character Modeling System
+/* Interactive effects */
+.roadmap-item:hover .roadmap-icon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
 
-- **Status**: Conceptual development
-- **Description**: Advanced system for creating psychologically authentic characters with modeling of their behavior in various situations.
-- **Current Results**:
-  - Developed basic model of psychological profiles
-  - Interesting results in dialogue simulation experiments
-  - Interface needs improvement for convenient use
-
-### Real-time Parallel Editing
-
-- **Status**: Active development
-- **Description**: Technology allowing multiple authors to work on the same document simultaneously with instant change synchronization.
-- **Current Results**:
-  - Working prototype based on CRDT technology
-  - Good performance with a small number of users
-  - Issues with conflict resolution in complex formatting
-
-## Getting Feedback
-
-We value our community's opinion and invite users to share their ideas and suggestions:
-
-- In the Issues section on GitHub: [github.com/ikloster03/snowflake-desktop/issues](https://github.com/ikloster03/snowflake-desktop/issues)
-
-Priorities and timelines in the roadmap may change based on user feedback and technical constraints.
+.roadmap-item:hover .version-badge {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+</style>
