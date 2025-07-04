@@ -8,7 +8,7 @@ hero:
   text: "Менеджер книг для писателей"
   tagline: "Создан для того, чтобы сделать вас исключительно продуктивными. Snowflake — лучший способ управлять вашими книгами и планировать истории."
   image:
-    src: /assets/snowflake.svg
+    src: /snowflake.svg
     alt: Snowflake Logo
   actions:
     - theme: alt

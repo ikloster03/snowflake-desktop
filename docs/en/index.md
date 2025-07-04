@@ -8,7 +8,7 @@ hero:
   text: "Book Manager for Writers"
   tagline: "Built to make you extraordinarily productive. Snowflake is the best way to manage your books and plan your stories."
   image:
-    src: /assets/snowflake.svg
+    src: /snowflake.svg
     alt: Snowflake Logo
   actions:
     - theme: alt
