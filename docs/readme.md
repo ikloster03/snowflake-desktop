@@ -44,7 +44,6 @@ Snowflake - это десктопное приложение для писате
 ## Навигация по документации
 
 - [Архитектура](architecture.md)
-- [План разработки](plan.md)
 - [Пользовательские истории](user-stories-tasks.md)
 - [Критерии приемки](acceptance-criteria.md)
 - [SWOT-анализ](swot.md)
