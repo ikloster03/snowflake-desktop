@@ -6,7 +6,7 @@
 
 Book manager for writers. Created to make you exceptionally productive.
 
-🌐 **[Official Website](https://snowflake.ikloster.tech/en)** | 📥 **[Download](https://snowflake.ikloster.tech/en/downloads)** | 📖 **[Documentation](https://snowflake.ikloster.tech/en/user-guide)**
+🌐 **[Official Website](https://snowflake.ikloster.tech/en)** | 📥 **[Download](https://snowflake.ikloster.tech/en/downloads.html)** | 📖 **[Documentation](https://snowflake.ikloster.tech/en/user-guide.html)**
 
 ## Description
 
@@ -49,7 +49,7 @@ The application is built on modern technologies: **Tauri** for the desktop part 
 
 ### Download Ready Application
 
-Go to the [downloads page](https://snowflake.ikloster.tech/en/downloads) and download the version for your operating system:
+Go to the [downloads page](https://snowflake.ikloster.tech/en/downloads.html) and download the version for your operating system:
 
 - **Windows**: `.exe` or `.msi` installer
 - **Linux**: `.AppImage`, `.deb`, or `.rpm` package
@@ -167,9 +167,9 @@ snowflake-desktop/
 ## Useful Links
 
 - 🌐 [Official Website](https://snowflake.ikloster.tech/en)
-- 📥 [Download Application](https://snowflake.ikloster.tech/en/downloads)
-- 📖 [User Guide](https://snowflake.ikloster.tech/en/user-guide)
-- 🗺️ [Roadmap](https://snowflake.ikloster.tech/en/roadmap)
+- 📥 [Download Application](https://snowflake.ikloster.tech/en/downloads.html)
+- 📖 [User Guide](https://snowflake.ikloster.tech/en/user-guide.html)
+- 🗺️ [Roadmap](https://snowflake.ikloster.tech/en/roadmap.html)
 - 🐛 [Report Bug](https://github.com/ikloster03/snowflake-desktop/issues)
 - 💬 [Discussions](https://github.com/ikloster03/snowflake-desktop/discussions)
 - 📱 [Telegram Group](https://t.me/snowflake_desktop)

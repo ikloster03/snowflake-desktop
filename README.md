@@ -6,7 +6,7 @@
 
 Менеджер книг для писателей. Создан для того, чтобы сделать вас исключительно продуктивными.
 
-🌐 **[Официальный сайт](https://snowflake.ikloster.tech)** | 📥 **[Скачать](https://snowflake.ikloster.tech/downloads)** | 📖 **[Документация](https://snowflake.ikloster.tech/user-guide)**
+🌐 **[Официальный сайт](https://snowflake.ikloster.tech)** | 📥 **[Скачать](https://snowflake.ikloster.tech/downloads.html)** | 📖 **[Документация](https://snowflake.ikloster.tech/user-guide.html)**
 
 ## Описание
 
@@ -49,7 +49,7 @@ Snowflake Desktop — это мощное десктопное приложен�
 
 ### Скачать готовое приложение
 
-Перейдите на [страницу загрузок](https://snowflake.ikloster.tech/downloads) и скачайте версию для вашей операционной системы:
+Перейдите на [страницу загрузок](https://snowflake.ikloster.tech/downloads.html) и скачайте версию для вашей операционной системы:
 
 - **Windows**: `.exe` или `.msi` установщик
 - **Linux**: `.AppImage`, `.deb` или `.rpm` пакет
@@ -167,9 +167,9 @@ snowflake-desktop/
 ## Полезные ссылки
 
 - 🌐 [Официальный сайт](https://snowflake.ikloster.tech)
-- 📥 [Скачать приложение](https://snowflake.ikloster.tech/downloads)
-- 📖 [Руководство пользователя](https://snowflake.ikloster.tech/user-guide)
-- 🗺️ [Дорожная карта](https://snowflake.ikloster.tech/roadmap)
+- 📥 [Скачать приложение](https://snowflake.ikloster.tech/downloads.html)
+- 📖 [Руководство пользователя](https://snowflake.ikloster.tech/user-guide.html)
+- 🗺️ [Дорожная карта](https://snowflake.ikloster.tech/roadmap.html)
 - 🐛 [Сообщить об ошибке](https://github.com/ikloster03/snowflake-desktop/issues)
 - 💬 [Обсуждения](https://github.com/ikloster03/snowflake-desktop/discussions)
 - 📱 [Telegram-группа](https://t.me/snowflake_desktop)
