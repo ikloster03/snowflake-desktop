@@ -244,6 +244,23 @@ function createAndPushTag(version, force = false) {
 }
 
 /**
+ * Выполняет pre-push проверки
+ */
+function runPrePushChecks() {
+  try {
+    console.log('🔍 Running pre-push checks...');
+    execSync('pnpm pre-push', {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: 'inherit'
+    });
+    console.log('✅ Pre-push checks passed');
+  } catch (error) {
+    throw new Error(`Pre-push checks failed: ${error.message}`);
+  }
+}
+
+/**
  * Основная функция
  */
 function main() {
@@ -308,6 +325,9 @@ function main() {
       console.error('   Use --force to overwrite or choose a different version.');
       process.exit(1);
     }
+
+    // Выполняем pre-push проверки
+    runPrePushChecks();
 
     // Обновляем файлы версий
     packageJson.version = newVersion;
