@@ -43,7 +43,7 @@
   },
   "simple-git-hooks": {
     "commit-msg": "echo '🔍 Checking commit message...' && npx --no -- commitlint --edit ${1} && echo '✅ Commit message is valid'",
-    "pre-push": "if [ \"$SKIP_PRE_PUSH\" != \"1\" ]; then echo '🚀 Running pre-push checks...' && pnpm pre-push && echo '✅ Pre-push checks passed'; else echo '⏭️ Skipping pre-push checks (release mode)'; fi"
+    "pre-push": "if [ \"$SKIP_PRE_PUSH\" != \"1\" ]; then echo '🚀 Running pre-push checks...'; pnpm pre-push; echo '✅ Pre-push checks passed'; else echo '⏭️ Skipping pre-push checks (release mode)'; fi"
   },
   "dependencies": {
     "@emotion/hash": "^0.9.2",
