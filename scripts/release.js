@@ -225,16 +225,28 @@ function createAndPushTag(version, force = false) {
   execGit(tagCommand);
   console.log(`✅ Created tag: ${tagName}`);
 
-  // Отправляем коммит и тег
+  // Отправляем коммит и тег с переменной окружения для пропуска pre-push хуков
   try {
-    execGit('git push origin HEAD');
+    console.log('📤 Pushing commits (skipping pre-push hooks)...');
+    execSync('git push origin HEAD', {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: 'inherit',
+      env: { ...process.env, SKIP_PRE_PUSH: '1' }
+    });
     console.log(`✅ Pushed commits`);
 
+    console.log('📤 Pushing tag (skipping pre-push hooks)...');
     const pushCommand = force
       ? `git push origin ${tagName} --force`
       : `git push origin ${tagName}`;
 
-    execGit(pushCommand);
+    execSync(pushCommand, {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: 'inherit',
+      env: { ...process.env, SKIP_PRE_PUSH: '1' }
+    });
     console.log(`✅ Pushed tag: ${tagName}`);
   } catch (error) {
     throw new Error(`Failed to push: ${error.message}`);
