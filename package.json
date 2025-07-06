@@ -38,7 +38,8 @@
     "version:release:minor": "node scripts/release.js minor",
     "version:release:major": "node scripts/release.js major",
     "version:release:prerelease": "node scripts/release.js prerelease",
-    "changelog:preview": "npx changelogithub --dry"
+    "changelog:preview": "npx changelogithub --dry",
+    "sort-package-json": "npx sort-package-json"
   },
   "dependencies": {
     "@emotion/hash": "^0.9.2",
