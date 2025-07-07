@@ -1,0 +1,114 @@
+name: Mirror Repository
+
+on:
+  schedule:
+    # Runs every day at 2:00 AM Moscow time (23:00 UTC)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    name: Mirror to external repositories
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+
+    - name: Mirror to GitLab
+      env:
+        GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        GITLAB_REPO_URL: ${{ secrets.GITLAB_REPO_URL }}
+      run: |
+        if [ -n "$GITLAB_TOKEN" ] && [ -n "$GITLAB_REPO_URL" ]; then
+          echo "🔄 Mirroring to GitLab..."
+
+          # Create GitLab URL with token
+          GITLAB_URL_WITH_TOKEN=$(echo "$GITLAB_REPO_URL" | sed "s|https://|https://oauth2:$GITLAB_TOKEN@|")
+
+          # Add GitLab remote
+          git remote add gitlab "$GITLAB_URL_WITH_TOKEN" || git remote set-url gitlab "$GITLAB_URL_WITH_TOKEN"
+
+          # Push all branches and tags
+          git push gitlab --all --force
+          git push gitlab --tags --force
+
+          echo "✅ Successfully mirrored to GitLab"
+        else
+          echo "⚠️ GitLab credentials not configured, skipping..."
+        fi
+
+    - name: Mirror to SourceCraft
+      env:
+        SOURCECRAFT_TOKEN: ${{ secrets.SOURCECRAFT_TOKEN }}
+        SOURCECRAFT_REPO_URL: ${{ secrets.SOURCECRAFT_REPO_URL }}
+      run: |
+        if [ -n "$SOURCECRAFT_TOKEN" ] && [ -n "$SOURCECRAFT_REPO_URL" ]; then
+          echo "🔄 Mirroring to SourceCraft..."
+
+          # Create SourceCraft URL with token
+          SOURCECRAFT_URL_WITH_TOKEN=$(echo "$SOURCECRAFT_REPO_URL" | sed "s|https://|https://oauth2:$SOURCECRAFT_TOKEN@|")
+
+          # Add SourceCraft remote
+          git remote add sourcecraft "$SOURCECRAFT_URL_WITH_TOKEN" || git remote set-url sourcecraft "$SOURCECRAFT_URL_WITH_TOKEN"
+
+          # Push all branches and tags
+          git push sourcecraft --all --force
+          git push sourcecraft --tags --force
+
+          echo "✅ Successfully mirrored to SourceCraft"
+        else
+          echo "⚠️ SourceCraft credentials not configured, skipping..."
+        fi
+
+    - name: Mirror to GitVerse
+      env:
+        GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        GITVERSE_REPO_URL: ${{ secrets.GITVERSE_REPO_URL }}
+      run: |
+        if [ -n "$GITVERSE_TOKEN" ] && [ -n "$GITVERSE_REPO_URL" ]; then
+          echo "🔄 Mirroring to GitVerse..."
+
+          # Create GitVerse URL with token
+          GITVERSE_URL_WITH_TOKEN=$(echo "$GITVERSE_REPO_URL" | sed "s|https://|https://oauth2:$GITVERSE_TOKEN@|")
+
+          # Add GitVerse remote
+          git remote add gitverse "$GITVERSE_URL_WITH_TOKEN" || git remote set-url gitverse "$GITVERSE_URL_WITH_TOKEN"
+
+          # Push all branches and tags
+          git push gitverse --all --force
+          git push gitverse --tags --force
+
+          echo "✅ Successfully mirrored to GitVerse"
+        else
+          echo "⚠️ GitVerse credentials not configured, skipping..."
+        fi
+
+    - name: Clean up remotes
+      run: |
+        echo "🧹 Cleaning up remotes..."
+        git remote remove gitlab || true
+        git remote remove sourcecraft || true
+        git remote remove gitverse || true
+        echo "✅ Cleanup completed"
+
+    - name: Summary
+      run: |
+        echo "📊 Mirror Summary:"
+        echo "- Repository: ${{ github.repository }}"
+        echo "- Triggered: $(date)"
+        echo "- Status: Completed"
+        echo ""
+        echo "🔗 Mirrored to:"
+        [ -n "${{ secrets.GITLAB_REPO_URL }}" ] && echo "  - GitLab: ${{ secrets.GITLAB_REPO_URL }}"
+        [ -n "${{ secrets.SOURCECRAFT_REPO_URL }}" ] && echo "  - SourceCraft: ${{ secrets.SOURCECRAFT_REPO_URL }}"
+        [ -n "${{ secrets.GITVERSE_REPO_URL }}" ] && echo "  - GitVerse: ${{ secrets.GITVERSE_REPO_URL }}"
